@@ -6,8 +6,10 @@
 
 从项目 [Releases](https://github.com/shian493719730-art/relay-agent-studio/releases) 下载匹配系统和架构的包，核对该版本说明中的验证范围。
 
+当前以 macOS、Linux 为维护和发布验收范围。Windows 不作为必须满足的兼容、测试或发版条件；历史附件与构建配置仅供实验性参考，不承诺完整支持。见[平台范围](PLATFORMS.md)。
+
 - macOS：打开 DMG，把 Relay 拖到 Applications；也可解压对应 ZIP 后打开 Relay.app。Apple Silicon 选 arm64，Intel 选 x64。
-- Windows：使用 setup.exe 安装，或使用 portable.exe；退出后再替换或升级。
+- Windows（实验性历史附件）：可自行尝试 setup.exe 或 portable.exe，退出后再替换；后续不默认构建，不要求满足当前验收。
 - Linux：使用 AppImage，或解压 tar.gz 后运行其中的 relay-agent-studio。运行依赖取决于发行版的桌面环境，按实际发布验证记录判断支持范围。
 
 当前社区构建没有 Developer ID 公证或 Windows 商业签名证书。下载首次运行可能被系统要求核验发布者；应由用户在操作系统正常界面核对来源并处理，软件不会关闭或绕过系统安全保护。
@@ -21,7 +23,7 @@
 | 系统 | 默认数据位置 |
 | --- | --- |
 | macOS | ~/Library/Application Support/Relay Agent Studio |
-| Windows | %APPDATA%/Relay Agent Studio |
+| Windows（实验性） | %APPDATA%/Relay Agent Studio |
 | Linux | Electron 为当前桌面环境确定的 appData 目录下 /Relay Agent Studio，通常是 ~/.config/Relay Agent Studio |
 
 其中 service 保存模型连接、文件正文和执行记录，浏览器存储保存画板、草稿、文件缓存和编辑历史，logs 保存本机服务日志。API 密钥仍为本机服务端文件存储，不是加密保险箱；备份不能公开分享。
@@ -53,4 +55,4 @@ npm run desktop:pack    # 生成未压缩应用目录
 npm run desktop:dist    # 生成当前平台安装/分发包
 ```
 
-产物在 desktop-release/。维护者可使用 Desktop packages 工作流构建 macOS、Windows、Linux 包；构建成功与真实界面验收分开记录。打包后的检查使用 desktop:smoke，验证服务隔离、原版画板、随包源码和真实 PDF 解析进程，不调用模型。
+产物在 desktop-release/。Desktop packages 默认构建和检查 macOS、Linux；Windows 配置保留供自愿贡献者在对应环境自行试编译，不作为发布门槛。构建成功与真实界面验收分开记录。打包后的检查使用 desktop:smoke，验证服务隔离、原版画板、随包源码和真实 PDF 解析进程，不调用模型。

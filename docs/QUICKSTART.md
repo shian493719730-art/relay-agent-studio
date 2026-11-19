@@ -8,7 +8,7 @@
 
 - Node.js 24 或更高版本，npm；Python 3，并确认 `python3 --version` 可执行。
 - 普通画板使用现代桌面浏览器。Playwright 可视模式还需本机 Google Chrome；安装依赖并不自动安装 Chrome。
-- 当前实际验证平台为 macOS。仓库 CI 覆盖计划包含 Linux、macOS、Windows；桌面应用适配器 Auth Relay / Snapper 只面向 macOS。
+- 当前主要实机验证平台为 macOS；macOS、Linux 的自动测试和打包检查已完成。默认 CI 和发布验收只要求这两者；Windows 仅为实验性参考，不承诺兼容、不阻塞发布。详见[平台范围](PLATFORMS.md)。桌面应用适配器 Auth Relay / Snapper 只面向 macOS。
 
 ```bash
 npm ci

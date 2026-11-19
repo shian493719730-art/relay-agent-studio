@@ -27,7 +27,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        # Windows can be built manually; it must not block supported releases.
+        os: [macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     env:
@@ -51,8 +52,6 @@ jobs:
           if [[ "$RUNNER_OS" == "macOS" ]]; then
             APP=$(find desktop-release -maxdepth 2 -name Relay.app -type d | head -n 1)
             npm run desktop:smoke -- "$APP/Contents/MacOS/Relay" "$APP/Contents/Resources/app"
-          elif [[ "$RUNNER_OS" == "Windows" ]]; then
-            npm run desktop:smoke -- desktop-release/win-unpacked/Relay.exe desktop-release/win-unpacked/resources/app
           else
             npm run desktop:smoke -- desktop-release/linux-unpacked/relay-agent-studio desktop-release/linux-unpacked/resources/app
           fi
@@ -65,7 +64,6 @@ jobs:
           path: |
             desktop-release/*.dmg
             desktop-release/*.zip
-            desktop-release/*.exe
             desktop-release/*.AppImage
             desktop-release/*.tar.gz
   release:

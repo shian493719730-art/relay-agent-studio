@@ -50,6 +50,8 @@ This recording demonstrates local UI and tutorial behavior, not a paid autonomou
 
 Choose a matching build from [Releases](https://github.com/shian493719730-art/relay-agent-studio/releases). Desktop packages include their runtime; end users do not need Node, Python or Codex. App updates preserve a separate user-data directory. See [installation and backups](docs/DESKTOP.md) and [license/brand terms](docs/LICENSING.md). Community builds are not notarized or commercially signed; review each release’s platform validation.
 
+**Current maintenance and release acceptance cover macOS and Linux. Windows configuration and historical binaries are experimental references: Windows compatibility, tests and packaging are not required and do not block releases.** macOS has hands-on UI verification; full Linux desktop interaction still needs real-machine validation. See [platform scope and evidence](docs/PLATFORMS.md).
+
 ## Run from source
 
 Install **Node.js 24+, npm, and Python 3** (`python3` on PATH).
@@ -84,7 +86,7 @@ npm run build
 npm run check:public
 ```
 
-GitHub Actions passed clean installation, typechecking, 155 offline tests and production builds on Linux, macOS and Windows. [Verified run](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44613036309). Providers are mocked in tests; this does not verify every native integration or real-provider workflow on every platform. See [Contributing](CONTRIBUTING.md), [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md) and [Security](SECURITY.md). Detailed guides currently include Chinese text; documentation translations are welcome.
+Version 0.2.0-alpha.1 passed **162 offline tests**, typechecking and production builds: [CI evidence](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44621833495), [packaged-backend verification](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44621833474). Default CI and automated packaging now require only macOS and Linux; Windows does not gate acceptance or publication. Providers are mocked in tests; complete native UI and real-provider acceptance remain separate. [Platform scope](docs/PLATFORMS.md) also records historical failures and their fixes. See [Contributing](CONTRIBUTING.md), [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md) and [Security](SECURITY.md). Detailed guides currently include Chinese text; documentation translations are welcome.
 
 Local single-user only: desktop distribution and source installs are available; no hosted service or multi-user access control yet. Keys are local server-side files, not an encrypted vault. Selected task/file content is sent to configured providers. See [Privacy](docs/PRIVACY.md).
 

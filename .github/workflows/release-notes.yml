@@ -1,0 +1,41 @@
+name: Release notes
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/releases/*.md'
+      - '.github/workflows/release-notes.yml'
+permissions:
+  contents: read
+concurrency:
+  group: release-notes-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  update:
+    if: github.repository == 'shian493719730-art/relay-agent-studio'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Update published notes without replacing tags or assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r NOTES; do
+            TAG="v$(basename "$NOTES" .md)"
+            if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.-]+)?$ ]]; then
+              continue
+            fi
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              gh release edit "$TAG" --notes-file "$NOTES"
+              echo "Updated $TAG notes; tag and binaries unchanged."
+            else
+              echo "$TAG is not published; keeping its notes ready in the repository."
+            fi
+          done < <(git diff --name-only --diff-filter=AM "$BEFORE" "$GITHUB_SHA" -- 'docs/releases/*.md')

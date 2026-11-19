@@ -62,6 +62,8 @@ Relay 面向习惯用自然语言与 AI 一起解决问题、也愿意亲手调�
 
 从 [Releases](https://github.com/shian493719730-art/relay-agent-studio/releases) 下载适合系统与架构的包，安装后直接打开 Relay。无需安装 Node、Python 或 Codex；数据存放在独立用户目录，升级不覆盖已有项目。桌面版在应用运行时自动进行每周 GitHub 资源检查，可暂停并手动刷新。
 
+**当前维护与验收范围为 macOS、Linux。Windows 仅保留实验性配置和历史附件，不作为兼容、CI 或发版的必需条件，也不承诺完整支持。** macOS 主要实机验证，Linux 完整交互仍待实机补验；[平台与验证范围](docs/PLATFORMS.md) 区分自动检查和人工验收。
+
 [本地安装、数据备份与更新 →](docs/DESKTOP.md) · [AGPL 许可与品牌规则 →](docs/LICENSING.md)
 
 ## 从源码开始
@@ -111,7 +113,7 @@ npm run build      # 生成沉浸式画板并构建 Web 资源
 npm run check:public
 ```
 
-Linux、macOS、Windows 的 GitHub Actions 已完成干净安装、类型检查、**155 项离线测试**与生产构建；见 [验证记录](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44613036309)。自动化检查不等同于各平台全部原生应用与真实供应商验收。浏览器首次可视操作需要本机 Chrome；普通画板不需要 Playwright 浏览器安装。
+0.2.0-alpha.1 已通过 **162 项离线测试**、类型检查和生产构建，[CI](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44621833495) 与 [实际打包后检查](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44621833474) 均有记录。后续默认 CI 和自动打包只要求 macOS、Linux，Windows 不阻塞验收或发布。自动化检查不等同于完整原生界面或真实供应商验收；历史报错、修复与平台边界见 [验证说明](docs/PLATFORMS.md)。浏览器首次可视操作需要本机 Chrome；普通画板不需要 Playwright 浏览器安装。
 
 欢迎提交复现清楚的 Bug、交互改进和新的连接适配器。开始前请阅读 [贡献指南](CONTRIBUTING.md)、[架构](docs/ARCHITECTURE.md)、[安全说明](SECURITY.md) 和 [行为准则](CODE_OF_CONDUCT.md)。我们尤其需要跨平台验证、无障碍、文件处理和协作恢复方面的贡献。
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Clarify macOS/Linux as the required maintenance, CI and desktop release scope. Windows is experimental, optional and no longer blocks publication.
+- Recheck historical PDF-path and implicit-publishing failures against successful follow-up runs; update stale 155-test and planned-CI documentation to the actual 162-test desktop baseline.
+- Sync edited release notes without replacing published tags or binaries.
+
 ## 0.2.0-alpha.1 — Local desktop distribution
 
 - Added a desktop shell with bundled runtime, a stable workspace origin and separate persistent user data.

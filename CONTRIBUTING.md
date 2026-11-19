@@ -6,6 +6,8 @@
 
 Node.js 24+、npm、Python 3。`npm ci`，`npm run build`，`npm start`，打开 `/design-v2/`。`npm test` 使用模拟供应商；默认不要引入任何真实收费调用。可视浏览器测试另需 Chrome。
 
+当前维护和必需验收平台是 macOS、Linux。Windows 只保留实验性参考，不要求贡献者补齐 Windows 兼容或测试，不因其阻塞发布；自愿适配欢迎单独提交。自动检查与实机验证的区别见[平台范围](docs/PLATFORMS.md)。
+
 ## 提交前
 
 ```bash

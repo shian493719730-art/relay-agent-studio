@@ -28,7 +28,7 @@ async function vrPulse(){
    d=await vrApi('heartbeat',{state:vrState(),history:{undo:undoS,redo:redoS},ack,commandAck:VR.command,viewport:{width:innerWidth,height:innerHeight}});
    const ids=state.files.filter(f=>!VR.sent.has(f.id)).map(f=>f.id);if(ids.length){await vrSendFiles(ids);ids.forEach(id=>VR.sent.add(id))}
   }else{d=await vrApi('status');if(d.revision>VR.revision){const frame=await vrApi('pull');await vrGetFiles(frame.files.filter(id=>!VR.received.has(id)),frame.state.files);frame.files.forEach(id=>VR.received.add(id));const controlBox=state.prefs.windowBoxes?.['visual-control'];state=StudioModel.prepare(WorkspaceModel.prepare(frame.state));if(controlBox)state.prefs.windowBoxes['visual-control']=controlBox;undoS=frame.history.undo;redoS=frame.history.redo;if(editHistoryReady)historyAcceptFrame();AS.draft=state.assistantVisualDraft||'';AS.current=state.assistantSessions?.at(-1)?.id;VR.revision=d.revision;localStorage.setItem(KEY,JSON.stringify(state));renderAll();renderGuide()}}VR.status=d;VR.error='';vrRender();
-  if(VR.target&&d.command&&VR.command!==d.command.id){VR.command=d.command.id;void vrCommand(d.command,d.epoch).catch(e=>{VR.error=e.message;vrRender()})}
+  if(VR.target&&d.command&&!VR.processing&&VR.command!==d.command.id){const command=d.command;VR.processing=command.id;void vrCommand(command,d.epoch).catch(e=>{VR.error=e.message;vrRender()}).finally(()=>{VR.command=command.id;VR.processing=null})}
   if(!VR.target&&VR.preview&&!VR.frameBusy){VR.frameBusy=true;void vrApi('frame').then(d=>{VR.frame=d.frame;vrRender()}).catch(()=>{}).finally(()=>VR.frameBusy=false)}
  }catch(e){VR.error=e.message;if(VR.target)asPause();vrRender()}finally{VR.pulsing=false}
 }

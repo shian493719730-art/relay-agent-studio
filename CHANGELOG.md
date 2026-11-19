@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0-alpha.3
+
+- 修复可视窗口中未确认的新要求被继续命令覆盖，以及异步命令交叠；按实际完成顺序确认。新增两项回归用例（173项离线测试）。
+
 ## Unreleased
 
 - Clarify macOS/Linux as the required maintenance, CI and desktop release scope. Windows is experimental, optional and no longer blocks publication.

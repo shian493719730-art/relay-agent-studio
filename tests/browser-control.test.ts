@@ -46,3 +46,14 @@ test('manual changes to a pending demo step preserve completed work and invalida
  const done={id:'s1',name:'project.create',status:'done',result:{projectId:'actual'}},note={id:'s2',name:'note.create',status:'paused',args:{projectId:'actual',text:'old'},checkpoint:{nativeReceipts:{fill:true}}},s={visualDemo:true,steps:[done,note]};core.editDemoNote(s,'手动改成新的要求');assert.equal(done.result.projectId,'actual');assert.equal(note.args.projectId,'actual');assert.equal(note.args.text,'手动改成新的要求');assert.equal(note.checkpoint,undefined);note.status='done';assert.throws(()=>core.editDemoNote(s,'do not overwrite completed'),/已完成/);
  assert.equal(core.key('type','#name'),core.key('type','#name'));assert.notEqual(core.key('type','#name'),core.key('blur','#name'));
 });
+
+test('an unacknowledged correction cannot be silently replaced by continue',async()=>{
+ const f=await fixture();const edit:any=await f.action('command',{name:'edit-demo-note',text:'preserve this correction'});
+ await assert.rejects(()=>f.action('command',{name:'continue'}),/尚未确认/);assert.equal((f.control.status() as any).command.text,'preserve this correction');
+ await f.action('heartbeat',{state,history,ack:0,commandAck:edit.command.id});const next:any=await f.action('command',{name:'continue'});assert.equal(next.command.name,'continue');
+});
+test('actual browser command dispatch waits for the running correction and acknowledges only after it settles',async()=>{
+ const source=await fs.readFile(new URL('../src/prototype/browser-control.js',import.meta.url),'utf8');const VR:any={session:{},target:true,sent:new Set(),pending:0,revision:0};let command:any={id:'edit',name:'edit-demo-note'},finish!:()=>void;const seen:string[]=[],acks:any[]=[];
+ const pulse=vm.runInNewContext(source.slice(source.indexOf('async function vrPulse('),source.indexOf('\nfunction vrStartPolling('))+';vrPulse',{VR,AS:{ac:null},state:{files:[]},undoS:[],redoS:[],innerWidth:1280,innerHeight:820,vrState:()=>({}),asPause(){},vrRender(){},vrApi:async(action:string,data:any)=>{if(action==='heartbeat')acks.push(data.commandAck);return{status:'human',epoch:1,command};},vrCommand:async(c:any)=>{seen.push(c.name);if(c.id==='edit')await new Promise<void>(r=>finish=r)}});
+ await pulse();assert.deepEqual(seen,['edit-demo-note']);assert.equal(VR.command,undefined);command={id:'continue',name:'continue'};await pulse();assert.deepEqual(seen,['edit-demo-note']);assert.ok(acks.every(x=>x===undefined));finish();await new Promise(r=>setTimeout(r,0));assert.equal(VR.command,'edit');await pulse();assert.deepEqual(seen,['edit-demo-note','continue']);assert.equal(acks.at(-1),'edit');
+});

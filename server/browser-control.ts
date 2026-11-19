@@ -51,7 +51,7 @@ export class BrowserControl{
    if((d.name==='demo'||d.name==='edit-demo-note')&&!s.localOnly)throw new BrowserControlError('此窗口不是本地演练');
    if(d.name==='steer'&&s.localOnly)throw new BrowserControlError('本地演练不分析开放式目标；可以直接修改未执行说明笔记');
    if(['steer','edit-demo-note'].includes(d.name)&&!d.text)throw new BrowserControlError('请先写下修改内容');
-   if(!s.ready)throw new BrowserControlError('工作窗口尚未就绪，请稍候');s.command={id:randomUUID(),...d};return this.status(s);
+   if(!s.ready)throw new BrowserControlError('工作窗口尚未就绪，请稍候');if(s.command)throw new BrowserControlError('上一条操作尚未确认，请稍候再继续',409);s.command={id:randomUUID(),...d};return this.status(s);
   }
   if(input.action==='frame'){
    if(!s.busy&&s.client){s.busy=true;s.frameTask=(async()=>{try{const r=await s.client!.callTool({name:'browser_take_screenshot',arguments:{type:'jpeg'}});const img=r.content?.find((c:any)=>c.type==='image');if(img)s.frame='data:'+img.mimeType+';base64,'+img.data;}finally{s.busy=false;s.frameTask=undefined}})();await s.frameTask}

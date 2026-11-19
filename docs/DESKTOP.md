@@ -56,3 +56,7 @@ npm run desktop:dist    # 生成当前平台安装/分发包
 ```
 
 产物在 desktop-release/。Desktop packages 默认构建和检查 macOS、Linux；Windows 配置保留供自愿贡献者在对应环境自行试编译，不作为发布门槛。构建成功与真实界面验收分开记录。打包后的检查使用 desktop:smoke，验证服务隔离、原版画板、随包源码和真实 PDF 解析进程，不调用模型。
+
+## 无需开发环境的源码练习
+
+安装后打开「新手教程 → 人人都能自开发」，通过内置 Node 对独立的本地练习文件实际读、改、测和回滚，不需要 Git/npm、API 或依赖下载。接自己的仓库仍需 Git 与该项目开发环境；课程不会自动修改应用安装文件或启动收费模型。见[源码课程](SELF_DEVELOPMENT.md)。

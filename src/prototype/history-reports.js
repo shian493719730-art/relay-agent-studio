@@ -54,7 +54,7 @@ const HistoryCore={
  target(stack,current){const sig=this.signature(current);for(let i=stack.length-1;i>=0;i--)try{if(this.signature(stack[i])!==sig)return i}catch{}return-1},
  trim(undo,redo,limit=1600000){while(undo.length+redo.length>1&&(undo.length+redo.length>80||JSON.stringify({undo,redo}).length>limit)){if(undo.length>1)undo.shift();else redo.shift()}},
  resumedSnapshot(snapshot,current){
-  const o=JSON.parse(snapshot);o.activityLog=current.activityLog;o.activityVisits=current.activityVisits;o.assistantSessions=current.assistantSessions;o.tutorial=current.tutorial;o.featureTour=current.featureTour;
+  const o=JSON.parse(snapshot);o.activityLog=current.activityLog;o.activityVisits=current.activityVisits;o.assistantSessions=current.assistantSessions;o.tutorial=current.tutorial;o.featureTour=current.featureTour;o.developmentTutorial=current.developmentTutorial;
   // Navigation is not an edit. Stay on the same canvas/room when it survives.
   if(o.boards.some(b=>b.id===current.activeBoard)){o.activeBoard=current.activeBoard;o.room=o.projects.some(p=>p.id===current.room)?current.room:null;o.sel=o.projects.some(p=>p.id===current.sel)||o.links.some(l=>l.id===current.sel)?current.sel:null;for(const b of o.boards){const now=current.boards.find(x=>x.id===b.id);if(now)b.view=now.view}}
   for(const p of o.projects)for(const m of [p.coordinator,...p.members])if(!current.projects.some(q=>[q.coordinator,...q.members].some(n=>n.id===m.id)))if(['think','queue','tool','stream','running'].includes(m.st))m.st='paused';

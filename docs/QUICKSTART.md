@@ -53,3 +53,7 @@ npm start
 ## 本地开发
 
 `npm run dev` 启动开发服务；修改 `src/prototype` 后运行 `npm run build` 重新组装主画板。生产入口为 `/design-v2/`；根路径的 React 工作台是早期入口，不等同于新画板。`npm test` 使用模拟供应商，不要求实际 API 密钥。
+
+## 从零学会自开发
+
+在 App 的「新手教程」选择「人人都能自开发」。8步使用真实本地文件和内置 Node 测试，不需要模型或 Git/npm。跟随编号箭头亲手读取、保存、看测试退出码、检查差异并回滚；之后可选择「连接自己的源码」。[完整说明](SELF_DEVELOPMENT.md)。

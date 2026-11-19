@@ -53,6 +53,8 @@ for name, begin, end in [
     ('tutorial-editing.js', '/* TUTORIAL_EDITING_START */', '/* TUTORIAL_EDITING_END */'),
     ('history-reports.css', '/* HISTORY_REPORTS_CSS_START */', '/* HISTORY_REPORTS_CSS_END */'),
     ('tutorial-pointer.js', '/* TUTORIAL_POINTER_START */', '/* TUTORIAL_POINTER_END */'),
+    ('source-tutorial.js', '/* SOURCE_TUTORIAL_START */', '/* SOURCE_TUTORIAL_END */'),
+    ('source-tutorial.css', '/* SOURCE_TUTORIAL_CSS_START */', '/* SOURCE_TUTORIAL_CSS_END */'),
     ('workspace-editor.css', '/* WORKSPACE_EDITOR_CSS_START */', '/* WORKSPACE_EDITOR_CSS_END */'),
 ]:
     module=root/'src/prototype'/name

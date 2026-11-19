@@ -89,8 +89,12 @@ npm run build
 npm run check:public
 ```
 
-The suite contains **173 offline tests**, including actual source edits, conflicts, rollback and real check-process termination. Per-commit results are recorded in [CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml) and [packaged-backend verification](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/desktop.yml). Default CI and packaging require only macOS and Linux; Windows does not gate publication. Providers are mocked; native UI and paid-provider acceptance remain separate. [Platform scope](docs/PLATFORMS.md) records historical failures and fixes. See [Contributing](CONTRIBUTING.md), [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md) and [Security](SECURITY.md). Detailed guides currently include Chinese text; translations are welcome.
+The suite contains **178 offline tests**, including actual source edits, conflicts, rollback and real check-process termination. Per-commit results are recorded in [CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml) and [packaged-backend verification](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/desktop.yml). Default CI and packaging require only macOS and Linux; Windows does not gate publication. Providers are mocked; native UI and paid-provider acceptance remain separate. [Platform scope](docs/PLATFORMS.md) records historical failures and fixes. See [Contributing](CONTRIBUTING.md), [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md) and [Security](SECURITY.md). Detailed guides currently include Chinese text; translations are welcome.
 
 Local single-user only: desktop distribution and source installs are available; no hosted service or multi-user access control yet. Keys are local server-side files, not an encrypted vault. Selected task/file content is sent to configured providers. See [Privacy](docs/PRIVACY.md).
 
 AGPL-3.0-only for this version’s original project code and guides; historical MIT releases retain their grants. External Skills, dependencies and trademarks retain their own terms. [Third-party notices](THIRD_PARTY_NOTICES.md).
+
+### Source development for everyone
+
+Open **Tutorial → Source self-development** for an eight-step, offline lesson with real files, edits, test exit codes, diffs and rollback. The desktop lesson uses its bundled Node runtime, with no Git/npm installation, API key or dependency downloads. A deliberately unmet welcome-text assertion passes after your edit and fails again after rollback; the lesson verifies both outcomes. Then connect your own Git repository and explicitly review its check scripts. [Source development guide](docs/SELF_DEVELOPMENT.md).

@@ -15,6 +15,7 @@ on:
       - 'LICENSE'
       - 'NOTICE.md'
       - 'TRADEMARKS.md'
+      - 'docs/releases/**'
       - '.github/workflows/desktop.yml'
 permissions:
   contents: read
@@ -67,3 +68,34 @@ jobs:
             desktop-release/*.exe
             desktop-release/*.AppImage
             desktop-release/*.tar.gz
+  release:
+    needs: package
+    if: github.repository == 'shian493719730-art/relay-agent-studio' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: Relay-desktop-*
+          path: desktop-assets
+          merge-multiple: true
+      - name: Publish a new version only after all packaged checks pass
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Version $TAG already exists; refusing to overwrite its tag or binaries."
+            exit 0
+          fi
+          test -f "docs/releases/$VERSION.md"
+          git archive --format=zip --prefix=Relay-source/ --output="desktop-assets/Relay-$VERSION-source.zip" HEAD
+          (cd desktop-assets && sha256sum * > SHA256SUMS.txt)
+          gh release create "$TAG" --target "$GITHUB_SHA" --draft --prerelease --title "Relay $VERSION · 本地桌面版" --notes-file "docs/releases/$VERSION.md"
+          gh release upload "$TAG" desktop-assets/*
+          gh release edit "$TAG" --draft=false --prerelease

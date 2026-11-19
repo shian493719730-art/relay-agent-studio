@@ -13,8 +13,8 @@
     "check:public": "node scripts/check-public.mjs",
     "desktop:prepare": "npm run build && node scripts/build-desktop.mjs",
     "desktop:dev": "npm run desktop:install-runtime && npm run desktop:prepare && electron .",
-    "desktop:pack": "npm run desktop:install-runtime && npm run desktop:prepare && electron-builder --dir",
-    "desktop:dist": "npm run desktop:install-runtime && npm run desktop:prepare && electron-builder",
+    "desktop:pack": "npm run desktop:install-runtime && npm run desktop:prepare && electron-builder --dir --publish never",
+    "desktop:dist": "npm run desktop:install-runtime && npm run desktop:prepare && electron-builder --publish never",
     "desktop:smoke": "node --import tsx scripts/desktop-smoke.mjs",
     "desktop:install-runtime": "node node_modules/electron/install.js"
   },

@@ -1,0 +1,12 @@
+export type Provider = 'openai' | 'anthropic';
+export type Stage = 'plan' | 'work' | 'final';
+export type AgentConfig = { id: string; name: string; role: Stage; provider: Provider; model: string; instructions: string; connectionId?:string; connectionRevision?:string };
+export type Settings = { agents: AgentConfig[]; maxOutputTokens: number; maxTurns: number };
+export type Connection = { provider: Provider; configured: boolean; status: 'configured' | 'connected' | 'error' | 'missing'; models: string[]; error?: string; checkedAt?: string };
+export type RunStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled' | 'interrupted';
+export type Step = { id: string; agent: AgentConfig; status: 'waiting' | 'running' | 'completed' | 'failed' | 'cancelled'; text: string; error?: string; inputTokens: number; outputTokens: number; startedAt?: string; finishedAt?: string };
+export type RunEvent = { id: number; time: string; type: string; message: string; agentId?: string; detail?: string };
+export type TaskRun = { id: string; title: string; prompt: string; context: string; mode: 'collaborate' | 'compare'; status: RunStatus; createdAt: string; finishedAt?: string; settings: Settings; steps: Step[]; events: RunEvent[]; result: string; error?: string };
+export type RunSummary = Pick<TaskRun, 'id' | 'title' | 'status' | 'createdAt' | 'finishedAt'> & { tokens: number };
+export type Artifact = { name: string; size: number };
+export type Bootstrap = { settings: Settings; connections: Connection[]; runs: RunSummary[] };

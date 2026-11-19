@@ -1,0 +1,18 @@
+{
+ "anthropics/skills:skills/docx":{"title":"Word 文档制作与编辑","description":"围绕 Word 文件的创建、编辑与检查查阅具体方法。","tags":["Word","docx","文档","报告","办公"]},
+ "anthropics/skills:skills/xlsx":{"title":"Excel 表格与数据处理","description":"表格、公式与电子表格文件的专项 Skill。","tags":["Excel","xlsx","表格","数据","报表","办公"]},
+ "anthropics/skills:skills/pptx":{"title":"演示文稿与幻灯片","description":"制作、编辑与检查 PowerPoint 演示文稿的方法。","tags":["PowerPoint","PPT","pptx","演示","汇报","办公"]},
+ "anthropics/skills:skills/pdf":{"title":"PDF 文件处理","description":"PDF 文档读取、生成与处理的专项 Skill。","tags":["PDF","合同","文档","办公"]},
+ "anthropics/skills:skills/frontend-design":{"title":"前端界面设计","description":"为网页与应用界面设计提供可阅读的方法指南。","tags":["前端","界面","网页","UI","设计","frontend"]},
+ "anthropics/skills:skills/webapp-testing":{"title":"Web 应用交互测试","description":"围绕实际网页行为进行交互检查；运行需要对应浏览器工具。","tags":["测试","浏览器","Playwright","前端","验收","test"]},
+ "anthropics/skills:skills/mcp-builder":{"title":"MCP 工具服务构建","description":"MCP 服务和工具接口的构建指南。","tags":["MCP","工具","接口","开发","API"]},
+ "anthropics/skills:skills/internal-comms":{"title":"内部沟通与办公写作","description":"面向内部沟通文稿的写作方法。","tags":["周报","邮件","内部沟通","写作","汇报","办公"]},
+ "obra/superpowers:skills/systematic-debugging":{"title":"系统化排查问题","description":"将复现、证据和根因调查放在修复之前。","tags":["Bug","调试","修复","排查","debugging","开发"]},
+ "obra/superpowers:skills/test-driven-development":{"title":"测试驱动开发","description":"测试驱动的开发方法；是否适用由当前任务决定。","tags":["测试","TDD","代码","开发","test"]},
+ "obra/superpowers:skills/verification-before-completion":{"title":"交付前验证","description":"根据可观察证据检查结果，避免只凭实现就宣告完成。","tags":["验收","验证","开发","交付","verification"]},
+ "obra/superpowers:skills/writing-plans":{"title":"实现计划与工作拆解","description":"将已明确的开发目标组织成可执行步骤。","tags":["计划","需求","开发","工作流","planning"]},
+ "obra/superpowers:skills/brainstorming":{"title":"想法澄清与方案探索","description":"在实现之前梳理问题与候选方案；不强制覆盖用户已确定的设计。","tags":["需求","产品","创意","设计","brainstorming"]},
+ "supabase/agent-skills:skills/supabase-postgres-best-practices":{"title":"PostgreSQL 数据库实践","description":"PostgreSQL 数据库相关实践指南。","tags":["数据库","SQL","Postgres","Supabase","数据","开发"]},
+ "K-Dense-AI/scientific-agent-skills:skills/literature-review":{"title":"文献检索与综述","description":"研究问题、文献组织与综述工作的专项方法。","tags":["文献","研究","综述","学术","research"]},
+ "K-Dense-AI/scientific-agent-skills:skills/scientific-writing":{"title":"研究写作","description":"面向研究与学术文稿的写作方法。","tags":["论文","研究","写作","学术","writing"]}
+}

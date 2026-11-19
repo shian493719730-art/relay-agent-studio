@@ -1,0 +1,13 @@
+import JSZip from 'jszip';
+import ExcelJS from 'exceljs';
+export async function docxFixture(text='WORD-CODE-83KF 目标受众：小店主。禁止编造价格。'){
+ const zip=new JSZip();zip.file('[Content_Types].xml','<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+ zip.file('_rels/.rels','<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+ const xml=text.replaceAll('&','&amp;').replaceAll('<','&lt;');zip.file('word/document.xml','<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>'+xml+'</w:t></w:r></w:p><w:tbl><w:tr><w:tc><w:p><w:r><w:t>表格资料：客户类型为门店</w:t></w:r></w:p></w:tc></w:tr></w:tbl></w:body></w:document>');return zip.generateAsync({type:'nodebuffer'});
+}
+export async function xlsxFixture(){const wb=new ExcelJS.Workbook(),sheet=wb.addWorksheet('货运明细');sheet.addRows([['批次','件数','单价'],['EXCEL-49QX',7,13],['第二批',3,17]]);sheet.getCell('D2').value={formula:'B2*C2',result:91};const hidden=wb.addWorksheet('备注',{state:'hidden'});hidden.getCell('A1').value='禁止将缓存公式当作重新计算';return Buffer.from(await wb.xlsx.writeBuffer());}
+export function pdfFixture(text='PDF-CODE-72ZT Delivery window: 9 days. Fictional data only.',pages=1){
+ const objects=['<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids ['+Array.from({length:pages},(_,i)=>(4+i*2)+' 0 R').join(' ')+'] /Count '+pages+' >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'];
+ for(let i=0;i<pages;i++){objects.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents '+(5+i*2)+' 0 R >>');const body='BT /F1 12 Tf 50 700 Td ('+text.replace(/[()\\]/g,'\\$&')+') Tj ET';objects.push('<< /Length '+Buffer.byteLength(body)+' >>\nstream\n'+body+'\nendstream');}
+ let output='%PDF-1.4\n',offsets=[0];objects.forEach((o,i)=>{offsets.push(Buffer.byteLength(output));output+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});const xref=Buffer.byteLength(output);output+='xref\n0 '+(objects.length+1)+'\n0000000000 65535 f \n'+offsets.slice(1).map(n=>String(n).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size '+(objects.length+1)+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF';return Buffer.from(output);
+}

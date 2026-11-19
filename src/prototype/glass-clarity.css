@@ -1,0 +1,54 @@
+/* GLASS_CLARITY_CSS_START */
+:root{--clarity-glass:rgba(250,251,253,.74);--clarity-glass-strong:rgba(255,255,255,.92);--clarity-solid:#FFFFFF;--clarity-blur:saturate(150%) blur(16px);--clarity-edge:color-mix(in srgb,var(--ink) 14%,transparent);--clarity-ink:color-mix(in srgb,var(--ink) 82%,transparent);--clarity-hi:inset 0 1px 0 rgba(255,255,255,.75);--clarity-shadow:0 1px 2px rgba(27,34,48,.08),0 6px 18px rgba(27,34,48,.09);--clarity-shadow-lg:0 2px 6px rgba(27,34,48,.08),0 18px 48px rgba(27,34,48,.16);--clarity-hover:color-mix(in srgb,var(--ink) 7%,transparent);--clarity-sel:color-mix(in srgb,var(--blue) 9%,#fff)}
+.fl{border-width:1.5px;border-color:var(--clarity-ink);box-shadow:var(--clarity-shadow),var(--clarity-hi)}
+#tl,#gb,#tools,#shelf,#tutorial-launcher,#dm-toast{background:var(--clarity-glass);-webkit-backdrop-filter:var(--clarity-blur);backdrop-filter:var(--clarity-blur);border:1.5px solid var(--clarity-ink);box-shadow:var(--clarity-shadow),var(--clarity-hi)}
+#tl,#gb,#tools{border-radius:14px}#shelf{border-radius:16px}
+:is(#tl,#gb,#tools) button{border:1.5px solid transparent;border-radius:9px;background:transparent;font-weight:550}
+:is(#tl,#gb,#tools) button:hover{background:var(--clarity-hover);border-color:transparent}
+:is(#tl,#gb,#tools) button[aria-pressed=true]{background:var(--ink);color:#fff}
+#pan,#guide,#utilities{background:var(--clarity-glass-strong);-webkit-backdrop-filter:var(--clarity-blur);backdrop-filter:var(--clarity-blur);border-color:var(--ink)}
+#pan h3,#guide h3{background:var(--clarity-solid);border-bottom:1px solid var(--clarity-edge);font-weight:700;letter-spacing:.01em}
+#pan :is(input,textarea,select),#utilities :is(input,textarea),#pan .ac{background:var(--clarity-solid)}
+.dm-reader.fl,#tutorial-coach{background:var(--clarity-solid);border-color:var(--ink)}
+#tutorial-coach{border-width:1.5px;box-shadow:var(--clarity-shadow-lg)}
+.dm-reader>header,.tm-head{background:var(--clarity-solid);border-bottom:1px solid var(--clarity-edge)}
+.dm-reader-tools{border-bottom:1px solid var(--line)}.dm-reader article{color:var(--ink)}
+#room .rh{background:var(--clarity-solid);border-bottom:1.5px solid var(--clarity-ink);box-shadow:inset 0 5px 0 var(--c),0 1px 8px rgba(27,34,48,.06)}
+#cmp,.comp{border-top:1.5px solid var(--clarity-ink);box-shadow:0 -1px 8px rgba(27,34,48,.05)}.det{border-left-width:1.5px}
+#skillbook,#model-connect,#tutorial-home{border:1.5px solid var(--ink);box-shadow:var(--clarity-shadow-lg)}
+.sb-head,.mc-head,.mc-tabs{border-bottom:1px solid var(--clarity-edge)}
+dialog::backdrop{background:rgba(27,34,48,.30);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+@media(min-width:681px){#pan.cl-boards{width:380px}}
+.cl-board-count{margin:0 0 6px;font-size:12px;font-weight:600;color:var(--mute)}
+.cl-board-list{display:flex;flex-direction:column;gap:2px;max-height:min(420px,calc(100vh - 330px));min-height:64px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:3px}
+.cl-board-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:4px;border-radius:10px}
+.cl-board-open{width:100%;min-width:0;flex-direction:column;align-items:flex-start;gap:1px;padding:7px 10px;white-space:normal;text-align:left;background:none;border:1.5px solid transparent;border-radius:9px}
+.cl-board-open:hover{background:var(--clarity-hover)}
+.cl-board-open[aria-pressed=true]{background:var(--clarity-sel);color:var(--ink);border-color:color-mix(in srgb,var(--blue) 40%,transparent);box-shadow:inset 3px 0 0 var(--blue)}
+.cl-board-name{max-width:100%;font-weight:650;line-height:1.35;overflow-wrap:anywhere;word-break:break-word}
+.cl-board-meta{font-size:12px;font-weight:400;color:var(--mute)}
+.cl-board-actions{display:flex;gap:2px;padding-top:4px}
+.cl-board-actions button{width:30px;min-height:30px;padding:0;justify-content:center;color:var(--mute);background:none;border:1.5px solid transparent;border-radius:8px}
+.cl-board-actions button:hover{background:var(--clarity-hover);color:var(--ink)}
+.cl-board-actions [data-act='board.delete']:hover:not(:disabled){color:var(--red);background:#FEF1F0}
+.cl-board-edit{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:var(--clarity-solid);border:1.5px solid var(--blue);border-radius:10px}
+.cl-board-edit input{flex:1 1 150px;min-width:0}.cl-board-edit button{min-height:34px}
+.cl-board-edit [type=submit]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cl-board-empty{margin:8px 4px;font-size:13px;color:var(--mute)}
+.cl-board-footer{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--clarity-edge)}
+.cl-board-footer>button{flex:1 1 140px;justify-content:center;white-space:normal}
+.cl-board-footer [data-tut=menu]{border-color:var(--line);color:var(--mute)}
+.cl-board-footer [data-tut=menu]:hover{color:var(--ink);border-color:#8A94A6}
+:is(#tl,#gb,#tools,#shelf,#pan,#guide,#utilities,.dm-reader,#tutorial-coach,#dm-toast) :focus-visible{outline:3px solid var(--blue);outline-offset:2px;box-shadow:0 0 0 5px rgba(255,255,255,.9)}
+.cl-board-list :focus-visible{outline-offset:0}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#tl,#gb,#tools,#shelf,#tutorial-launcher,#dm-toast,#pan,#guide,#utilities{background:var(--clarity-solid)}dialog::backdrop{background:rgba(27,34,48,.45)}}
+@media(prefers-reduced-transparency:reduce){#tl,#gb,#tools,#shelf,#tutorial-launcher,#dm-toast,#pan,#guide,#utilities{background:var(--clarity-solid);-webkit-backdrop-filter:none;backdrop-filter:none}dialog::backdrop{background:rgba(27,34,48,.55);-webkit-backdrop-filter:none;backdrop-filter:none}}
+@media(prefers-contrast:more){#tl,#gb,#tools,#shelf,#tutorial-launcher,#dm-toast,#pan,#guide,#utilities,.fl,#tutorial-coach,#skillbook,#model-connect,#tutorial-home{background-color:var(--clarity-solid);-webkit-backdrop-filter:none;backdrop-filter:none;border:2px solid var(--ink)}#pan h3,#guide h3,.dm-reader>header,.tm-head,.sb-head,.mc-head,.mc-tabs,.cl-board-footer{border-color:var(--ink);border-bottom-width:2px}.cl-board-footer{border-bottom-width:0;border-top:2px solid var(--ink)}.cl-board-open[aria-pressed=true]{border-color:var(--ink);box-shadow:inset 4px 0 0 var(--ink)}.cl-board-meta,.cl-board-count{color:#3B4454}.cl-board-actions button{border-color:var(--line)}dialog::backdrop{background:rgba(27,34,48,.6);backdrop-filter:none;-webkit-backdrop-filter:none}}
+/* Engineering: keep the menu below the second toolbar row and let its task own this area.
+   This only hides the coach visually while browsing boards; course progress stays intact. */
+#pan.cl-boards.o{display:flex;flex-direction:column;overflow:hidden}
+#pan.cl-boards>.cl-board-list{flex:0 1 auto;min-height:0}
+#pan.cl-boards>:is(h3,.cl-board-count,.cl-board-footer){flex-shrink:0}
+@media(max-width:1100px){#pan,#guide{top:142px}}
+body:has(#pan.cl-boards.o) :is(#tutorial-coach,#tutorial-spot){visibility:hidden;pointer-events:none}
+/* GLASS_CLARITY_CSS_END */

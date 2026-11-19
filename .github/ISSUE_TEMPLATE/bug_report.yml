@@ -1,0 +1,31 @@
+name: Bug report / 问题反馈
+description: A reproducible problem in Relay
+title: "[Bug] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: "Do not paste API keys, private files, or full runtime logs. / 不要提交密钥或私人材料。"
+  - type: input
+    id: environment
+    attributes:
+      label: Version, OS, Node and browser / 版本与环境
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / 复现步骤
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual result / 预期与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized screenshots or errors / 脱敏截图与错误
+      description: Mark local tutorial, mocked test, or real provider execution clearly.

@@ -1,0 +1,7 @@
+/* REGIONS_CSS_START */
+.ring.region,.dm-cluster.region{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;pointer-events:none}
+.region-outline{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}.region-outline path{fill:color-mix(in srgb,var(--c,#7185a6) 8%,#fff);stroke:var(--ink);stroke-width:var(--workspace-stroke,2);stroke-linejoin:round;pointer-events:visiblePainted}
+.ring.region.sel .region-outline path{stroke:var(--blue);stroke-width:4}.ring.region.hot .region-outline path{fill:color-mix(in srgb,var(--c) 18%,#fff)}
+.region>.rt,.region>.pc,.region>button,.region>.m-inbox{pointer-events:auto}.region>.rt{z-index:1}.region>.m-sum{pointer-events:none}.region-group-outline path{fill:#eef3fb55;stroke:#79859a;stroke-width:2;stroke-dasharray:7 6}
+.region-settings{padding-top:14px;margin-top:12px;border-top:1px solid var(--line)}.region-settings>label{display:block;margin-bottom:10px}.region-settings .row label{flex:1;min-width:0}.region-settings .row input{width:100%}.region-settings select{margin-top:5px}.region-settings .lab{font-size:12px;line-height:1.65}
+/* REGIONS_CSS_END */

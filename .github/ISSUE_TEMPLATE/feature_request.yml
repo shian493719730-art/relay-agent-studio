@@ -1,0 +1,19 @@
+name: Feature request / 功能建议
+description: Explain the user goal and an observable outcome
+title: "[Feature] "
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do? / 希望完成什么？
+    validations:
+      required: true
+  - type: textarea
+    id: interaction
+    attributes:
+      label: Proposed interaction and result / 操作与结果
+      description: Include manual control, AI operation, pause or undo where relevant.
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: External dependencies, costs and alternatives / 依赖、费用与替代方案

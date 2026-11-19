@@ -1,0 +1,73 @@
+{
+  "name": "relay-agent-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx server/index.ts",
+    "build": "python3 scripts/prepare-connections-preview.py && tsc --noEmit && vite build",
+    "library:update": "tsx scripts/update-skill-library.ts",
+    "start": "node --import tsx scripts/start.mjs",
+    "test": "node scripts/test.mjs",
+    "typecheck": "tsc --noEmit",
+    "check:public": "node scripts/check-public.mjs"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.105",
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@openai/agents": "^0.22.0",
+    "@openai/agents-extensions": "^0.22.0",
+    "@playwright/mcp": "0.0.86",
+    "dotenv": "^18.0.10",
+    "exceljs": "^4.4.0",
+    "express": "^5.3.0",
+    "lucide-react": "^1.74.0",
+    "mammoth": "^1.13.0",
+    "pdfjs-dist": "^6.5.438",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "yauzl": "^3.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/yauzl": "^3.4.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "jszip": "^3.10.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "^11.1.1"
+    }
+  },
+  "description": "An immersive local-first workspace for controllable multi-model agent collaboration.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shian493719730-art/relay-agent-studio.git"
+  },
+  "homepage": "https://github.com/shian493719730-art/relay-agent-studio#readme",
+  "bugs": {
+    "url": "https://github.com/shian493719730-art/relay-agent-studio/issues"
+  },
+  "keywords": [
+    "agents",
+    "multi-agent",
+    "multi-model",
+    "canvas",
+    "vibe-coding",
+    "mcp",
+    "workflow"
+  ]
+}

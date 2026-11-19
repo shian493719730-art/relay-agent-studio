@@ -28,6 +28,7 @@ For people who work with AI through natural language and want to shape their own
 - **Follow the handoff:** shared content and triggers live on connections, with source receipts and project/group progress.
 - **Use your files:** DOCX, XLSX, text-based PDF and plain text extraction. No scanned-PDF OCR promise.
 - **Ask the built-in operator:** it uses software actions and observes results. Playwright MCP provides visible clicks, typing and dragging in a dedicated browser limited to Relay itself.
+- **Develop real source:** connect an explicit Git repository, read and edit files, inspect Git diffs, revert individual edits, run approved project checks and stop their processes. The built-in operator uses the same bridge, including for Relay's own source. [Source development](docs/SELF_DEVELOPMENT.md).
 - **Explore safely:** a 19-step local media-workflow tutorial plus an integration tour, with numbered arrows. Scripted samples are clearly distinguished from real model execution.
 
 ## A maintained supply of GitHub resources
@@ -51,6 +52,8 @@ This recording demonstrates local UI and tutorial behavior, not a paid autonomou
 Choose a matching build from [Releases](https://github.com/shian493719730-art/relay-agent-studio/releases). Desktop packages include their runtime; end users do not need Node, Python or Codex. App updates preserve a separate user-data directory. See [installation and backups](docs/DESKTOP.md) and [license/brand terms](docs/LICENSING.md). Community builds are not notarized or commercially signed; review each release’s platform validation.
 
 **Current maintenance and release acceptance cover macOS and Linux. Windows configuration and historical binaries are experimental references: Windows compatibility, tests and packaging are not required and do not block releases.** macOS has hands-on UI verification; full Linux desktop interaction still needs real-machine validation. See [platform scope and evidence](docs/PLATFORMS.md).
+
+Source development additionally needs local Git and Node/npm; building Relay also needs Python. Users choose the repository and script permissions. The operator cannot grant itself another directory. Running repository code is not an operating-system sandbox.
 
 ## Run from source
 
@@ -86,7 +89,7 @@ npm run build
 npm run check:public
 ```
 
-Version 0.2.0-alpha.1 passed **162 offline tests**, typechecking and production builds: [CI evidence](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44621833495), [packaged-backend verification](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44621833474). Default CI and automated packaging now require only macOS and Linux; Windows does not gate acceptance or publication. Providers are mocked in tests; complete native UI and real-provider acceptance remain separate. [Platform scope](docs/PLATFORMS.md) also records historical failures and their fixes. See [Contributing](CONTRIBUTING.md), [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md) and [Security](SECURITY.md). Detailed guides currently include Chinese text; documentation translations are welcome.
+The suite contains **171 offline tests**, including actual source edits, conflicts, rollback and real check-process termination. Per-commit results are recorded in [CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml) and [packaged-backend verification](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/desktop.yml). Default CI and packaging require only macOS and Linux; Windows does not gate publication. Providers are mocked; native UI and paid-provider acceptance remain separate. [Platform scope](docs/PLATFORMS.md) records historical failures and fixes. See [Contributing](CONTRIBUTING.md), [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md) and [Security](SECURITY.md). Detailed guides currently include Chinese text; translations are welcome.
 
 Local single-user only: desktop distribution and source installs are available; no hosted service or multi-user access control yet. Keys are local server-side files, not an encrypted vault. Selected task/file content is sent to configured providers. See [Privacy](docs/PRIVACY.md).
 

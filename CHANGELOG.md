@@ -6,6 +6,12 @@
 - Recheck historical PDF-path and implicit-publishing failures against successful follow-up runs; update stale 155-test and planned-CI documentation to the actual 162-test desktop baseline.
 - Sync edited release notes without replacing published tags or binaries.
 
+## 0.2.0-alpha.2
+
+- Add a project-linked Git source workspace for manual editing and built-in operator actions: actual file reads, CAS writes, unique replacements, deletion, Git diff and persistent per-edit rollback/reapply.
+- Add approved typecheck/test/build processes with actual logs, exit codes, stop controls and process-group cleanup; preserve unsaved manual drafts and reject stale source versions.
+- Keep Playwright browser control and the existing canvas style. Source tooling is optional and requires local developer tools; no arbitrary Shell, automatic install/push/deploy or paid model acceptance is claimed.
+
 ## 0.2.0-alpha.1 — Local desktop distribution
 
 - Added a desktop shell with bundled runtime, a stable workspace origin and separate persistent user data.

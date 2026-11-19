@@ -51,6 +51,7 @@ Relay 面向习惯用自然语言与 AI 一起解决问题、也愿意亲手调�
 | **文件成为工作材料** | 拖入 DOCX、XLSX、文本型 PDF 或文本，读取正文供成员使用，并在关联阅读框中浏览。扫描 PDF 暂不含 OCR。 |
 | **随时接手** | 暂停、停止与更新要求；移动不打断无关任务。删除会停止受影响执行并保留已有记录，撤销恢复对象不会自动重启收费调用。 |
 | **软件内的执行助手** | 理解目标、读取状态，调用可用的软件动作并观察回执。可视模式借助 Playwright MCP 在专用浏览器里展开、填写、点击与拖拽。 |
+| **在画板中开发源码** | 连接明确的 Git 仓库，读取、手动编辑或由操作助手修改实际源码；查看 Git diff、逐次回滚/重做、运行已允许的检查与停止进程。也可开发 Relay 自己。[使用方法](docs/SELF_DEVELOPMENT.md) |
 | **看得见的近况** | 打开画板、项目或项目组查看近期操作与进度。编辑支持删除、撤销、重做和恢复。 |
 | **从零练习** | 19 步自媒体流程教程，带编号箭头；另有亮点功能导览。本地预设内容，不调用模型、不真实发布。 |
 
@@ -63,6 +64,8 @@ Relay 面向习惯用自然语言与 AI 一起解决问题、也愿意亲手调�
 从 [Releases](https://github.com/shian493719730-art/relay-agent-studio/releases) 下载适合系统与架构的包，安装后直接打开 Relay。无需安装 Node、Python 或 Codex；数据存放在独立用户目录，升级不覆盖已有项目。桌面版在应用运行时自动进行每周 GitHub 资源检查，可暂停并手动刷新。
 
 **当前维护与验收范围为 macOS、Linux。Windows 仅保留实验性配置和历史附件，不作为兼容、CI 或发版的必需条件，也不承诺完整支持。** macOS 主要实机验证，Linux 完整交互仍待实机补验；[平台与验证范围](docs/PLATFORMS.md) 区分自动检查和人工验收。
+
+源码开发入口在画板菜单和项目详情/聊天中。普通画板无需开发环境；运行源码检查另需本机 Git、Node/npm，Relay 构建还需 Python。源码连接和脚本权限由用户明确选择，操作助手不能自行扩大目录范围。
 
 [本地安装、数据备份与更新 →](docs/DESKTOP.md) · [AGPL 许可与品牌规则 →](docs/LICENSING.md)
 
@@ -113,7 +116,7 @@ npm run build      # 生成沉浸式画板并构建 Web 资源
 npm run check:public
 ```
 
-0.2.0-alpha.1 已通过 **162 项离线测试**、类型检查和生产构建，[CI](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44621833495) 与 [实际打包后检查](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44621833474) 均有记录。后续默认 CI 和自动打包只要求 macOS、Linux，Windows 不阻塞验收或发布。自动化检查不等同于完整原生界面或真实供应商验收；历史报错、修复与平台边界见 [验证说明](docs/PLATFORMS.md)。浏览器首次可视操作需要本机 Chrome；普通画板不需要 Playwright 浏览器安装。
+当前包含 **171 项离线测试**，涵盖源码落盘、冲突保护、逐次回滚与停止真实检查进程。各提交的 [CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml) 和 [实际打包后检查](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/desktop.yml) 分别记录结果。默认只要求 macOS、Linux，Windows 不阻塞验收或发布。自动化检查不等同于完整原生界面或收费供应商验收；历史报错与平台边界见 [验证说明](docs/PLATFORMS.md)。浏览器可视操作需要本机 Chrome；普通画板不需要 Playwright 浏览器安装。
 
 欢迎提交复现清楚的 Bug、交互改进和新的连接适配器。开始前请阅读 [贡献指南](CONTRIBUTING.md)、[架构](docs/ARCHITECTURE.md)、[安全说明](SECURITY.md) 和 [行为准则](CODE_OF_CONDUCT.md)。我们尤其需要跨平台验证、无障碍、文件处理和协作恢复方面的贡献。
 

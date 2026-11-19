@@ -13,10 +13,11 @@ function vrState(){return{...state,assistantVisualDraft:AS.draft}}
 async function vrSendFiles(ids){for(const id of ids){const blob=await idb('get',id).catch(()=>null);if(!blob)continue;const r=await fetch('/api/studio/browser/blob/'+VR.session.id+'/'+id,{method:'PUT',headers:{'Content-Type':'application/octet-stream','X-Relay-Visual':VR.session.token},body:blob});if(!r.ok)throw new Error((await r.json()).error||'文件同步未完成')}}
 async function vrGetFiles(ids,files=state.files){for(const id of ids){const r=await fetch('/api/studio/browser/blob/'+VR.session.id+'/'+id,{headers:{'X-Relay-Visual':VR.session.token}});if(!r.ok)throw new Error('文件原件未能同步，尚未关闭工作窗口');const f=files.find(f=>f.id===id);await idb('put',new Blob([await r.arrayBuffer()],{type:f?.type||'application/octet-stream'}),id)}}
 async function vrOpen(localOnly=false){
- if(VR.session)return;asPause();while(AS.ac)await new Promise(r=>setTimeout(r,30));
+ if(VR.session||VR.opening)return;VR.opening=true;hint('正在准备可视工作窗口…');
+ try{asPause();while(AS.ac)await new Promise(r=>setTimeout(r,30));
  if([...CP.runs.values()].some(r=>r.status==='running')||liveTurns.size||pendingTurns.size){hint('当前还有成员在输出，画板保持在原窗口；相应流程暂停后即可切换可视窗口');return false}
- try{VR.error='';VR.revision=-1;VR.sent.clear();VR.received.clear();const s=await vrApi('create',{state:vrState(),history:{undo:undoS,redo:redoS},localOnly});VR.session={id:s.id,token:s.token};sessionStorage.setItem(VR_KEY,JSON.stringify({...VR.session,target:false}));VR.status=s;vrRender();await vrSendFiles(state.files.map(f=>f.id));VR.status=await vrApi('open');vrStartPolling();for(let n=0;n<60&&!VR.status.ready;n++){await new Promise(r=>setTimeout(r,200));VR.status=await vrApi('status')}if(!VR.status.ready)throw new Error('工作窗口尚未就绪，请稍候或返回当前页面');return true;}
- catch(e){VR.error=e.message;vrRender();hint(e.message)}
+ VR.error='';VR.revision=-1;VR.sent.clear();VR.received.clear();const s=await vrApi('create',{state:vrState(),history:{undo:undoS,redo:redoS},localOnly});VR.session={id:s.id,token:s.token};sessionStorage.setItem(VR_KEY,JSON.stringify({...VR.session,target:false}));VR.status=s;vrRender();await vrSendFiles(state.files.map(f=>f.id));VR.status=await vrApi('open');vrStartPolling();for(let n=0;n<60&&!VR.status.ready;n++){await new Promise(r=>setTimeout(r,200));VR.status=await vrApi('status')}if(!VR.status.ready)throw new Error('工作窗口尚未就绪，请稍候或返回当前页面');return true;}
+ catch(e){VR.error=e.message;vrRender();hint(e.message)}finally{VR.opening=false;}
 }
 async function vrPulse(){
  if(!VR.session||VR.pulsing||VR.returning)return;VR.pulsing=true;

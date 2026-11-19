@@ -19,6 +19,7 @@ import {browserControl,BrowserControlError} from './browser-control.ts';
 import {desktopAccess} from './desktop-access.ts';
 import {librarySchedule} from './library-schedule.ts';
 import {legalInfo,legalPage,sourceArchive} from './legal.ts';
+import {development,DevelopmentError} from './development.ts';
 
 const app=express();
 app.disable('x-powered-by');
@@ -46,6 +47,7 @@ app.put('/api/studio/browser/blob/:id/:fileId',express.raw({type:'application/oc
 app.get('/api/studio/browser/blob/:id/:fileId',(req,res,next)=>{
  try{res.type('application/octet-stream').send(browserControl.blob(String(req.params.id),req.get('X-Relay-Visual')||'',String(req.params.fileId)));}catch(e){next(e)}
 });
+app.post('/api/studio/development',express.json({limit:'2mb'}),async(req,res,next)=>{try{res.json(await development.action(req.body));}catch(e){next(e);}});
 app.use(express.json({limit:'256kb'}));
 app.post('/api/studio/documents/upload',express.raw({type:'application/octet-stream',limit:'25mb'}),(req,res,next)=>{
  try{const meta=JSON.parse(decodeURIComponent(req.get('X-Relay-File')||''));if(!Buffer.isBuffer(req.body))throw new Error('没有收到文件原件');const r=documents.upload(meta,req.body);res.status(201).json({id:r.id,name:r.name,status:r.status,sha256:r.sha256,size:r.size});}catch(e){next(e)}
@@ -170,7 +172,7 @@ app.get('/api/runs/:id/artifacts/:name',(req,res)=>{
 app.use('/api',(_req,res)=>res.status(404).json({error:'接口不存在。'}));
 app.use((error:unknown,_req:express.Request,res:express.Response,next:express.NextFunction)=>{
   if(res.headersSent)return next(error);
-  res.status(error instanceof DocumentError||error instanceof CanvasBindingError||error instanceof BrowserControlError?error.status:error instanceof z.ZodError?400:500).json({error:error instanceof z.ZodError?error.issues.map(x=>x.message).join('；'):safeError(error)});
+  res.status(error instanceof DocumentError||error instanceof CanvasBindingError||error instanceof BrowserControlError||error instanceof DevelopmentError?error.status:error instanceof z.ZodError?400:500).json({error:error instanceof z.ZodError?error.issues.map(x=>x.message).join('；'):safeError(error)});
 });
 if(process.env.NODE_ENV==='production'){
   const staticRoot=path.resolve(process.env.RELAY_STATIC_DIR||path.join(projectRoot,'dist'));
@@ -186,4 +188,4 @@ const server=app.listen(port,'127.0.0.1',()=>{const bound=server.address();const
 server.on('error',error=>{console.error(safeError(error));process.exit(1);});
 void checkConnections();
 
-if(desktopAccess.enabled){let stopping=false;const shutdown=async()=>{if(stopping)return;stopping=true;librarySchedule.stop();for(const ac of modelHandoffs.active.values())ac.abort();for(const ac of documents.previewJobs.values())ac.abort();for(const id of workflow.active.keys())workflow.cancel(id);await Promise.allSettled([...canvasRuns.runs.values()].filter(r=>r.status==='running').map(r=>canvasRuns.pause(r.id)));server.closeAllConnections();server.close(()=>process.exit(0));setTimeout(()=>process.exit(0),4000).unref();};process.on('message',m=>{if((m as any)?.type==='relay-shutdown')void shutdown();});process.once('SIGTERM',()=>void shutdown());process.once('disconnect',()=>void shutdown());}
+let stopping=false;const shutdown=async()=>{if(stopping)return;stopping=true;librarySchedule.stop();await development.stopAll();for(const ac of modelHandoffs.active.values())ac.abort();for(const ac of documents.previewJobs.values())ac.abort();for(const id of workflow.active.keys())workflow.cancel(id);await Promise.allSettled([...canvasRuns.runs.values()].filter(r=>r.status==='running').map(r=>canvasRuns.pause(r.id)));server.closeAllConnections();server.close(()=>process.exit(0));setTimeout(()=>process.exit(0),4000).unref();};process.once('SIGTERM',()=>void shutdown());process.once('SIGINT',()=>void shutdown());if(desktopAccess.enabled){process.on('message',m=>{if((m as any)?.type==='relay-shutdown')void shutdown();});process.once('disconnect',()=>void shutdown());}

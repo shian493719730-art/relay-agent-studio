@@ -27,6 +27,7 @@ flowchart LR
 | `server/browser-control.ts` | 官方 Playwright MCP 会话、同源限制、可视动作与接手。 |
 | `server/skill-library.ts` / `library-refresh.ts` | 目录检索、正文、推荐和更新。 |
 | `server/auth-bridge.ts` | 可选本机授权接力。 |
+| `server/development.ts` / `src/prototype/development.js` | 项目关联源码、版本核对、逐次差异恢复、已允许的本机检查与操作助手适配。 |
 | `resources/` | 来源元数据、自有方法与基础 Skill。 |
 | `tests/` | 模拟供应商、状态恢复、共享、文件和交互行为测试。 |
 

@@ -43,6 +43,8 @@ for name, begin, end in [
     ('assistant.css', '/* ASSISTANT_CSS_START */', '/* ASSISTANT_CSS_END */'),
     ('workspace-editor.js', '/* WORKSPACE_EDITOR_START */', '/* WORKSPACE_EDITOR_END */'),
     ('software-operator.js', '/* SOFTWARE_OPERATOR_START */', '/* SOFTWARE_OPERATOR_END */'),
+    ('development.js', '/* DEVELOPMENT_START */', '/* DEVELOPMENT_END */'),
+    ('development.css', '/* DEVELOPMENT_CSS_START */', '/* DEVELOPMENT_CSS_END */'),
     ('browser-control.js', '/* BROWSER_CONTROL_START */', '/* BROWSER_CONTROL_END */'),
     ('browser-control.css', '/* BROWSER_CONTROL_CSS_START */', '/* BROWSER_CONTROL_CSS_END */'),
     ('regions.js', '/* REGIONS_START */', '/* REGIONS_END */'),
@@ -94,7 +96,7 @@ if len(set(parsed.ids))!=len(parsed.ids):
     raise SystemExit('Duplicate HTML ids')
 checks=root/'.data/connections-static-checks'; checks.mkdir(parents=True,exist_ok=True)
 for index,script in enumerate(parsed.scripts):
-    allowed_script=re.sub(r'fetch\([\"\'](?:/api/studio/(?:guide|assistant|refine|auth|open|library|models|collaboration|documents(?:/upload)?|browser(?:/blob/)?))[\"\']', 'localGuide(',script) if 'STUDIO_MODEL_START' in text else script
+    allowed_script=re.sub(r'fetch\([\"\'](?:/api/studio/(?:guide|assistant|refine|auth|open|library|models|collaboration|development|documents(?:/upload)?|browser(?:/blob/)?))[\"\']', 'localGuide(',script) if 'STUDIO_MODEL_START' in text else script
     if re.search(r'\b(fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon|eval)\s*\(',allowed_script):
         raise SystemExit('Unexpected network/eval API in local simulation')
     if re.search(r'localStorage\s*\.\s*(clear|removeItem)\s*\(',script):

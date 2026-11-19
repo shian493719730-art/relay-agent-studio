@@ -5,7 +5,7 @@ description: Clarify an ambiguous request while preserving the author's voice, f
 
 # Clarify the request
 
-An independently written Relay guide, distributed under the repository MIT license.
+An independently written Relay guide, distributed under the repository AGPL-3.0-only license.
 
 Read the original request before deciding on a structure. Identify its purpose, audience, supplied facts, and explicit limits. Preserve its language and tone. A short request can stay short.
 

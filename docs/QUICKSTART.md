@@ -1,5 +1,9 @@
 # 快速开始 / Quick start
 
+## 桌面版直接安装
+
+普通用户可先按 [本地桌面部署](DESKTOP.md) 下载当前平台包，直接打开，无需安装 Node、Python 或 Codex。以下环境要求仅适用于源码部署。
+
 ## 环境
 
 - Node.js 24 或更高版本，npm；Python 3，并确认 `python3 --version` 可执行。

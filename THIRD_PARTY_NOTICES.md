@@ -1,6 +1,6 @@
 # Third-party notices
 
-The MIT license at the repository root covers Relay's original code, documentation and the original guides in `resources/skills`. It does not replace the terms of dependencies, external content or trademarks.
+The AGPL-3.0-only license at the repository root covers this version of Relay's original code, documentation and original guides in `resources/skills`. Historical MIT grants are preserved in LICENSES/legacy-MIT.txt; see NOTICE.md. It does not replace the terms of dependencies, external content or trademarks.
 
 ## Dependencies
 
@@ -25,3 +25,5 @@ Dependency artifacts are not vendored into this repository. Redistributors who b
 Provider names and recognizable identity marks identify configured services. They remain their respective owners' trademarks; no endorsement or affiliation is implied. Custom relays do not certify the identity of their upstream models.
 
 Snapper Assist and Auth Relay are separate optional applications. Their source and application bundles are not included here. Only Relay's adapters are included.
+
+Desktop distributions also include Electron (MIT) and Chromium third-party notices. Preserve LICENSE.electron.txt and LICENSES.chromium.html shipped with Electron. The bundled corresponding source archive covers Relay source, not a relicensing of upstream dependencies.

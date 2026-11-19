@@ -5,7 +5,7 @@ description: Turn a software request into observable behavior and bounded valida
 
 # Review an implementation request
 
-An independently written Relay guide, distributed under the repository MIT license.
+An independently written Relay guide, distributed under the repository AGPL-3.0-only license.
 
 Identify the trigger, the expected behavior, the affected data, and the existing constraints. Preserve the user's chosen interface and manual work unless they ask to change it.
 

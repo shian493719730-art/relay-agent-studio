@@ -1,0 +1,49 @@
+appId: io.github.shian493719730-art.relay
+productName: Relay
+asar: false
+electronDist: node_modules/electron/dist
+npmRebuild: false
+afterPack: desktop/after-pack.cjs
+directories:
+  output: desktop-release
+files:
+  - desktop/**
+  - desktop-runtime/**
+  - package.json
+  - LICENSE
+  - NOTICE.md
+  - TRADEMARKS.md
+  - THIRD_PARTY_NOTICES.md
+  - '!**/.env*'
+  - '!**/.data/**'
+  - '!**/.playwright-mcp/**'
+  - '!**/test-results/**'
+mac:
+  category: public.app-category.productivity
+  icon: desktop/icon.icns
+  identity: '-'
+  timestamp: 'none'
+  notarize: false
+  hardenedRuntime: false
+  target:
+    - dmg
+    - zip
+win:
+  icon: desktop/icon.png
+  target:
+    - nsis
+    - portable
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  deleteAppDataOnUninstall: false
+  artifactName: Relay-${version}-win-${arch}-setup.${ext}
+portable:
+  artifactName: Relay-${version}-win-${arch}-portable.${ext}
+linux:
+  category: Office
+  icon: desktop/icon.png
+  target:
+    - AppImage
+    - tar.gz
+artifactName: Relay-${version}-${os}-${arch}.${ext}

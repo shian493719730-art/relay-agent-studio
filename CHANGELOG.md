@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0-alpha.1 — Local desktop distribution
+
+- Added a desktop shell with bundled runtime, a stable workspace origin and separate persistent user data.
+- Added process-scoped local-service access, explicit source/license menus and the corresponding source archive in each build.
+- Added opt-in source / built-in desktop weekly catalog scheduling with pause, cancel and retained valid data on failure.
+- Adopted AGPL-3.0-only for this version and added brand rules; historical MIT grants remain unchanged.
+- Added native packaging and packaged-backend checks. Platform build and UI verification are reported separately in release notes.
+
 ## 0.1.0-alpha — Initial public source preparation
 
 ### Included

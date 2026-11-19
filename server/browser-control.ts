@@ -1,5 +1,6 @@
 import {randomUUID,timingSafeEqual} from 'node:crypto';
 import {z} from 'zod';
+import {desktopAccess} from './desktop-access.ts';
 
 // The public API accepts native gestures, never JavaScript, filesystem paths or an arbitrary MCP tool.
 export const gestureSchema=z.discriminatedUnion('kind',[
@@ -67,7 +68,7 @@ export class BrowserControl{
     else{
      // Loading the browser engine is unnecessary for the normal workbench and document services.
      const [{createConnection},{Client},{InMemoryTransport}]=await Promise.all([import('@playwright/mcp'),import('@modelcontextprotocol/sdk/client/index.js'),import('@modelcontextprotocol/sdk/inMemory.js')]);
-     const server=await createConnection({browser:{browserName:'chromium',isolated:true,launchOptions:{channel:'chrome',headless:false},contextOptions:{viewport:{width:1280,height:820}}},network:{allowedOrigins:[origin]},capabilities:['vision'],timeouts:{action:4000,navigation:15000},snapshot:{mode:'none'},imageResponses:'allow'});
+     const server=await createConnection({browser:{browserName:'chromium',isolated:true,launchOptions:{channel:'chrome',headless:false},contextOptions:{viewport:{width:1280,height:820},...(desktopAccess.enabled?{storageState:desktopAccess.storageState(origin)}:{})}},network:{allowedOrigins:[origin]},capabilities:['vision'],timeouts:{action:4000,navigation:15000},snapshot:{mode:'none'},imageResponses:'allow'});
      const [left,right]=InMemoryTransport.createLinkedPair();await server.connect(right);const client=new Client({name:'relay-visual-controller',version:'1.0.0'});await client.connect(left);s.client=client as Mcp;s.closeServer=()=>server.close();
     }
     const r=await s.client.callTool({name:'browser_navigate',arguments:{url:origin+'/design-v2/?v=20#relay-visual='+s.id+'.'+s.token}});if(r.isError)throw new Error(this.errorText(r));

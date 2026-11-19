@@ -1,0 +1,69 @@
+name: Desktop packages
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - 'server/**'
+      - 'src/**'
+      - 'resources/**'
+      - 'scripts/build-desktop.mjs'
+      - 'scripts/desktop-smoke.mjs'
+      - 'electron-builder.yml'
+      - 'package*.json'
+      - 'LICENSE'
+      - 'NOTICE.md'
+      - 'TRADEMARKS.md'
+      - '.github/workflows/desktop.yml'
+permissions:
+  contents: read
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - run: npm ci
+      - run: npm run check:public
+      - run: npm test
+      - run: npm run desktop:dist
+      - name: Verify packaged backend and actual PDF worker
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            APP=$(find desktop-release -maxdepth 2 -name Relay.app -type d | head -n 1)
+            npm run desktop:smoke -- "$APP/Contents/MacOS/Relay" "$APP/Contents/Resources/app"
+          elif [[ "$RUNNER_OS" == "Windows" ]]; then
+            npm run desktop:smoke -- desktop-release/win-unpacked/Relay.exe desktop-release/win-unpacked/resources/app
+          else
+            npm run desktop:smoke -- desktop-release/linux-unpacked/relay-agent-studio desktop-release/linux-unpacked/resources/app
+          fi
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: Relay-desktop-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+          path: |
+            desktop-release/*.dmg
+            desktop-release/*.zip
+            desktop-release/*.exe
+            desktop-release/*.AppImage
+            desktop-release/*.tar.gz

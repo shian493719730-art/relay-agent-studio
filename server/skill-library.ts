@@ -114,6 +114,7 @@ export class SkillLibrary {
   const index=await this.index();let update:any=null;try{update=await readJson(path.join(this.directory,'update-status.json'));}catch{}
   let schedule:any={id:'ai',state:'unknown',description:'每周五 17:00（伦敦时间）'};
   try{const file=await fs.readFile(path.join(os.homedir(),'.codex/automations/ai/automation.toml'),'utf8');schedule={...schedule,state:file.match(/^status\s*=\s*"([^"]+)"/m)?.[1]||'unknown',rule:file.match(/^rrule\s*=\s*"([^"]+)"/m)?.[1]||null,hostRequired:true};}catch{}
+  if(process.env.RELAY_WEEKLY_UPDATES==='1'){try{const s=await readJson(path.join(dataRoot,'library-schedule.json'));schedule={kind:'desktop',state:s.enabled?'ACTIVE':'PAUSED',description:'每7天检查 · 应用运行时执行',hostRequired:true,canConfigure:true,nextCheck:s.nextCheck,lastCompleted:s.lastCompleted,lastResult:s.lastResult};}catch{schedule={kind:'desktop',state:'unknown',description:'正在准备本机每周检查',hostRequired:true};}}
   return{revision:index.revision,lastCatalogCheck:index.checked_on||null,update,schedule};
  }
  private versionFile(id:string,hash:string){if(!/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(hash))throw new Error('指南版本无效。');return path.join(this.directory,'versions',crypto.createHash('sha256').update(id).digest('hex')+'-'+hash+'.json');}

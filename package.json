@@ -1,6 +1,6 @@
 {
   "name": "relay-agent-studio",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,13 @@
     "start": "node --import tsx scripts/start.mjs",
     "test": "node scripts/test.mjs",
     "typecheck": "tsc --noEmit",
-    "check:public": "node scripts/check-public.mjs"
+    "check:public": "node scripts/check-public.mjs",
+    "desktop:prepare": "npm run build && node scripts/build-desktop.mjs",
+    "desktop:dev": "npm run desktop:install-runtime && npm run desktop:prepare && electron .",
+    "desktop:pack": "npm run desktop:install-runtime && npm run desktop:prepare && electron-builder --dir",
+    "desktop:dist": "npm run desktop:install-runtime && npm run desktop:prepare && electron-builder",
+    "desktop:smoke": "node --import tsx scripts/desktop-smoke.mjs",
+    "desktop:install-runtime": "node node_modules/electron/install.js"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.105",
@@ -38,6 +44,9 @@
     "@types/react-dom": "^19.3.0",
     "@types/yauzl": "^3.4.0",
     "@vitejs/plugin-react": "^6.3.0",
+    "electron": "45.4.1",
+    "electron-builder": "26.18.0",
+    "esbuild": "0.28.2",
     "jszip": "^3.10.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
@@ -48,8 +57,8 @@
       "uuid": "^11.1.1"
     }
   },
-  "description": "An immersive local-first workspace for controllable multi-model agent collaboration.",
-  "license": "MIT",
+  "description": "Visual office software for vibe coders, with controllable multi-model teams and local data.",
+  "license": "AGPL-3.0-only",
   "engines": {
     "node": ">=24.0.0"
   },
@@ -69,5 +78,10 @@
     "vibe-coding",
     "mcp",
     "workflow"
-  ]
+  ],
+  "main": "desktop/main.cjs",
+  "author": {
+    "name": "Relay contributors",
+    "url": "https://github.com/shian493719730-art/relay-agent-studio"
+  }
 }

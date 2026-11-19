@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: AGPL-3.0-only
+import fs from 'node:fs';
+import path from 'node:path';
+import {projectRoot} from './store.ts';
+const read=(name:string)=>{try{return fs.readFileSync(path.join(projectRoot,name),'utf8')}catch{return'请查看项目仓库中的 '+name;}};
+const escape=(v:string)=>v.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
+export const sourceArchive=path.join(projectRoot,'source.zip');
+export function legalInfo(){return{app:'Relay',license:'AGPL-3.0-only',copyright:'Copyright (c) 2026 Relay contributors',sourceUrl:'https://github.com/shian493719730-art/relay-agent-studio',bundledSource:fs.existsSync(sourceArchive),licenseText:read('LICENSE'),notice:read('NOTICE.md'),trademarks:read('TRADEMARKS.md')};}
+export function legalPage(){const p=legalInfo();return`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Relay · 源码与开源许可</title><style>body{margin:0;background:#f5f7fa;color:#202634;font:16px/1.65 system-ui,sans-serif}main{max-width:900px;margin:32px auto;padding:28px;background:white;border:1px solid #d5dbe3;border-radius:16px}a{color:#405bd7}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.6 ui-monospace,monospace}summary{cursor:pointer;padding:12px 0}h1{font-size:26px}</style><main><h1>Relay · 源码与开源许可</h1><p>${escape(p.copyright)}</p><p>本版本按 AGPL-3.0-only 提供。允许遵守许可的使用、修改、商用与再分发；提供分发或修改后的网络服务时，按许可履行相应源码义务。本软件不提供担保。</p><p>${p.bundledSource?'<a href="/api/license/source" download="Relay-source.zip">下载本版本对应源码</a> · ':''}<a href="${p.sourceUrl}" target="_blank" rel="noreferrer">项目源码仓库</a></p><details open><summary>版本与版权说明</summary><pre>${escape(p.notice)}</pre></details><details><summary>品牌使用规则</summary><pre>${escape(p.trademarks)}</pre></details><details><summary>完整 AGPL-3.0 许可</summary><pre>${escape(p.licenseText)}</pre></details></main></html>`;}

@@ -10,13 +10,13 @@ Organize work in natural language and build it by hand. Bring documents, multi-m
 
 ![Alpha](https://img.shields.io/badge/status-alpha-6C63FF)
 [![CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml)
-[![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 
 ![Relay canvas with projects, agents and connections](docs/media/workspace.png)
 
 </div>
 
-**Alpha software.** Run it locally as a single-user web app. The tutorial needs no API key. Real inference requires your own provider configuration and may incur charges. The current UI is primarily Simplified Chinese; English localization is on the roadmap.
+**Alpha software.** Run it locally as a single-user desktop app or from source. The tutorial needs no API key. Real inference requires your own provider configuration and may incur charges. The current UI is primarily Simplified Chinese; English localization is on the roadmap.
 
 ## Build your everyday work visually
 
@@ -34,7 +34,7 @@ For people who work with AI through natural language and want to shape their own
 
 The built-in library indexes **5,000+ Skills, workflows, agent methods and tool source pointers** across development and office tasks. Choose a project to get recommendations based on its goal, roles and file types; inspect the original repository, terms, body and review status, then save useful references or use relevant Skills for prompt refinement.
 
-The updater checks maintained upstream repositories and directory changes, tracks new, changed, removed or archived entries, and keeps a valid catalog when a source fails. Changed content does not inherit an old review label. Weekly checks are supported through a configured host/scheduler, with manual refresh and visible status; a fresh install does not include a hosted background scheduler. An indexed resource is not automatically installed or runtime-validated. [Integration details](docs/INTEGRATIONS.md).
+The updater checks maintained upstream repositories and directory changes, tracks new, changed, removed or archived entries, and keeps a valid catalog when a source fails. Changed content does not inherit an old review label. The desktop app includes weekly checks while it is running, with pause controls, manual refresh and visible status. Source installs can explicitly enable the local scheduler or use a host task; there is no hosted background service. An indexed resource is not automatically installed or runtime-validated. [Integration details](docs/INTEGRATIONS.md).
 
 ## Authorization handoffs inside the workspace
 
@@ -46,7 +46,11 @@ The broker is the separately installed, previously authorized **macOS Auth Relay
 
 This recording demonstrates local UI and tutorial behavior, not a paid autonomous-model benchmark. [MP4 and disclosure](docs/DEMO.md).
 
-## Run locally
+## Download the desktop app
+
+Choose a matching build from [Releases](https://github.com/shian493719730-art/relay-agent-studio/releases). Desktop packages include their runtime; end users do not need Node, Python or Codex. App updates preserve a separate user-data directory. See [installation and backups](docs/DESKTOP.md) and [license/brand terms](docs/LICENSING.md). Community builds are not notarized or commercially signed; review each release’s platform validation.
+
+## Run from source
 
 Install **Node.js 24+, npm, and Python 3** (`python3` on PATH).
 
@@ -67,7 +71,7 @@ Open **http://127.0.0.1:4317/design-v2/**. Start with the tutorial at the lower 
 | Model connection layer | Included. Provider access and protocol compatibility determine usable models; brand icons do not certify model identity. |
 | Custom API relay | Optional. No mandatory relay vendor. A relay may differ in quality, availability and data handling; its advertised model cannot be independently guaranteed. |
 | Playwright MCP | Included npm dependency. Relay-origin browser control, pause and takeover. Not unrestricted desktop automation. |
-| Skill / workflow library | 5,000+ source pointers and metadata, on-demand body reading, local search and recommendations. Listing, reading and runtime validation are distinct. Weekly checks require a scheduler. |
+| Skill / workflow library | 5,000+ source pointers and metadata, on-demand body reading, local search and recommendations. Listing, reading and runtime validation are distinct. Desktop weekly checks run while the app is open; the source scheduler is opt-in. |
 | Prompt optimization | Included intent-driven Skill selection with three original starter guides and custom local directories. Live refinement uses your model. [Snapper Assist](https://github.com/shian493719730-art/snapper-assist) is an optional separate app. |
 | Auth Relay | Optional macOS adapter to an existing, separately installed and authorized app. That app is not distributed here. |
 
@@ -82,6 +86,6 @@ npm run check:public
 
 GitHub Actions passed clean installation, typechecking, 155 offline tests and production builds on Linux, macOS and Windows. [Verified run](https://github.com/shian493719730-art/relay-agent-studio/actions/runs/44613036309). Providers are mocked in tests; this does not verify every native integration or real-provider workflow on every platform. See [Contributing](CONTRIBUTING.md), [Architecture](docs/ARCHITECTURE.md), [Roadmap](docs/ROADMAP.md) and [Security](SECURITY.md). Detailed guides currently include Chinese text; documentation translations are welcome.
 
-Local single-user only: no hosted service, desktop installer, or multi-user access control yet. Keys are local server-side files, not an encrypted vault. Selected task/file content is sent to configured providers. See [Privacy](docs/PRIVACY.md).
+Local single-user only: desktop distribution and source installs are available; no hosted service or multi-user access control yet. Keys are local server-side files, not an encrypted vault. Selected task/file content is sent to configured providers. See [Privacy](docs/PRIVACY.md).
 
-MIT for project code and original guides. External Skills, dependencies and trademarks retain their own terms. [Third-party notices](THIRD_PARTY_NOTICES.md).
+AGPL-3.0-only for this version’s original project code and guides; historical MIT releases retain their grants. External Skills, dependencies and trademarks retain their own terms. [Third-party notices](THIRD_PARTY_NOTICES.md).

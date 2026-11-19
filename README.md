@@ -11,13 +11,13 @@
 ![Alpha](https://img.shields.io/badge/status-alpha-6C63FF)
 [![CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml)
 ![Node 24+](https://img.shields.io/badge/node-%E2%89%A524-339933)
-[![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 
 ![Relay 工作画板：项目、成员与连接](docs/media/workspace.png)
 
 </div>
 
-> **早期 Alpha，欢迎一起打磨。** 当前以本地单用户 Web 应用交付；无需 API 密钥就能体验教程和画板。真实模型执行需要自行配置 API，并产生对应供应商费用。
+> **早期 Alpha，欢迎一起打磨。** 提供本地单用户桌面应用与源码部署；桌面包自带运行环境，无需 API 密钥就能体验教程和画板。真实模型执行需要自行配置 API，并产生对应供应商费用。
 
 ## 为 vibe coder 把办公流程搭起来
 
@@ -31,7 +31,7 @@ Relay 面向习惯用自然语言与 AI 一起解决问题、也愿意亲手调�
 
 内置 **5,000+ 条 Skill、Workflow、Agent 方法与工具来源索引**，围绕开发、文件处理、表格、写作、研究和自动化等任务寻找适合的方法。在「能力库」选择项目后，可以按目标、成员职责和文件类型获得推荐，再查看原仓库、许可、正文与审读状态，将合适的方法留作项目参考，或用于基于 Skill 的 Prompt 优化。
 
-更新流程会检查所维护 GitHub 来源的仓库状态、许可元数据和目录变更，识别新增、变化、移除或归档的条目；失败时保留有效目录，避免把旧版本的审读结论套给新内容。支持**每周检查与手动刷新**，并显示更新状态。每周执行需要可运行的宿主或用户配置的调度器，干净安装不会凭空拥有后台云任务。
+更新流程会检查所维护 GitHub 来源的仓库状态、许可元数据和目录变更，识别新增、变化、移除或归档的条目；失败时保留有效目录，避免把旧版本的审读结论套给新内容。支持**每周检查与手动刷新**，并显示更新状态。桌面版已内置应用运行时的每周调度，可暂停/开启；源码部署可显式启用本机调度，或使用自己的宿主任务。应用关闭时不会依赖后台云任务继续运行。
 
 资源供给包括发现与适配，不把“被收录”直接等同于“已经安装、能够运行”。正文读取和实际运行验证分别记录，具体工具仍需其依赖、权限和许可。[资源库与更新说明 →](docs/INTEGRATIONS.md#skill--workflow-能力库内置目录)
 
@@ -58,7 +58,13 @@ Relay 面向习惯用自然语言与 AI 一起解决问题、也愿意亲手调�
 
 *由实际浏览器操作画面剪辑；这里展示本地教学与界面能力，不是付费模型的自主任务验收。[观看 MP4 与演示说明](docs/DEMO.md)。*
 
-## 5 分钟开始
+## 下载桌面版
+
+从 [Releases](https://github.com/shian493719730-art/relay-agent-studio/releases) 下载适合系统与架构的包，安装后直接打开 Relay。无需安装 Node、Python 或 Codex；数据存放在独立用户目录，升级不覆盖已有项目。桌面版在应用运行时自动进行每周 GitHub 资源检查，可暂停并手动刷新。
+
+[本地安装、数据备份与更新 →](docs/DESKTOP.md) · [AGPL 许可与品牌规则 →](docs/LICENSING.md)
+
+## 从源码开始
 
 需要 **Node.js 24+、npm、Python 3**（`python3` 在 PATH 中）。
 
@@ -83,7 +89,7 @@ npm start
 | GPT / Claude / Gemini / DeepSeek / Qwen / Grok 等 | 自带可配置连接层 | 支持 Responses、Chat Completions、Anthropic Messages；是否可用取决于供应商协议、准确模型 ID 和账号权限。品牌头像不是可用性保证。 |
 | 自定义中转站 | 可选配置 | 任意兼容服务；银子 API 仅是可选推荐。中转无法证明上游真实模型，质量、稳定性与数据政策可能有差异。 |
 | Playwright MCP | npm 依赖 | 专用浏览器内的真实可视操作，目前限定 Relay 自身来源；支持暂停和人工接手，不是全桌面键鼠控制。 |
-| Skill / Workflow 能力库 | 内置目录 + 按需正文 | 收录 5,000+ 条来源索引与链接；目录收录、正文读取、运行验证分别标记。支持手动刷新，每周检查需另配调度器。 |
+| Skill / Workflow 能力库 | 内置目录 + 按需正文 | 收录 5,000+ 条来源索引与链接；目录收录、正文读取、运行验证分别标记。支持手动刷新；桌面版内置应用运行时的每周检查，源码部署可选。 |
 | Prompt 优化 / Snapper Assist | 内置优化流程 + 可选独立应用 | 从需求选择 Skill、读取方法再优化；附 3 个项目自有基础 Skill，可扩展本地目录。实时优化需配置模型。 |
 | Auth Relay 自动授权接力 | 可选 macOS 本机适配器 | 连接已安装且已有本人授权的外部应用，显示实际状态与范围；本仓库不包含该应用，不会默认授予权限。 |
 
@@ -111,6 +117,6 @@ Linux、macOS、Windows 的 GitHub Actions 已完成干净安装、类型检查�
 
 ## 当前边界
 
-本地单用户 Alpha，尚无正式桌面安装包、多人权限系统或托管云服务。密钥保存在本机服务端文件中，不是加密保险箱；请保护设备与备份，不把运行目录提交到 Git。选中的任务与文件内容会发送给你配置的供应商。[数据与隐私](docs/PRIVACY.md) 说明具体位置和网络行为。
+本地单用户 Alpha，桌面分发包与源码入口并存；尚无多人权限系统或托管云服务。桌面版密钥保存在独立用户目录的服务端文件中，不是加密保险箱；请保护设备与备份，不把运行目录提交到 Git。选中的任务与文件内容会发送给你配置的供应商。[数据与隐私](docs/PRIVACY.md) 说明具体位置和网络行为。
 
-MIT 许可适用于本项目代码与自有 Skill。第三方依赖、模型品牌和外部 Skill/Workflow 按各自许可与条款处理。感谢 [Microsoft Playwright MCP](https://github.com/microsoft/playwright-mcp)、[Lucide](https://github.com/lucide-icons/lucide)、React、Vite 以及各来源维护者；见 [第三方说明](THIRD_PARTY_NOTICES.md)。
+AGPL-3.0-only 适用于本版本自有代码与指南；既有 MIT 版本保留原授权，见 [许可说明](docs/LICENSING.md)。第三方依赖、模型品牌和外部 Skill/Workflow 按各自许可与条款处理。感谢 [Microsoft Playwright MCP](https://github.com/microsoft/playwright-mcp)、[Lucide](https://github.com/lucide-icons/lucide)、React、Vite 以及各来源维护者；见 [第三方说明](THIRD_PARTY_NOTICES.md)。

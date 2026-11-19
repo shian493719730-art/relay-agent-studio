@@ -5,7 +5,7 @@ description: Ground a document-processing request in actual file content, locati
 
 # Ground work in documents
 
-An independently written Relay guide, distributed under the repository MIT license.
+An independently written Relay guide, distributed under the repository AGPL-3.0-only license.
 
 Separate filenames and metadata from extracted text. Use the provided text and its page, sheet, or section locations. Identify the intended audience and output only when the request supplies them or clarification is necessary.
 

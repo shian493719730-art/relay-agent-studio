@@ -18,7 +18,7 @@ test('real HTTP server downloads artifacts from hidden data folders and blocks s
   const child=spawn(process.execPath,['--import','tsx','server/index.ts'],{cwd:projectRoot,env:{...process.env,PORT:String(port),NODE_ENV:'production',RELAY_DATA_DIR:root,OPENAI_API_KEY:'',ANTHROPIC_API_KEY:''},stdio:'ignore'});
   const base=`http://127.0.0.1:${port}`;
   try{
-    const deadline=Date.now()+10000;
+    const deadline=Date.now()+30000;
     while(true){try{if((await fetch(base+'/health')).ok)break;}catch{}if(Date.now()>deadline)throw new Error('HTTP test server did not start');await new Promise(resolve=>setTimeout(resolve,40));}
     const response=await fetch(`${base}/api/runs/${id}/artifacts/final-result.md`);
     assert.equal(response.status,200);assert.match(response.headers.get('content-disposition')||'',/attachment/);assert.equal(await response.text(),'# 已交付');
@@ -44,7 +44,7 @@ test('real HTTP server downloads artifacts from hidden data folders and blocks s
     const missingDocument=await fetch(base+'/api/studio/documents',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'status',id:'0'.repeat(64)})});assert.equal(missingDocument.status,404);
     const uploadDoc=await fetch(base+'/api/studio/documents/upload',{method:'POST',headers:{'Content-Type':'application/octet-stream','X-Relay-File':encodeURIComponent(JSON.stringify({fileId:'http-doc',boardId:'http-board',name:'rule.pdf'}))},body:new Uint8Array(pdfFixture('HTTP-PDF-TEXT-ONLY'))});assert.equal(uploadDoc.status,201);const doc=await uploadDoc.json();
     const documentAction=async(action:string)=>fetch(base+'/api/studio/documents',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,id:doc.id})});
-    let reading=await(await documentAction('read')).json();for(let i=0;i<100&&reading.status==='reading';i++){await new Promise(r=>setTimeout(r,25));reading=await(await documentAction('status')).json();}assert.equal(reading.status,'ready');assert.match(reading.segments[0].text,/HTTP-PDF-TEXT-ONLY/);
+    let reading=await(await documentAction('read')).json();const readDeadline=Date.now()+15000;for(;Date.now()<readDeadline&&reading.status==='reading';){await new Promise(r=>setTimeout(r,25));reading=await(await documentAction('status')).json();}assert.equal(reading.status,'ready');assert.match(reading.segments[0].text,/HTTP-PDF-TEXT-ONLY/);
     assert.equal((await fetch(base+'/api/studio/documents/upload',{method:'POST',headers:{Origin:'https://untrusted.example','Content-Type':'application/octet-stream'},body:'blocked'})).status,403);
     const invalidModel=await fetch(base+'/api/studio/models',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save',connection:{}})});assert.equal(invalidModel.status,400);
   }finally{

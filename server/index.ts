@@ -16,6 +16,9 @@ import {documents,DocumentError} from './documents.ts';
 import {planAssistant,connectedStudioJson,defaultAssistantBinding} from './studio-assistant.ts';
 import {authBridge} from './auth-bridge.ts';
 import {browserControl,BrowserControlError} from './browser-control.ts';
+import {desktopAccess} from './desktop-access.ts';
+import {librarySchedule} from './library-schedule.ts';
+import {legalInfo,legalPage,sourceArchive} from './legal.ts';
 
 const app=express();
 app.disable('x-powered-by');
@@ -30,6 +33,10 @@ app.use((req,res,next)=>{
   if(req.path.startsWith('/api/'))res.setHeader('Cache-Control','no-store');
   next();
 });
+app.use((req,res,next)=>{if(!desktopAccess.allows(req.headers))return res.status(403).json({error:'这是桌面应用的本机服务，请从 Relay 窗口打开。'});next();});
+app.get('/license',(_req,res)=>{res.setHeader('Content-Security-Policy',"default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'");res.type('html').send(legalPage());});
+app.get('/api/license',(_req,res)=>res.json(legalInfo()));
+app.get('/api/license/source',(_req,res)=>{if(!fs.existsSync(sourceArchive))return res.status(404).json({error:'此源码部署未包含打包快照，请从项目仓库取得对应源码。'});res.download(sourceArchive,'Relay-source.zip',{dotfiles:'allow'});});
 app.post('/api/studio/browser',express.json({limit:'12mb'}),async(req,res,next)=>{
  try{res.json(await browserControl.action(req.body,`http://${req.headers.host}`));}catch(e){next(e)}
 });
@@ -77,8 +84,9 @@ const libraryRequest=z.discriminatedUnion('action',[
  z.object({action:z.enum(['recommend','semantic']),project:z.unknown()}),
  z.object({action:z.literal('guide'),id:z.string().min(1).max(600)}),
  z.object({action:z.enum(['status','refresh','cancel-refresh'])}),
+ z.object({action:z.literal('set-schedule'),enabled:z.boolean()}),
 ]);
-let libraryRefresh:AbortController|null=null;
+
 app.post('/api/studio/library',async(req,res,next)=>{
  const controller=new AbortController(),abort=()=>{if(!res.writableEnded)controller.abort();};res.on('close',abort);
  let chargedSlot=false;
@@ -92,12 +100,13 @@ app.post('/api/studio/library',async(req,res,next)=>{
   }
   if(d.action==='guide')return res.json(await library.guide(d.id,{signal:controller.signal}));
   if(d.action==='refresh'){
-   if(!libraryRefresh){const task=libraryRefresh=new AbortController();void refreshSkillLibrary({signal:task.signal}).catch(()=>{}).finally(()=>{if(libraryRefresh===task)libraryRefresh=null;});}
-   const status=await library.status(),active=!!libraryRefresh;
+   librarySchedule.trigger();
+   const status=await library.status(),active=librarySchedule.active;
    return res.status(202).json({...status,update:active?{...status.update,state:'running'}:status.update,started:active,cancellable:active});
   }
-  if(d.action==='cancel-refresh'){libraryRefresh?.abort();return res.json({...await library.status(),cancelled:!!libraryRefresh,cancellable:false});}
-  return res.json({...await library.status(),cancellable:!!libraryRefresh});
+  if(d.action==='cancel-refresh'){const cancelled=librarySchedule.cancel();return res.json({...await library.status(),cancelled,cancellable:false});}
+  if(d.action==='set-schedule'){await librarySchedule.setEnabled(d.enabled);return res.json({...await library.status(),cancellable:librarySchedule.active});}
+  return res.json({...await library.status(),cancellable:librarySchedule.active});
  }catch(e){if(!controller.signal.aborted)next(e);}
  finally{if(chargedSlot)studioActive--;res.off('close',abort);}
 });
@@ -173,6 +182,8 @@ if(process.env.NODE_ENV==='production'){
   app.use(vite.middlewares);
 }
 const port=Number(process.env.PORT||4317);
-const server=app.listen(port,'127.0.0.1',()=>console.log(`Relay is ready at http://127.0.0.1:${port}`));
+const server=app.listen(port,'127.0.0.1',()=>{const bound=server.address();const actualPort=typeof bound==='object'&&bound?bound.port:port;console.log(`Relay is ready at http://127.0.0.1:${actualPort}`);process.send?.({type:'relay-ready',port:actualPort});void librarySchedule.start();});
 server.on('error',error=>{console.error(safeError(error));process.exit(1);});
 void checkConnections();
+
+if(desktopAccess.enabled){let stopping=false;const shutdown=async()=>{if(stopping)return;stopping=true;librarySchedule.stop();for(const ac of modelHandoffs.active.values())ac.abort();for(const ac of documents.previewJobs.values())ac.abort();for(const id of workflow.active.keys())workflow.cancel(id);await Promise.allSettled([...canvasRuns.runs.values()].filter(r=>r.status==='running').map(r=>canvasRuns.pause(r.id)));server.closeAllConnections();server.close(()=>process.exit(0));setTimeout(()=>process.exit(0),4000).unref();};process.on('message',m=>{if((m as any)?.type==='relay-shutdown')void shutdown();});process.once('SIGTERM',()=>void shutdown());process.once('disconnect',()=>void shutdown());}

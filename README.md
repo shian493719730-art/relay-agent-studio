@@ -9,6 +9,7 @@
 [English](README.en.md) · [快速开始](docs/QUICKSTART.md) · [插件与模型](docs/INTEGRATIONS.md) · [操作演示](docs/DEMO.md) · [路线图](docs/ROADMAP.md)
 
 ![Alpha](https://img.shields.io/badge/status-alpha-6C63FF)
+[![CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml)
 ![Node 24+](https://img.shields.io/badge/node-%E2%89%A524-339933)
 [![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 

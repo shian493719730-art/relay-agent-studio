@@ -54,7 +54,9 @@ try{
  }else if(kind==='pdf'){
   const require=createRequire(import.meta.url),dist=path.dirname(require.resolve('pdfjs-dist/package.json'));
   const {getDocument}=await import('pdfjs-dist/legacy/build/pdf.mjs');
-  const loading=getDocument({data:new Uint8Array(await fs.readFile(file)),isEvalSupported:false,disableFontFace:true,useSystemFonts:false,cMapUrl:path.join(dist,'cmaps')+path.sep,cMapPacked:true,standardFontDataUrl:path.join(dist,'standard_fonts')+path.sep});const doc=await loading.promise;
+  // PDF.js requires a forward-slash terminator even for Node filesystem paths on Windows.
+  const assetDirectory=name=>path.join(dist,name).split(path.sep).join('/')+'/';
+  const loading=getDocument({data:new Uint8Array(await fs.readFile(file)),isEvalSupported:false,disableFontFace:true,useSystemFonts:false,cMapUrl:assetDirectory('cmaps'),cMapPacked:true,standardFontDataUrl:assetDirectory('standard_fonts')});const doc=await loading.promise;
   if(doc.numPages>300)throw new Error('PDF超过300页，请按页码拆分后再试');
   const empty=[];
   try{for(let page=1;page<=doc.numPages;page++){

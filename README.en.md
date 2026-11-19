@@ -9,6 +9,7 @@ A local-first, editable canvas for multi-model agents, vibe coding, and everyday
 [简体中文](README.md) · [Quick start](docs/QUICKSTART.md) · [Integrations](docs/INTEGRATIONS.md) · [Demo](docs/DEMO.md)
 
 ![Alpha](https://img.shields.io/badge/status-alpha-6C63FF)
+[![CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml)
 [![MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ![Relay canvas with projects, agents and connections](docs/media/workspace.png)

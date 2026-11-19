@@ -1,0 +1,49 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import vm from 'node:vm';
+import {randomUUID} from 'node:crypto';
+import {Development} from '../server/development.ts';
+import {relayCopyPath,relayCopyOriginal} from '../server/relay-selfdev.ts';
+import {planAssistant} from '../server/studio-assistant.ts';
+const source=fs.readFileSync(new URL('../src/prototype/ai-source-tutorial.js',import.meta.url),'utf8');
+const core=vm.runInNewContext(source.split('/* AI_SOURCE_CORE_START */')[1].split('/* AI_SOURCE_CORE_END */')[0]+';AISourceCore');
+const assistant=fs.readFileSync(new URL('../src/prototype/assistant.js',import.meta.url),'utf8');const executor=vm.runInNewContext(assistant.split('/* ASSISTANT_CORE_START */')[1].split('/* ASSISTANT_CORE_END */')[0]+';AssistantCore');
+async function wait(fn:()=>Promise<any>){for(let n=0;n<300;n++){const x=await fn();if(x.settled)return x;await new Promise(r=>setTimeout(r,20));}throw Error('check did not settle')}
+test('a natural-language local lesson executes real source tools, pauses after reading, resumes once, tests, previews the shared component and rolls back',async()=>{
+ const storage=fs.mkdtempSync(path.join(os.tmpdir(),'relay-ai-source-')),dev=new Development(storage,15000),goal=core.goal('把内置助手的开场说明改为「一起完成今天的目标」。'),s:any={id:'fixture',steps:core.plan(goal),cursor:0,status:'ready'},ac=new AbortController();let w:any,reads=0,writes=0;
+ const invoke=async(name:string,a:any,ctx:any)=>{let r:any;if(name==='relay.lesson.prepare'){w=await dev.action({action:'practice',boardId:'board',projectId:'project',requestId:randomUUID(),scenario:'relay-assistant',expectedWelcome:a.welcome});return{workspaceId:w.id};}if(name==='relay.lesson.edit')return core.edit(a.read,a.welcome);if(name==='relay.lesson.verify'){assert.ok(core.verified(s.results.s9,s.results.s7,a.welcome));return{verified:true};}if(name==='dev.open')return{workspaceId:w.id};const action=name==='dev.preview'?'uiPreview':name.slice(4);r=await dev.action({action,...a,...(action==='replace'||action==='check'?{requestId:ctx.step.checkpoint?.requestId||(ctx.step.checkpoint={requestId:randomUUID()}).requestId}:{})});if(action==='read'&&a.path===relayCopyPath){reads++;if(reads===1)ac.abort();}if(action==='replace')writes++;if(action==='check')r=await wait(()=>dev.action({action:'checkStatus',workspaceId:w.id,runId:r.id}));return r;};
+ try{await executor.run(s,invoke,async()=>{},ac.signal);assert.equal(s.status,'paused');assert.equal(s.cursor,3);assert.equal(writes,0);await executor.run(s,invoke,async()=>{},new AbortController().signal);assert.equal(s.status,'completed');assert.equal(reads,1);assert.equal(writes,1);assert.equal(s.results.s7.status,'passed');assert.equal(s.results.s7.exitCode,0);assert.equal(s.results.s9.welcome,goal);assert.equal(s.results.s9.installationChanged,false);assert.notEqual(fs.readFileSync(path.join(w.root,relayCopyPath),'utf8'),relayCopyOriginal);
+ const edit=s.results.s6;await dev.action({action:'revert',workspaceId:w.id,changeId:edit.id});const preview:any=await dev.action({action:'uiPreview',workspaceId:w.id});assert.equal(fs.readFileSync(path.join(w.root,relayCopyPath),'utf8'),relayCopyOriginal);assert.notEqual(preview.hash,preview.test.sourceHash);assert.equal(core.verified(preview,s.results.s7,goal),false);
+ }finally{await dev.stopAll();fs.rmSync(storage,{recursive:true,force:true});}
+});
+test('the Relay lesson keeps its requirement and tests readonly, refuses grant expansion and preserves later manual edits',async()=>{
+ const storage=fs.mkdtempSync(path.join(os.tmpdir(),'relay-ai-boundary-')),dev=new Development(storage);try{const request={action:'practice',boardId:'b',projectId:'p',requestId:randomUUID(),scenario:'relay-assistant',expectedWelcome:'新的开场'},w:any=await dev.action(request);assert.equal((await dev.action(request) as any).id,w.id);await assert.rejects(dev.action({...request,expectedWelcome:'changed'}));
+ for(const file of ['requirements.json','package.json','tests/relay-welcome.test.mjs']){const read:any=await dev.action({action:'read',workspaceId:w.id,path:file});await assert.rejects(dev.action({action:'write',workspaceId:w.id,path:file,content:'fake a pass',expectedHash:read.hash,requestId:randomUUID()}),/只读/);}
+ const before:any=await dev.action({action:'read',workspaceId:w.id,path:relayCopyPath}),spec=core.edit(before,'新的开场'),change:any=await dev.action({action:'replace',workspaceId:w.id,...spec,requestId:randomUUID()});fs.writeFileSync(path.join(w.root,relayCopyPath),'{"welcome":"human change"}\n');await assert.rejects(dev.action({action:'revert',workspaceId:w.id,changeId:change.id}),/人工编辑/);assert.match(fs.readFileSync(path.join(w.root,relayCopyPath),'utf8'),/human change/);
+ }finally{await dev.stopAll();fs.rmSync(storage,{recursive:true,force:true});}
+});
+test('local interpretation is bounded, stale checks never verify, and explicit stopped-check retries preserve other checkpoints',()=>{
+ assert.throws(()=>core.goal('帮我部署网站'),/本地课程/);assert.throws(()=>core.goal('修改助手开场说明'),/请用/);assert.equal(core.goal('把助手欢迎语改成「任意短文案」'),'任意短文案');assert.throws(()=>core.edit({manualDraft:true},'x'),/人工草稿/);
+ assert.equal(core.verified({hash:'new',welcome:'goal'},{status:'passed',exitCode:0,sourceHash:'old'},'goal'),false);assert.equal(core.verified({hash:'new',welcome:'goal'},{status:'stopped',exitCode:null,sourceHash:'new'},'goal'),false);
+ const cp:any={devRunId:'old',devRequestId:'old-request',keep:'manual'};assert.throws(()=>core.retry(cp,{settled:false,status:'stopped'}),/仍在停止/);assert.equal(cp.devRunId,'old');assert.equal(core.retry(cp,{settled:true,status:'stopped'}),true);assert.equal(cp.devRunId,undefined);assert.equal(cp.keep,'manual');
+});
+test('the same real assistant component renders source previews without executing markup, and free mode blocks paid endpoints',async()=>{
+ const component=fs.readFileSync(new URL('../src/prototype/assistant-copy.js',import.meta.url),'utf8'),render=vm.runInNewContext(component+';renderAssistantWelcome',{esc:(s:string)=>s.replaceAll('<','&lt;').replaceAll('>','&gt;')});assert.match(render('<img onerror=alert(1)>'),/&lt;img/);assert.ok(!render('<script>').includes('<script>'));
+ let sent=0;const api=vm.runInNewContext(source.slice(source.indexOf('const aidFetchBase='),source.indexOf('\nasync function aidBegin('))+';window.fetch',{window:{fetch:async()=>{sent++;return{ok:true}}},aidActive:()=>true,B:()=>({})});for(const [url,body] of [['/api/studio/assistant','{}'],['/api/studio/models','{"action":"run"}'],['/api/studio/collaboration','{"action":"start"}']])await assert.rejects(api(url,{body}),/不运行模型/);await api('/api/studio/development',{body:'{"action":"read"}'});assert.equal(sent,1);
+});
+test('real AI planning can select the actual preview capability without running a paid model in this check',async()=>{
+ const result=await planAssistant({message:'修改Relay后检查源码结果预览',capabilities:[{name:'dev.preview',description:'actual source preview',params:'workspaceId'}],context:{projects:[],development:[{id:'connected',boardId:'board',name:'Relay',writable:true,checksAllowed:true}],nextStep:1}},undefined,async()=>({reply:'使用实际已连接源码预览',question:'',finished:false,steps:[{id:'s1',name:'dev.preview',label:'核对源码结果',argsJson:'{"workspaceId":"connected"}'}]}));assert.equal(result.steps[0].name,'dev.preview');
+});
+test('the actual bundled AI tutorial adapter wraps the final source/browser/history adapters so every tool participates in pause and receipts',()=>{
+ const html=fs.readFileSync(new URL('../src/prototype/index.html',import.meta.url),'utf8'),at=html.indexOf('/* AI_SOURCE_TUTORIAL_START */');for(const marker of ['/* DEVELOPMENT_END */','/* BROWSER_CONTROL_END */','/* HISTORY_REPORTS_END */','/* TUTORIAL_EDITING_END */'])assert.ok(at>html.indexOf(marker),marker+' must precede the tutorial adapter');assert.ok(at<html.indexOf('renderAll();if(B().initialFit)'));
+});
+test('numbered guidance points to actual request, execution, pause, continue and source rollback controls',()=>{
+ assert.equal(core.stage({},null,false,'request').selector,'#guide [data-as-send]');assert.equal(core.stage({},null,false,'').number,1);const t={assistantId:'s'};assert.equal(core.stage(t,{status:'running'},true,'').selector,'#guide [data-as-pause]');assert.equal(core.stage(t,{status:'paused'},false,'').selector,'#guide [data-as-continue]');assert.equal(core.stage({...t,verified:true},{status:'completed'},false,'').selector,'#guide [data-aid-rollback]');assert.equal(core.stage({...t,rolledBack:true},{status:'completed'},false,'').number,6);
+});
+test('the actual real-AI request adapter refuses to plan until a real repository has writable and checked script grants',async()=>{
+ let planned=0;const course:any={status:'prepared',preparedBoardId:'b'},AS:any={},workspaces:any[]=[];const ctx:any={asAsk:async()=>{planned++},aidActive:()=>false,aidCourse:()=>course,state:{activeBoard:'b'},dwRefresh:async()=>{},dwVisible:()=>workspaces,AS,renderGuide(){},save(){}};
+ const ask=vm.runInNewContext(source.slice(source.indexOf('const aidAskBase='),source.indexOf('\nconst aidSteerBase='))+';asAsk',ctx);await ask('Modify Relay');assert.equal(planned,0);assert.match(AS.localReply,/尚未调用模型/);workspaces.push({kind:'practice',writable:true,checksAllowed:true});await ask('Modify Relay');assert.equal(planned,0);workspaces.push({writable:true,checksAllowed:false});await ask('Modify Relay');assert.equal(planned,0);workspaces[1].checksAllowed=true;await ask('Modify Relay');assert.equal(planned,1);assert.equal(course.status,'complete');
+});

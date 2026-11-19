@@ -4,6 +4,7 @@ import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 import {execFileSync,spawn,type ChildProcess} from 'node:child_process';
 import {z} from 'zod';
+import {relayCopyPath,relayPractice} from './relay-selfdev.ts';
 import {dataRoot} from './store.ts';
 import {practiceSource,practiceExpected,practiceHash,practiceCommands,practiceFiles} from './development-practice.ts';
 
@@ -16,12 +17,12 @@ function relativePath(value:string){
  if(!value||value.length>600||value.includes('\\')||value.includes('\0')||path.isAbsolute(value)||value.split('/').some(p=>!p||p==='.'||p==='..'||blocked.has(p)||p.startsWith('.env')&&p!=='.env.example'||/\.(?:pem|key|p12|pfx)$/i.test(p)))throw new DevelopmentError('只能访问仓库内的源码路径；密钥、运行数据和依赖目录不可访问',400);
  return value;
 }
-type Workspace={id:string;root:string;name:string;boardId:string;projectId?:string;writable:boolean;scriptsHash?:string;active:boolean;kind?:'practice'};
+type Workspace={id:string;root:string;name:string;boardId:string;projectId?:string;writable:boolean;scriptsHash?:string;active:boolean;kind?:'practice';recipe?:'relay-assistant';expectedWelcome?:string};
 type Change={id:string;requestId:string;workspaceId:string;path:string;before:string|null;after:string|null;beforeHash:string;afterHash:string;mode:number;status:'prepared'|'applied'|'reverted'|'conflicted';time:number};
 type Check={id:string;requestId:string;workspaceId:string;command:string;status:'running'|'passed'|'failed'|'stopped'|'interrupted';output:string;truncated:boolean;startedAt:number;finishedAt?:number;exitCode?:number|null;sourceHash?:string;runner?:string};
 const request=z.discriminatedUnion('action',[
  z.object({action:z.literal('list'),boardId:z.string().max(180).optional()}),
- z.object({action:z.literal('practice'),boardId:z.string().min(1).max(180),projectId:z.string().min(1).max(180),requestId:z.string().uuid()}),
+ z.object({action:z.literal('practice'),boardId:z.string().min(1).max(180),projectId:z.string().min(1).max(180),requestId:z.string().uuid(),scenario:z.literal('relay-assistant').optional(),expectedWelcome:z.string().trim().min(1).max(160).optional()}),
  z.object({action:z.literal('preview'),directory:z.string().min(1).max(2000)}),
  z.object({action:z.literal('attach'),directory:z.string().min(1).max(2000),boardId:z.string().min(1).max(180),projectId:z.string().max(180).optional(),writable:z.boolean(),allowChecks:z.boolean(),scriptsHash:z.string().length(64)}),
  z.object({action:z.literal('files'),workspaceId:z.string().uuid(),query:z.string().max(200).default(''),page:z.number().int().min(1).default(1)}),
@@ -30,6 +31,7 @@ const request=z.discriminatedUnion('action',[
  z.object({action:z.literal('replace'),workspaceId:z.string().uuid(),path:z.string(),oldText:z.string().min(1).max(64000),newText:z.string().max(64000),expectedHash:z.string(),requestId:z.string().uuid()}),
  z.object({action:z.literal('delete'),workspaceId:z.string().uuid(),path:z.string(),expectedHash:z.string(),requestId:z.string().uuid()}),
  z.object({action:z.literal('diff'),workspaceId:z.string().uuid(),changeId:z.string().uuid().optional()}),
+ z.object({action:z.literal('uiPreview'),workspaceId:z.string().uuid()}),
  z.object({action:z.literal('gitDiff'),workspaceId:z.string().uuid(),path:z.string()}),
  z.object({action:z.enum(['revert','reapply']),workspaceId:z.string().uuid(),changeId:z.string().uuid()}),
  z.object({action:z.literal('check'),workspaceId:z.string().uuid(),command:z.enum(commands),requestId:z.string().uuid()}),
@@ -51,7 +53,8 @@ export class Development {
  private persist(){this.save('workspaces.json',this.workspaces);this.save('changes.json',this.changes);this.save('checks.json',this.checks);}
  private git(root:string,args:string[]){return execFileSync('git',['-c','core.fsmonitor=false','-C',root,...args],{encoding:'utf8',maxBuffer:2*1024*1024,timeout:15000,stdio:['ignore','pipe','pipe']});}
  private get(id:string){const w=this.workspaces.find(w=>w.id===id&&w.active);if(!w)throw new DevelopmentError('源码工作区未连接或已断开',404);if(fs.realpathSync(w.root)!==w.root)throw new DevelopmentError('项目路径已变化，请重新连接');return w;}
- private summary(w:Workspace){let checksAllowed=false;try{checksAllowed=!!w.scriptsHash&&w.scriptsHash===this.manifest(w.root).scriptsHash;}catch{}const last=this.checks.filter(c=>c.workspaceId===w.id).at(-1);return{...w,checksAllowed,commands:w.kind==='practice'?Object.keys(practiceCommands):[...commands],practice:w.kind==='practice'?{source:practiceSource,baselineHash:practiceHash,expectedTitle:practiceExpected}:null,lastCheck:last?{id:last.id,command:last.command,status:last.status}:null,running:this.checks.filter(c=>c.workspaceId===w.id&&(c.status==='running'||this.children.has(c.id))).map(c=>({id:c.id,command:c.command,status:c.status}))};}
+ private recipe(w:Workspace){return w.recipe==='relay-assistant'?relayPractice(w.expectedWelcome||''):{source:practiceSource,baselineHash:practiceHash,commands:practiceCommands,readonly:[] as string[],files:practiceFiles};}
+ private summary(w:Workspace){let checksAllowed=false;try{checksAllowed=!!w.scriptsHash&&w.scriptsHash===this.manifest(w.root).scriptsHash;}catch{}const last=this.checks.filter(c=>c.workspaceId===w.id).at(-1);return{...w,checksAllowed,commands:w.kind==='practice'?Object.keys(this.recipe(w).commands):[...commands],practice:w.kind==='practice'?{source:this.recipe(w).source,baselineHash:this.recipe(w).baselineHash,scenario:w.recipe||'source',expectedTitle:w.expectedWelcome||practiceExpected}:null,lastCheck:last?{id:last.id,command:last.command,status:last.status}:null,running:this.checks.filter(c=>c.workspaceId===w.id&&(c.status==='running'||this.children.has(c.id))).map(c=>({id:c.id,command:c.command,status:c.status}))};}
  private manifest(root:string){
   const file=path.join(root,'package.json');if(!fs.existsSync(file)||fs.lstatSync(file).isSymbolicLink())throw new DevelopmentError('开发检查需要仓库中的普通 package.json 文件',400);
   const text=fs.readFileSync(file,'utf8'),pkg=JSON.parse(text);return{name:typeof pkg.name==='string'?pkg.name.slice(0,120):path.basename(root),scriptsHash:hash(text),scripts:Object.fromEntries(commands.filter(c=>typeof pkg.scripts?.[c]==='string').map(c=>[c,pkg.scripts[c]]))};
@@ -65,7 +68,7 @@ export class Development {
  private target(w:Workspace,name:string){
   relativePath(name);const parts=name.split('/');let current=w.root;
   for(const p of parts){current=path.join(current,p);try{if(fs.lstatSync(current).isSymbolicLink())throw new DevelopmentError('不访问符号链接；请使用仓库内普通文件',400);}catch(e){if((e as any).code!=='ENOENT')throw e;}}
-  if(w.kind==='practice'){if(!Object.hasOwn(practiceFiles,name))throw new DevelopmentError('练习只开放示例文件；请另行连接自己的仓库',400);return current;}
+  if(w.kind==='practice'){if(!Object.hasOwn(this.recipe(w).files,name))throw new DevelopmentError('练习只开放示例文件；请另行连接自己的仓库',400);return current;}
   const result=execFileSync('git',['-C',w.root,'check-ignore','--no-index','--',name],{encoding:'utf8',stdio:['ignore','pipe','pipe'],timeout:15000});
   if(result.trim())throw new DevelopmentError('被 Git 忽略的文件不向源码工作区开放',400);
   return current;
@@ -75,7 +78,7 @@ export class Development {
  private replaceFile(w:Workspace,name:string,content:string|null,mode:number){const file=this.safeTarget(w,name);if(content===null){if(fs.existsSync(file))fs.unlinkSync(file);return;}fs.mkdirSync(path.dirname(file),{recursive:true});this.safeTarget(w,name);const temp=file+'.relay-'+randomUUID()+'.tmp';try{fs.writeFileSync(temp,content,{mode});fs.chmodSync(temp,mode);fs.renameSync(temp,file);}finally{if(fs.existsSync(temp))fs.unlinkSync(temp);}}
  private changePublic(c:Change,body=false){return{id:c.id,workspaceId:c.workspaceId,path:c.path,kind:c.before===null?'create':c.after===null?'delete':'edit',beforeHash:c.beforeHash,afterHash:c.afterHash,status:c.status,time:c.time,...(body?{before:c.before,after:c.after}:{})};}
  private edit(w:Workspace,name:string,content:string|null,expectedHash:string,requestId:string){
-  if(!w.writable)throw new DevelopmentError('此工作区为只读，请在连接设置中开启源码写入',403);
+  if(!w.writable)throw new DevelopmentError('此工作区为只读，请在连接设置中开启源码写入',403);if(w.kind==='practice'&&this.recipe(w).readonly.includes(name))throw new DevelopmentError('本课需求与测试文件为只读，不能通过修改验收标准冒充完成',403);
   if(content!==null&&Buffer.byteLength(content)>1024*1024)throw new DevelopmentError('修改后的源码不能超过1MB',400);
   const prior=this.changes.find(c=>c.requestId===requestId&&c.workspaceId===w.id);if(prior){if(prior.path!==name||prior.after!==content||prior.beforeHash!==expectedHash)throw new DevelopmentError('重复请求与原编辑内容不同');if(prior.status==='prepared'){const actual=this.current(w,name).hash;if(actual!==prior.afterHash){if(actual!==prior.beforeHash)throw new DevelopmentError('原编辑未完成，文件已由其他操作修改');this.replaceFile(w,name,content,prior.mode);}prior.status='applied';this.persist();}return this.changePublic(prior);}
   const current=this.current(w,name);if(current.hash!==expectedHash)throw new DevelopmentError('文件已被其他操作修改，请重新读取；没有覆盖你的修改');
@@ -90,10 +93,11 @@ export class Development {
   const d=request.parse(input);
   if(d.action==='list')return{workspaces:this.workspaces.filter(w=>w.active&&(!d.boardId||w.boardId===d.boardId)).map(w=>this.summary(w))};
   if(d.action==='practice'){
-   const previous=this.workspaces.find(w=>w.id===d.requestId);if(previous){if(previous.kind!=='practice'||previous.boardId!==d.boardId||previous.projectId!==d.projectId||!previous.active)throw new DevelopmentError('练习请求已被使用或断开，请新开一轮');return this.summary(previous);}
+   const previous=this.workspaces.find(w=>w.id===d.requestId);if(previous){if(previous.recipe!==d.scenario||previous.expectedWelcome!==d.expectedWelcome||previous.kind!=='practice'||previous.boardId!==d.boardId||previous.projectId!==d.projectId||!previous.active)throw new DevelopmentError('练习请求已被使用或断开，请新开一轮');return this.summary(previous);}
+   if(d.scenario==='relay-assistant'&&!d.expectedWelcome)throw new DevelopmentError('先填写本课的开场说明需求',400);const recipe=d.scenario?relayPractice(d.expectedWelcome!):{files:practiceFiles};
    const parent=path.join(this.storage,'practice');fs.mkdirSync(parent,{recursive:true,mode:0o700});const root=fs.realpathSync(fs.mkdtempSync(path.join(parent,'project-')));
-   try{for(const [name,body] of Object.entries(practiceFiles)){const file=path.join(root,name);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,body,{mode:0o600,flag:'wx'});}}catch(e){fs.rmSync(root,{recursive:true,force:true});throw e;}
-   const w:Workspace={id:d.requestId,root,name:'本地源码练习',boardId:d.boardId,projectId:d.projectId,writable:true,active:true,kind:'practice',scriptsHash:this.manifest(root).scriptsHash};this.workspaces.push(w);this.persist();return this.summary(w);
+   try{for(const [name,body] of Object.entries(recipe.files)){const file=path.join(root,name);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,body,{mode:0o600,flag:'wx'});}}catch(e){fs.rmSync(root,{recursive:true,force:true});throw e;}
+   const w:Workspace={id:d.requestId,root,name:'本地源码练习',boardId:d.boardId,projectId:d.projectId,writable:true,active:true,kind:'practice',...(d.scenario?{recipe:d.scenario,expectedWelcome:d.expectedWelcome}:{}),scriptsHash:this.manifest(root).scriptsHash};this.workspaces.push(w);this.persist();return this.summary(w);
   }
   if(d.action==='preview')return this.preview(d.directory);
   if(d.action==='attach'){
@@ -103,9 +107,10 @@ export class Development {
   const w=this.get(d.workspaceId);
   if(d.action==='detach'){this.checks.filter(c=>c.workspaceId===w.id&&c.status==='running').forEach(c=>this.stop(c.id));w.active=false;this.persist();return{workspaceId:w.id,detached:true,message:'已断开源码工作区，原文件和差异记录保留'};}
   if(d.action==='files'){
-   const names=(w.kind==='practice'?Object.keys(practiceFiles).filter(n=>fs.existsSync(path.join(w.root,n))):this.git(w.root,['ls-files','-z','--cached','--others','--exclude-standard']).split('\0').filter(Boolean)).filter(n=>{try{relativePath(n);return n.toLowerCase().includes(d.query.toLowerCase());}catch{return false;}});
+   const names=(w.kind==='practice'?Object.keys(this.recipe(w).files).filter(n=>fs.existsSync(path.join(w.root,n))):this.git(w.root,['ls-files','-z','--cached','--others','--exclude-standard']).split('\0').filter(Boolean)).filter(n=>{try{relativePath(n);return n.toLowerCase().includes(d.query.toLowerCase());}catch{return false;}});
    const unique=[...new Set(names)].sort();return{workspaceId:w.id,files:unique.slice((d.page-1)*60,d.page*60),page:d.page,total:unique.length};
   }
+  if(d.action==='uiPreview'){const c=this.current(w,relayCopyPath);if(c.content===null)throw new DevelopmentError('这个项目没有Relay助手文案源文件',404);const copy=z.object({welcome:z.string().min(1).max(500)}).strict().parse(JSON.parse(c.content));const last=this.checks.filter(c=>c.workspaceId===w.id&&c.command==='test').at(-1);return{workspaceId:w.id,path:relayCopyPath,hash:c.hash,welcome:copy.welcome,test:last?{id:last.id,status:last.status,sourceHash:last.sourceHash,exitCode:last.exitCode}:null,installationChanged:false,message:'已从实际源码读取结果预览，未替换正在运行的安装包'};}
   if(d.action==='read'){const c=this.current(w,d.path);if(c.content===null)throw new DevelopmentError('文件不存在',404);const end=Math.min(c.content.length,d.start+d.length);return{workspaceId:w.id,path:d.path,hash:c.hash,start:d.start,text:c.content.slice(d.start,end),total:c.content.length,nextStart:end<c.content.length?end:null};}
   if(d.action==='write'||d.action==='delete')return this.edit(w,d.path,d.action==='delete'?null:d.content,d.expectedHash,d.requestId);
   if(d.action==='replace'){
@@ -127,8 +132,8 @@ export class Development {
    const previous=this.checkRequests.get(w.id+':'+d.requestId);if(previous)return this.checkPublic(this.checks.find(c=>c.id===previous)!);
    const pkg=this.manifest(w.root);if(!w.scriptsHash||pkg.scriptsHash!==w.scriptsHash)throw new DevelopmentError('检查权限未开启或 package.json 已变化，请先在连接界面核对脚本');if(!pkg.scripts[d.command])throw new DevelopmentError('此项目没有该检查脚本',400);
    if(this.checks.some(c=>c.workspaceId===w.id&&(c.status==='running'||this.children.has(c.id))))throw new DevelopmentError('本项目已有检查在运行或停止中，请等待');
-   const runner=w.kind==='practice'?practiceCommands[d.command]:null;
-   const c:Check={...(runner?{sourceHash:this.current(w,practiceSource).hash,runner:'内置 Node · '+runner.join(' ')}:{}),id:randomUUID(),requestId:d.requestId,workspaceId:w.id,command:d.command,status:'running',output:'',truncated:false,startedAt:Date.now()};this.checks.push(c);this.checkRequests.set(w.id+':'+d.requestId,c.id);this.persist();
+   const runner=w.kind==='practice'?(this.recipe(w).commands as Record<string,string[]>)[d.command]:null;let sourceHash:string|undefined;try{sourceHash=this.current(w,w.kind==='practice'?this.recipe(w).source:relayCopyPath).hash;}catch{}
+   const c:Check={...(sourceHash?{sourceHash}:{}),...(runner?{runner:'内置 Node · '+runner.join(' ')}:{}),id:randomUUID(),requestId:d.requestId,workspaceId:w.id,command:d.command,status:'running',output:'',truncated:false,startedAt:Date.now()};this.checks.push(c);this.checkRequests.set(w.id+':'+d.requestId,c.id);this.persist();
    const env={...process.env};for(const name of Object.keys(env))if(name.startsWith('RELAY_')||/(?:API_KEY|TOKEN|SECRET|PASSWORD)$/.test(name)||['NODE_OPTIONS','NODE_PATH','NODE_TEST_CONTEXT','ELECTRON_RUN_AS_NODE'].includes(name))delete env[name];
    if(process.platform==='darwin')env.PATH=['/opt/homebrew/bin','/usr/local/bin',env.PATH||'/usr/bin:/bin'].join(path.delimiter);
    if(runner&&process.versions.electron)env.ELECTRON_RUN_AS_NODE='1';

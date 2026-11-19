@@ -17,6 +17,17 @@ if not source.exists():
     raise SystemExit('Missing maintained UI source: src/prototype/index.html')
 text = source.read_text(encoding='utf-8')
 
+# One source for the actual assistant welcome and the source-development lesson.
+copy_json=json.loads((root/'resources/ui/assistant-copy.json').read_text(encoding='utf-8'))
+if not isinstance(copy_json,dict) or set(copy_json)!={'welcome'} or not isinstance(copy_json['welcome'],str) or not 1<=len(copy_json['welcome'])<=500:
+    raise SystemExit('Invalid assistant-copy.json')
+copy_module=root/'src/prototype/assistant-copy.js'
+copy_body=copy_module.read_text(encoding='utf-8')
+copy_body=re.sub(r'/\* ASSISTANT_COPY_DATA_START \*/[\s\S]*?/\* ASSISTANT_COPY_DATA_END \*/',lambda _: '/* ASSISTANT_COPY_DATA_START */\nconst RelayAssistantCopy='+json.dumps(copy_json,ensure_ascii=False).replace('<','\\u003c')+';\n/* ASSISTANT_COPY_DATA_END */',copy_body)
+if copy_body!=copy_module.read_text(encoding='utf-8'):
+    if args.check_only: raise SystemExit('Assistant copy differs from source JSON')
+    copy_module.write_text(copy_body,encoding='utf-8')
+
 # These small maintained modules are embedded in the self-contained prototype.
 # Preserve the Claude canvas and its existing engineering fixes around them.
 for name, begin, end in [
@@ -37,6 +48,7 @@ for name, begin, end in [
     ('direct-control.css', '/* DIRECT_CONTROL_CSS_START */', '/* DIRECT_CONTROL_CSS_END */'),
     ('glass-clarity.js', '/* GLASS_CLARITY_START */', '/* GLASS_CLARITY_END */'),
     ('glass-clarity.css', '/* GLASS_CLARITY_CSS_START */', '/* GLASS_CLARITY_CSS_END */'),
+    ('assistant-copy.js', '/* ASSISTANT_COPY_START */', '/* ASSISTANT_COPY_END */'),
     ('assistant.js', '/* ASSISTANT_START */', '/* ASSISTANT_END */'),
     ('auth-ui.js', '/* AUTH_UI_START */', '/* AUTH_UI_END */'),
     ('feature-tour.js', '/* FEATURE_TOUR_START */', '/* FEATURE_TOUR_END */'),
@@ -55,6 +67,8 @@ for name, begin, end in [
     ('tutorial-pointer.js', '/* TUTORIAL_POINTER_START */', '/* TUTORIAL_POINTER_END */'),
     ('source-tutorial.js', '/* SOURCE_TUTORIAL_START */', '/* SOURCE_TUTORIAL_END */'),
     ('source-tutorial.css', '/* SOURCE_TUTORIAL_CSS_START */', '/* SOURCE_TUTORIAL_CSS_END */'),
+    ('ai-source-tutorial.js', '/* AI_SOURCE_TUTORIAL_START */', '/* AI_SOURCE_TUTORIAL_END */'),
+    ('ai-source-tutorial.css', '/* AI_SOURCE_TUTORIAL_CSS_START */', '/* AI_SOURCE_TUTORIAL_CSS_END */'),
     ('workspace-editor.css', '/* WORKSPACE_EDITOR_CSS_START */', '/* WORKSPACE_EDITOR_CSS_END */'),
 ]:
     module=root/'src/prototype'/name

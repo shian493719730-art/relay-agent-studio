@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0-alpha.7
+
+- 修正正式开发任务暂停并退出后，运行、预览与打包按钮未及时恢复可用的问题。
+- 仅在任务结构或状态变化时刷新开发面板；日志轮询保留预览页面与手动输入。
+- 新增真实前端轮询回归，覆盖进程结束与预览保留；当前离线检查共196项。
+
 ## 0.2.0-alpha.6
 
 - Add formal Git/npm development environments, dependency installation, script execution, actual application previews, Playwright MCP page inspection, build artifact exports and checkpoint restoration to the built-in operator.

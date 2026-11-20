@@ -103,3 +103,13 @@ test('opening the real-project or assistant preparation entry cannot fall throug
  vm.runInNewContext(js.slice(start,end),{document:{addEventListener:(_event:string,h:any)=>{handler=h}},dwWorkspace:()=>{workspaces++;throw Error('Preparation must not start a runtime command')}});
  for(const entry of ['data-dr-begin','data-dr-assistant'])handler({target:{closest:()=>({attributes:[{name:entry}],hasAttribute:(name:string)=>name===entry,matches:()=>false})}});assert.equal(workspaces,0);
 });
+
+test('the actual runtime polling releases stopped-process controls after exit and preserves the preview DOM for log-only updates',async()=>{
+ const js=fs.readFileSync(new URL('../src/prototype/development-runtime.js',import.meta.url),'utf8');let poll:any,renders=0;
+ const old={workspaceId:'w',tasks:[{id:'t',status:'stopped',settled:false,kind:'serve',artifacts:[],message:'Stopping',output:''}],scripts:[],checkpoints:[]};let next:any=structuredClone(old);next.tasks[0].settled=true;
+ const fields:any={};for(const q of ['[data-dr-state]','[data-dr-log]','[data-dr-pause]','[data-dr-resume]'])fields[q]={textContent:'',scrollTop:0,clientHeight:1,scrollHeight:1};
+ const box={dataset:{drCurrent:'t'},querySelector:(q:string)=>fields[q]},scope:any={JSON,DR:{status:old,checkpoint:{},busy:false},DW:{tab:'runtime'},dwWorkspace:()=>({id:'w'}),dwPanel:{hidden:false,querySelector:()=>box},dwApi:async()=>structuredClone(next),dwRender:()=>{renders++},setInterval:(f:any)=>{poll=f}};
+ vm.runInNewContext(js.slice(js.indexOf('function drLayoutKey()'),js.indexOf('function drObservation()'))+js.slice(js.lastIndexOf('setInterval('),js.indexOf('/* DEVELOPMENT_RUNTIME_END */')),scope);
+ const tick=async()=>{poll();await new Promise(ok=>setImmediate(ok));};await tick();assert.equal(renders,1,'process exit must refresh the command controls');assert.equal(fields['[data-dr-resume]'].disabled,false);
+ next.tasks[0].output='More actual log';await tick();assert.equal(renders,1,'log polling must not replace a preview or manual input');assert.equal(fields['[data-dr-log]'].textContent,'More actual log');
+});

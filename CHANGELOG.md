@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0-alpha.10
+
+- Preserve visible teaching titles and restore controls when reopening an older saved collapsed panel.
+- Show lesson pointers only on their own course board; keep other workspaces clear and preserve their view.
+
 ## 0.2.0-alpha.9
 
 - Turn the core capability course into learning by doing: fine numbered operations, purpose and expected observations, explanatory checks, previous-lesson navigation and independent transfer tasks. Preserve existing course progress.

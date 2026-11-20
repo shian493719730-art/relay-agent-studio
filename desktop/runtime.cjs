@@ -25,7 +25,8 @@ async function proxyDevelopmentPreview(request,base,token,fetcher=fetch){
  const u=new URL(request.url);if(u.protocol!=='relay-preview:'||!/^[-a-f0-9]{36}$/.test(u.hostname)||u.port||u.username||u.password)return new Response('Invalid preview',{status:403});
  if(request.initiatorOrigin&&!['relay://workspace','relay-preview://'+u.hostname].includes(request.initiatorOrigin))return new Response('Foreign preview origin',{status:403});
  const ready=await fetcher(base+'/development-preview/'+u.hostname,{headers:{'X-Relay-Desktop':token},redirect:'manual'});
- const origin=ready.headers.get('location');if(ready.status!==302||!origin||!/^http:\/\/127\.0\.0\.1:\d+\/$/.test(origin))return new Response('Preview is stopped',{status:404});
+ const origin=ready.headers.get('location');if(ready.status!==302||!origin||!/^http:\/\/127\.0\.0\.1:\d+\/(?!\/)/.test(origin))return new Response('Preview is stopped',{status:404});
+ if(u.pathname==='/'&&!u.search&&new URL(origin).pathname!=='/')return new Response(null,{status:302,headers:{location:'relay-preview://'+u.hostname+new URL(origin).pathname+new URL(origin).search}});
  const target=new URL(u.pathname+u.search,origin);if(target.origin!==new URL(origin).origin)return new Response('Invalid preview',{status:403});
  const headers=new Headers(request.headers);for(const h of ['host','origin','cookie','authorization','x-relay-desktop'])headers.delete(h);
  const init={method:request.method,headers,redirect:'manual',signal:request.signal};if(!['GET','HEAD'].includes(request.method)){init.body=request.body;init.duplex='half';}

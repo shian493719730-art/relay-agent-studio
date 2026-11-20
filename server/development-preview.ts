@@ -4,7 +4,7 @@ import {InMemoryTransport} from '@modelcontextprotocol/sdk/inMemory.js';
 // Read-only, isolated browser inspection of a validated, running project preview.
 // No shared profile, Relay credentials, arbitrary MCP tools or arbitrary navigation.
 export async function inspectDevelopmentPreview(origin:string,signal:AbortSignal){
- if(!/^http:\/\/127\.0\.0\.1:\d+\/$/.test(origin))throw new Error('只能检查当前项目实际启动的本地预览');
+ if(!/^http:\/\/127\.0\.0\.1:\d+\/(?!\/)/.test(origin))throw new Error('只能检查当前项目实际启动的本地预览');
  const {createConnection}=await import('@playwright/mcp');
  const server=await createConnection({browser:{browserName:'chromium',isolated:true,launchOptions:{channel:'chrome',headless:false},contextOptions:{viewport:{width:1100,height:760}}},network:{allowedOrigins:[new URL(origin).origin]},capabilities:['vision'],timeouts:{action:4000,navigation:15000},snapshot:{mode:'none'},imageResponses:'allow'});
  const client=new Client({name:'relay-development-preview',version:'1.0.0'}),[left,right]=InMemoryTransport.createLinkedPair();let closing:Promise<void>|undefined;

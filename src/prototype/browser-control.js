@@ -87,7 +87,7 @@ async function vrNativeInvoke(name,a,ctx){
  const psel=id=>'.ring[data-pid="'+CSS.escape(id)+'"]';
  const dismissReport=async()=>{if($('#activity-report')&&!$('#activity-report').hidden)await click('#activity-report [data-activity-close]','收起近况，显示画板操作区')};
  const openProject=async id=>{if(state.room){await click('#room [data-act="room.leave"]','返回画板')}await dismissReport();await click(psel(id)+' .rt','展开项目面板')};
- $('#guide').classList.remove('o');
+ if(innerWidth<900)$('#guide').classList.remove('o');
  await dismissReport();
  if(name==='board.create'||name==='board.rename'||name==='board.switch'||name==='board.list'){
   if(panK!=='boards')await click('#tl [data-a="boards"]','展开画板菜单');

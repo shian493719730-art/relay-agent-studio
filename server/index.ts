@@ -21,6 +21,7 @@ import {librarySchedule} from './library-schedule.ts';
 import {legalInfo,legalPage,sourceArchive} from './legal.ts';
 import {RuntimeError} from './development-runtime.ts';
 import {development,DevelopmentError} from './development.ts';
+import {developmentArtifactHandler} from './development-http.ts';
 
 const app=express();
 app.disable('x-powered-by');
@@ -48,7 +49,7 @@ app.put('/api/studio/browser/blob/:id/:fileId',express.raw({type:'application/oc
 app.get('/api/studio/browser/blob/:id/:fileId',(req,res,next)=>{
  try{res.type('application/octet-stream').send(browserControl.blob(String(req.params.id),req.get('X-Relay-Visual')||'',String(req.params.fileId)));}catch(e){next(e)}
 });
-app.get('/api/studio/development/artifacts/:task/:id',(req,res,next)=>{try{const a=development.runtime.artifact(req.params.task,req.params.id);res.type(path.basename(a.name));res.setHeader('X-Relay-Artifact-Name',encodeURIComponent(path.basename(a.name)));res.setHeader('X-Relay-Artifact-Sha256',a.sha256);if(req.query.view==='1'&&/\.(?:jpe?g|png)$/i.test(a.name))res.sendFile(a.file);else res.download(a.file,path.basename(a.name));}catch(e){next(e);}});
+app.get('/api/studio/development/artifacts/:task/:id',developmentArtifactHandler((task,id)=>development.runtime.artifact(task,id)));
 app.get('/development-preview/:id',(req,res,next)=>{try{res.redirect(302,development.runtime.previewUrl(req.params.id));}catch(e){next(e);}});
 app.post('/api/studio/development',express.json({limit:'2mb'}),async(req,res,next)=>{try{res.json(await development.action(req.body));}catch(e){next(e);}});
 app.use(express.json({limit:'256kb'}));

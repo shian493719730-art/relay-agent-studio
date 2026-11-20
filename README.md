@@ -51,7 +51,7 @@ Relay 面向习惯用自然语言与 AI 一起解决问题、也愿意亲手调�
 | **文件成为工作材料** | 拖入 DOCX、XLSX、文本型 PDF 或文本，读取正文供成员使用，并在关联阅读框中浏览。扫描 PDF 暂不含 OCR。 |
 | **随时接手** | 暂停、停止与更新要求；移动不打断无关任务。删除会停止受影响执行并保留已有记录，撤销恢复对象不会自动重启收费调用。 |
 | **软件内的执行助手** | 理解目标、读取状态，调用可用的软件动作并观察回执。可视模式借助 Playwright MCP 在专用浏览器里展开、填写、点击与拖拽。 |
-| **在画板中开发源码** | 连接明确的 Git 仓库，读取、手动编辑或由操作助手修改实际源码；查看 Git diff、逐次回滚/重做、运行已允许的检查与停止进程。也可开发 Relay 自己。[使用方法](docs/SELF_DEVELOPMENT.md) |
+| **在画板中开发源码** | 连接 Git/npm 工程，由助手按具体需求安装依赖、读改源码、测试、检查实际应用预览和打包；步骤可暂停，本轮源码与依赖环境可恢复。桌面自带 Node/npm，保留手动编辑。也可开发 Relay 自己。[使用方法](docs/SELF_DEVELOPMENT.md) |
 | **看得见的近况** | 打开画板、项目或项目组查看近期操作与进度。编辑支持删除、撤销、重做和恢复。 |
 | **从零练习** | 19 步自媒体流程教程，带编号箭头；另有亮点功能导览。本地预设内容，不调用模型、不真实发布。 |
 
@@ -120,7 +120,7 @@ npm run build      # 生成沉浸式画板并构建 Web 资源
 npm run check:public
 ```
 
-当前包含 **186 项离线测试**，涵盖源码落盘、冲突保护、逐次回滚与停止真实检查进程。各提交的 [CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml) 和 [实际打包后检查](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/desktop.yml) 分别记录结果。默认只要求 macOS、Linux，Windows 不阻塞验收或发布。自动化检查不等同于完整原生界面或收费供应商验收；历史报错与平台边界见 [验证说明](docs/PLATFORMS.md)。浏览器可视操作需要本机 Chrome；普通画板不需要 Playwright 浏览器安装。
+当前包含 **194 项离线测试**，涵盖源码落盘、冲突保护、逐次回滚与停止真实检查进程。各提交的 [CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml) 和 [实际打包后检查](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/desktop.yml) 分别记录结果。默认只要求 macOS、Linux，Windows 不阻塞验收或发布。自动化检查不等同于完整原生界面或收费供应商验收；历史报错与平台边界见 [验证说明](docs/PLATFORMS.md)。浏览器可视操作需要本机 Chrome；普通画板不需要 Playwright 浏览器安装。
 
 欢迎提交复现清楚的 Bug、交互改进和新的连接适配器。开始前请阅读 [贡献指南](CONTRIBUTING.md)、[架构](docs/ARCHITECTURE.md)、[安全说明](SECURITY.md) 和 [行为准则](CODE_OF_CONDUCT.md)。我们尤其需要跨平台验证、无障碍、文件处理和协作恢复方面的贡献。
 

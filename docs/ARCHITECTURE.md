@@ -28,6 +28,8 @@ flowchart LR
 | `server/skill-library.ts` / `library-refresh.ts` | 目录检索、正文、推荐和更新。 |
 | `server/auth-bridge.ts` | 可选本机授权接力。 |
 | `server/development.ts` / `src/prototype/development.js` | 项目关联源码、版本核对、逐次差异恢复、已允许的本机检查与操作助手适配。 |
+| `server/development-runtime.ts` / `development-runner.mjs` | 通用 npm 开发副本、依赖环境、进程与日志、产物、源码回滚点和进程组所有权。 |
+| `server/development-preview.ts` / `src/prototype/development-runtime.js` | 实际应用预览、独立浏览器观察、手动/助手的同一开发控制与真实项目入口。 |
 | `resources/` | 来源元数据、自有方法与基础 Skill。 |
 | `tests/` | 模拟供应商、状态恢复、共享、文件和交互行为测试。 |
 

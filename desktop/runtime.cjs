@@ -21,4 +21,16 @@ async function proxyRequest(request,base,token,fetcher=fetch) {
  if(!['GET','HEAD'].includes(request.method)){init.body=request.body;init.duplex='half';}
  return fetcher(target,init);
 }
-module.exports={isWorkspaceUrl,externalUrl,backendEnvironment,proxyRequest};
+async function proxyDevelopmentPreview(request,base,token,fetcher=fetch){
+ const u=new URL(request.url);if(u.protocol!=='relay-preview:'||!/^[-a-f0-9]{36}$/.test(u.hostname)||u.port||u.username||u.password)return new Response('Invalid preview',{status:403});
+ if(request.initiatorOrigin&&!['relay://workspace','relay-preview://'+u.hostname].includes(request.initiatorOrigin))return new Response('Foreign preview origin',{status:403});
+ const ready=await fetcher(base+'/development-preview/'+u.hostname,{headers:{'X-Relay-Desktop':token},redirect:'manual'});
+ const origin=ready.headers.get('location');if(ready.status!==302||!origin||!/^http:\/\/127\.0\.0\.1:\d+\/$/.test(origin))return new Response('Preview is stopped',{status:404});
+ const target=new URL(u.pathname+u.search,origin);if(target.origin!==new URL(origin).origin)return new Response('Invalid preview',{status:403});
+ const headers=new Headers(request.headers);for(const h of ['host','origin','cookie','authorization','x-relay-desktop'])headers.delete(h);
+ const init={method:request.method,headers,redirect:'manual',signal:request.signal};if(!['GET','HEAD'].includes(request.method)){init.body=request.body;init.duplex='half';}
+ const r=await fetcher(target,init),out=new Headers(r.headers);for(const h of ['set-cookie','content-encoding','content-length'])out.delete(h);
+ if(out.has('location')){const next=new URL(out.get('location'),origin);if(next.origin!==new URL(origin).origin)return new Response('External preview redirect is not allowed',{status:403});out.set('location','relay-preview://'+u.hostname+next.pathname+next.search);}
+ return new Response(r.body,{status:r.status,headers:out});
+}
+module.exports={isWorkspaceUrl,externalUrl,backendEnvironment,proxyRequest,proxyDevelopmentPreview};

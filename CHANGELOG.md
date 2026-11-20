@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0-alpha.6
+
+- Add formal Git/npm development environments, dependency installation, script execution, actual application previews, Playwright MCP page inspection, build artifact exports and checkpoint restoration to the built-in operator.
+- Bundle standalone Node/npm in maintained desktop packages; preserve complete third-party notices. Keep Git/Python requirements explicit.
+- Preserve manual source drafts and selected scripts, stop affected processes on pause/delete, refuse manual-version conflicts, and distinguish current outputs from historical packages.
+- Keep fixed local lessons separate from the open-ended project workflow. No paid model acceptance run in this release. See [release notes](docs/releases/0.2.0-alpha.6.md).
+
 ## 0.2.0-alpha.5
 
 - 新增“用自然语言修改 Relay”课程：在内置助手中说需求，由同一套软件动作真实读源码、修改、测试、差异、组件预览和逐次回滚。

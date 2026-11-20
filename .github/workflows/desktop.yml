@@ -9,6 +9,7 @@ on:
       - 'src/**'
       - 'resources/**'
       - 'scripts/build-desktop.mjs'
+      - 'scripts/bundle-development-toolchain.mjs'
       - 'scripts/desktop-smoke.mjs'
       - 'electron-builder.yml'
       - 'package*.json'

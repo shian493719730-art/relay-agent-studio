@@ -4,6 +4,7 @@ import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
 import {execFileSync,spawn,type ChildProcess} from 'node:child_process';
 import {z} from 'zod';
+import {DevelopmentRuntime,runtimeRequest,type RuntimeGrant} from './development-runtime.ts';
 import {relayCopyPath,relayPractice} from './relay-selfdev.ts';
 import {dataRoot} from './store.ts';
 import {practiceSource,practiceExpected,practiceHash,practiceCommands,practiceFiles} from './development-practice.ts';
@@ -12,24 +13,24 @@ export class DevelopmentError extends Error {constructor(message:string,public s
 const hash=(value:string)=>createHash('sha256').update(value).digest('hex');
 const missing='missing';
 const commands=['typecheck','test','build'] as const;
-const blocked=new Set(['.git','.data','.env','.npmrc','.yarnrc','.netrc','.pypirc','.docker','.azure','.config','credentials.json','id_rsa','id_ed25519','node_modules','dist','desktop-runtime','desktop-release','.playwright-mcp','test-results','.ssh','.aws','.codex','.learning-loop']);
+const blocked=new Set(['.git','.data','.env','.npmrc','.yarnrc','.netrc','.pypirc','.docker','.azure','.config','credentials.json','id_rsa','id_ed25519','node_modules','dist','desktop-runtime','desktop-release','.playwright-mcp','test-results','.ssh','.aws','.codex','.learning-loop','.agents','.relay-development']);
 function relativePath(value:string){
  if(!value||value.length>600||value.includes('\\')||value.includes('\0')||path.isAbsolute(value)||value.split('/').some(p=>!p||p==='.'||p==='..'||blocked.has(p)||p.startsWith('.env')&&p!=='.env.example'||/\.(?:pem|key|p12|pfx)$/i.test(p)))throw new DevelopmentError('只能访问仓库内的源码路径；密钥、运行数据和依赖目录不可访问',400);
  return value;
 }
-type Workspace={id:string;root:string;name:string;boardId:string;projectId?:string;writable:boolean;scriptsHash?:string;active:boolean;kind?:'practice';recipe?:'relay-assistant';expectedWelcome?:string};
-type Change={id:string;requestId:string;workspaceId:string;path:string;before:string|null;after:string|null;beforeHash:string;afterHash:string;mode:number;status:'prepared'|'applied'|'reverted'|'conflicted';time:number};
+type Workspace={id:string;root:string;name:string;boardId:string;projectId?:string;writable:boolean;runtime?:RuntimeGrant;scriptsHash?:string;active:boolean;kind?:'practice';recipe?:'relay-assistant';expectedWelcome?:string};
+type Change={checkpointId?:string;id:string;requestId:string;workspaceId:string;path:string;before:string|null;after:string|null;beforeHash:string;afterHash:string;mode:number;status:'prepared'|'applied'|'reverted'|'conflicted';time:number};
 type Check={id:string;requestId:string;workspaceId:string;command:string;status:'running'|'passed'|'failed'|'stopped'|'interrupted';output:string;truncated:boolean;startedAt:number;finishedAt?:number;exitCode?:number|null;sourceHash?:string;runner?:string};
 const request=z.discriminatedUnion('action',[
  z.object({action:z.literal('list'),boardId:z.string().max(180).optional()}),
  z.object({action:z.literal('practice'),boardId:z.string().min(1).max(180),projectId:z.string().min(1).max(180),requestId:z.string().uuid(),scenario:z.literal('relay-assistant').optional(),expectedWelcome:z.string().trim().min(1).max(160).optional()}),
  z.object({action:z.literal('preview'),directory:z.string().min(1).max(2000)}),
- z.object({action:z.literal('attach'),directory:z.string().min(1).max(2000),boardId:z.string().min(1).max(180),projectId:z.string().max(180).optional(),writable:z.boolean(),allowChecks:z.boolean(),scriptsHash:z.string().length(64)}),
+ z.object({action:z.literal('attach'),directory:z.string().min(1).max(2000),boardId:z.string().min(1).max(180),projectId:z.string().max(180).optional(),writable:z.boolean(),allowChecks:z.boolean(),scriptsHash:z.string().length(64),runtime:z.object({install:z.boolean(),scripts:z.array(z.string().regex(/^[a-zA-Z0-9:._-]{1,80}$/)).max(30)}).optional()}),
  z.object({action:z.literal('files'),workspaceId:z.string().uuid(),query:z.string().max(200).default(''),page:z.number().int().min(1).default(1)}),
  z.object({action:z.literal('read'),workspaceId:z.string().uuid(),path:z.string(),start:z.number().int().min(0).default(0),length:z.number().int().min(1).max(20000).default(12000)}),
- z.object({action:z.literal('write'),workspaceId:z.string().uuid(),path:z.string(),content:z.string().max(180000),expectedHash:z.string(),requestId:z.string().uuid()}),
- z.object({action:z.literal('replace'),workspaceId:z.string().uuid(),path:z.string(),oldText:z.string().min(1).max(64000),newText:z.string().max(64000),expectedHash:z.string(),requestId:z.string().uuid()}),
- z.object({action:z.literal('delete'),workspaceId:z.string().uuid(),path:z.string(),expectedHash:z.string(),requestId:z.string().uuid()}),
+ z.object({action:z.literal('write'),workspaceId:z.string().uuid(),path:z.string(),content:z.string().max(180000),expectedHash:z.string(),requestId:z.string().uuid(),checkpointId:z.string().uuid().optional()}),
+ z.object({action:z.literal('replace'),workspaceId:z.string().uuid(),path:z.string(),oldText:z.string().min(1).max(64000),newText:z.string().max(64000),expectedHash:z.string(),requestId:z.string().uuid(),checkpointId:z.string().uuid().optional()}),
+ z.object({action:z.literal('delete'),workspaceId:z.string().uuid(),path:z.string(),expectedHash:z.string(),requestId:z.string().uuid(),checkpointId:z.string().uuid().optional()}),
  z.object({action:z.literal('diff'),workspaceId:z.string().uuid(),changeId:z.string().uuid().optional()}),
  z.object({action:z.literal('uiPreview'),workspaceId:z.string().uuid()}),
  z.object({action:z.literal('gitDiff'),workspaceId:z.string().uuid(),path:z.string()}),
@@ -40,6 +41,7 @@ const request=z.discriminatedUnion('action',[
  z.object({action:z.literal('detach'),workspaceId:z.string().uuid()}),
 ]);
 export class Development {
+ readonly runtime:DevelopmentRuntime;
  private workspaces:Workspace[]=[];private changes:Change[]=[];private checks:Check[]=[];private children=new Map<string,ChildProcess>();private checkRequests=new Map<string,string>();
  constructor(readonly storage=path.join(dataRoot,'development'),private runTimeout=5*60*1000){
   fs.mkdirSync(storage,{recursive:true,mode:0o700});
@@ -48,6 +50,7 @@ export class Development {
   // Recover a journal entry after a crash between atomic replacement and receipt persistence.
   for(const c of this.changes)if(c.status==='prepared'){try{const h=this.current(this.get(c.workspaceId),c.path).hash;c.status=h===c.afterHash?'applied':h===c.beforeHash?'reverted':'conflicted';}catch{c.status='conflicted';}}
   this.persist();
+  this.runtime=new DevelopmentRuntime(path.join(storage,'runtime'),{workspace:id=>this.get(id),read:(w,p)=>this.current(this.get(w.id),p),sources:w=>this.runtimeSources(this.get(w.id)),lock:(w,text,expected,cp)=>this.edit(this.get(w.id),'package-lock.json',text,expected,randomUUID(),cp),revert:(w,id)=>this.action({action:'revert',workspaceId:w.id,changeId:id}),restore:(w,cp)=>this.restoreCheckpoint(this.get(w.id),cp),stopChecks:async id=>{for(const c of this.checks)if(c.workspaceId===id&&c.status==='running')this.stop(c.id);const end=Date.now()+3500;while(this.checks.some(c=>c.workspaceId===id&&this.children.has(c.id))&&Date.now()<end)await new Promise(r=>setTimeout(r,30));if(this.checks.some(c=>c.workspaceId===id&&this.children.has(c.id)))throw new DevelopmentError('检查进程仍在结束');}});
  }
  private save(file:string,value:unknown){const target=path.join(this.storage,file);fs.writeFileSync(target+'.tmp',JSON.stringify(value),{mode:0o600});fs.renameSync(target+'.tmp',target);}
  private persist(){this.save('workspaces.json',this.workspaces);this.save('changes.json',this.changes);this.save('checks.json',this.checks);}
@@ -57,7 +60,7 @@ export class Development {
  private summary(w:Workspace){let checksAllowed=false;try{checksAllowed=!!w.scriptsHash&&w.scriptsHash===this.manifest(w.root).scriptsHash;}catch{}const last=this.checks.filter(c=>c.workspaceId===w.id).at(-1);return{...w,checksAllowed,commands:w.kind==='practice'?Object.keys(this.recipe(w).commands):[...commands],practice:w.kind==='practice'?{source:this.recipe(w).source,baselineHash:this.recipe(w).baselineHash,scenario:w.recipe||'source',expectedTitle:w.expectedWelcome||practiceExpected}:null,lastCheck:last?{id:last.id,command:last.command,status:last.status}:null,running:this.checks.filter(c=>c.workspaceId===w.id&&(c.status==='running'||this.children.has(c.id))).map(c=>({id:c.id,command:c.command,status:c.status}))};}
  private manifest(root:string){
   const file=path.join(root,'package.json');if(!fs.existsSync(file)||fs.lstatSync(file).isSymbolicLink())throw new DevelopmentError('开发检查需要仓库中的普通 package.json 文件',400);
-  const text=fs.readFileSync(file,'utf8'),pkg=JSON.parse(text);return{name:typeof pkg.name==='string'?pkg.name.slice(0,120):path.basename(root),scriptsHash:hash(text),scripts:Object.fromEntries(commands.filter(c=>typeof pkg.scripts?.[c]==='string').map(c=>[c,pkg.scripts[c]]))};
+  const text=fs.readFileSync(file,'utf8'),pkg=JSON.parse(text);return{name:typeof pkg.name==='string'?pkg.name.slice(0,120):path.basename(root),runtimeScripts:Object.fromEntries(Object.entries(pkg.scripts||{}).filter(([k,v])=>/^[a-zA-Z0-9:._-]{1,80}$/.test(k)&&typeof v==='string')),scriptsHash:hash(text),scripts:Object.fromEntries(commands.filter(c=>typeof pkg.scripts?.[c]==='string').map(c=>[c,pkg.scripts[c]]))};
  }
  preview(directory:string){
   if(!path.isAbsolute(directory))throw new DevelopmentError('请填写 Git 仓库的绝对路径',400);
@@ -76,20 +79,32 @@ export class Development {
  private safeTarget(w:Workspace,name:string){try{return this.target(w,name);}catch(e){if((e as any).status===1)return path.join(w.root,relativePath(name));throw e;}}
  private current(w:Workspace,name:string){const file=this.safeTarget(w,name);if(!fs.existsSync(file))return{file,content:null,hash:missing,mode:0o644};const stat=fs.statSync(file);if(!stat.isFile()||stat.size>1024*1024)throw new DevelopmentError('仅支持不超过1MB的普通文本源码',400);const data=fs.readFileSync(file);if(data.includes(0))throw new DevelopmentError('二进制文件请用原应用处理',400);const content=data.toString('utf8');if(!Buffer.from(content).equals(data))throw new DevelopmentError('仅支持 UTF-8 源码',400);return{file,content,hash:hash(content),mode:stat.mode&0o777};}
  private replaceFile(w:Workspace,name:string,content:string|null,mode:number){const file=this.safeTarget(w,name);if(content===null){if(fs.existsSync(file))fs.unlinkSync(file);return;}fs.mkdirSync(path.dirname(file),{recursive:true});this.safeTarget(w,name);const temp=file+'.relay-'+randomUUID()+'.tmp';try{fs.writeFileSync(temp,content,{mode});fs.chmodSync(temp,mode);fs.renameSync(temp,file);}finally{if(fs.existsSync(temp))fs.unlinkSync(temp);}}
- private changePublic(c:Change,body=false){return{id:c.id,workspaceId:c.workspaceId,path:c.path,kind:c.before===null?'create':c.after===null?'delete':'edit',beforeHash:c.beforeHash,afterHash:c.afterHash,status:c.status,time:c.time,...(body?{before:c.before,after:c.after}:{})};}
- private edit(w:Workspace,name:string,content:string|null,expectedHash:string,requestId:string){
+ private changePublic(c:Change,body=false){return{id:c.id,checkpointId:c.checkpointId,workspaceId:c.workspaceId,path:c.path,kind:c.before===null?'create':c.after===null?'delete':'edit',beforeHash:c.beforeHash,afterHash:c.afterHash,status:c.status,time:c.time,...(body?{before:c.before,after:c.after}:{})};}
+ private edit(w:Workspace,name:string,content:string|null,expectedHash:string,requestId:string,checkpointId?:string){
+  if(checkpointId)this.runtime.validateCheckpoint(w.id,checkpointId);
   if(!w.writable)throw new DevelopmentError('此工作区为只读，请在连接设置中开启源码写入',403);if(w.kind==='practice'&&this.recipe(w).readonly.includes(name))throw new DevelopmentError('本课需求与测试文件为只读，不能通过修改验收标准冒充完成',403);
   if(content!==null&&Buffer.byteLength(content)>1024*1024)throw new DevelopmentError('修改后的源码不能超过1MB',400);
-  const prior=this.changes.find(c=>c.requestId===requestId&&c.workspaceId===w.id);if(prior){if(prior.path!==name||prior.after!==content||prior.beforeHash!==expectedHash)throw new DevelopmentError('重复请求与原编辑内容不同');if(prior.status==='prepared'){const actual=this.current(w,name).hash;if(actual!==prior.afterHash){if(actual!==prior.beforeHash)throw new DevelopmentError('原编辑未完成，文件已由其他操作修改');this.replaceFile(w,name,content,prior.mode);}prior.status='applied';this.persist();}return this.changePublic(prior);}
+  const prior=this.changes.find(c=>c.requestId===requestId&&c.workspaceId===w.id);if(prior){if(prior.checkpointId!==checkpointId||prior.path!==name||prior.after!==content||prior.beforeHash!==expectedHash)throw new DevelopmentError('重复请求与原编辑内容不同');if(prior.status==='prepared'){const actual=this.current(w,name).hash;if(actual!==prior.afterHash){if(actual!==prior.beforeHash)throw new DevelopmentError('原编辑未完成，文件已由其他操作修改');this.replaceFile(w,name,content,prior.mode);}prior.status='applied';this.persist();}return this.changePublic(prior);}
   const current=this.current(w,name);if(current.hash!==expectedHash)throw new DevelopmentError('文件已被其他操作修改，请重新读取；没有覆盖你的修改');
   if(current.content===content)return{unchanged:true,path:name,hash:current.hash};
-  const change:Change={id:randomUUID(),workspaceId:w.id,requestId,path:name,before:current.content,after:content,beforeHash:current.hash,afterHash:content===null?missing:hash(content),mode:current.mode,status:'prepared',time:Date.now()};
+  const change:Change={...(checkpointId?{checkpointId}:{}),id:randomUUID(),workspaceId:w.id,requestId,path:name,before:current.content,after:content,beforeHash:current.hash,afterHash:content===null?missing:hash(content),mode:current.mode,status:'prepared',time:Date.now()};
   this.changes.push(change);this.persist();this.replaceFile(w,name,content,current.mode);change.status='applied';this.persist();return this.changePublic(change);
+ }
+ private runtimeSources(w:Workspace){
+  const names=[...new Set(this.git(w.root,['ls-files','-z','--cached','--others','--exclude-standard']).split('\0').filter(Boolean))].sort(),files=[];let total=0;
+  for(const name of names){try{relativePath(name);}catch{continue;}const file=this.safeTarget(w,name);if(!fs.existsSync(file))continue;const stat=fs.statSync(file);if(!stat.isFile()||stat.size>20*1024*1024)throw new DevelopmentError('开发副本仅支持20MB以内的普通源码与资源文件');const data=fs.readFileSync(file);total+=data.length;if(total>250*1024*1024)throw new DevelopmentError('源码与资源超过250MB，请缩小工程范围');files.push({name,data,hash:createHash('sha256').update(data).digest('hex'),mode:stat.mode&0o777});}return files;
+ }
+ private restoreCheckpoint(w:Workspace,checkpointId:string){
+  if(!w.writable)throw new DevelopmentError('Readonly workspace cannot restore source',403);
+  const changes=this.changes.filter(c=>c.workspaceId===w.id&&c.checkpointId===checkpointId&&c.status==='applied').reverse(),versions=new Map<string,string>();
+  for(const c of changes){const expected=versions.get(c.path)??this.current(w,c.path).hash;if(expected!==c.afterHash)throw new DevelopmentError('本轮源码已有后续人工修改，未覆盖；请先核对差异：'+c.path);versions.set(c.path,c.beforeHash);}
+  for(const c of changes){if(this.current(w,c.path).hash!==c.afterHash)throw new DevelopmentError('恢复期间文件变化，已停止：'+c.path);this.replaceFile(w,c.path,c.before,c.mode);c.status='reverted';this.persist();}return{changeIds:changes.map(c=>c.id),count:changes.length};
  }
  private checkPublic(c:Check){return{...c,settled:!this.children.has(c.id),message:(c.status==='running'?'正在运行':c.status==='passed'?'检查通过':c.status==='stopped'?this.children.has(c.id)?'正在停止':'检查已停止':'检查未通过')+'：'+(c.runner||'npm run '+c.command)};}
  stop(id:string){const c=this.checks.find(c=>c.id===id);if(!c)throw new DevelopmentError('检查记录不存在',404);if(c.status==='running'){c.status='stopped';c.finishedAt=Date.now();const child=this.children.get(id);if(child?.pid){try{process.kill(-child.pid,'SIGTERM');}catch{child.kill('SIGTERM');}const timer=setTimeout(()=>{if(this.children.get(id)!==child)return;try{process.kill(-child.pid!,'SIGKILL');}catch{}},2000);timer.unref();}this.persist();}return this.checkPublic(c);}
- async stopAll(){const children=[...this.children.values()];for(const c of this.checks)if(c.status==='running')this.stop(c.id);await Promise.all(children.map(child=>new Promise<void>(resolve=>{if(child.exitCode!==null||child.signalCode){resolve();return;}const timer=setTimeout(resolve,2500);child.once('close',()=>{clearTimeout(timer);resolve();});})));}
+ async stopAll(){await this.runtime.stopAll();const children=[...this.children.values()];for(const c of this.checks)if(c.status==='running')this.stop(c.id);await Promise.all(children.map(child=>new Promise<void>(resolve=>{if(child.exitCode!==null||child.signalCode){resolve();return;}const timer=setTimeout(resolve,2500);child.once('close',()=>{clearTimeout(timer);resolve();});})));}
  async action(input:unknown){
+  const candidate=runtimeRequest.safeParse(input);if(candidate.success)return this.runtime.action(candidate.data);
   const d=request.parse(input);
   if(d.action==='list')return{workspaces:this.workspaces.filter(w=>w.active&&(!d.boardId||w.boardId===d.boardId)).map(w=>this.summary(w))};
   if(d.action==='practice'){
@@ -102,20 +117,20 @@ export class Development {
   if(d.action==='preview')return this.preview(d.directory);
   if(d.action==='attach'){
    const p=this.preview(d.directory);if(p.scriptsHash!==d.scriptsHash)throw new DevelopmentError('检查脚本已变化，请重新查看后连接');
-   let w=this.workspaces.find(w=>w.root===p.root&&w.boardId===d.boardId&&w.projectId===d.projectId);if(!w){w={id:randomUUID(),root:p.root,name:p.name,boardId:d.boardId,projectId:d.projectId,writable:d.writable,active:true};this.workspaces.push(w);}w.writable=d.writable;w.scriptsHash=d.allowChecks?p.scriptsHash:undefined;w.active=true;this.persist();return this.summary(w);
+   let w=this.workspaces.find(w=>w.root===p.root&&w.boardId===d.boardId&&w.projectId===d.projectId);if(!w){w={id:randomUUID(),root:p.root,name:p.name,boardId:d.boardId,projectId:d.projectId,writable:d.writable,active:true};this.workspaces.push(w);}w.writable=d.writable;w.scriptsHash=d.allowChecks?p.scriptsHash:undefined;w.active=true;if(d.runtime){const scripts=p.runtimeScripts as Record<string,string>;if(d.runtime.scripts.some(n=>!Object.hasOwn(scripts,n)))throw new DevelopmentError('选择的开发脚本不存在');w.runtime={install:d.runtime.install,scripts:Object.fromEntries(d.runtime.scripts.map(n=>[n,scripts[n]]))};}this.persist();return this.summary(w);
   }
   const w=this.get(d.workspaceId);
-  if(d.action==='detach'){this.checks.filter(c=>c.workspaceId===w.id&&c.status==='running').forEach(c=>this.stop(c.id));w.active=false;this.persist();return{workspaceId:w.id,detached:true,message:'已断开源码工作区，原文件和差异记录保留'};}
+  if(d.action==='detach'){await this.runtime.stopWorkspace(w.id);this.checks.filter(c=>c.workspaceId===w.id&&c.status==='running').forEach(c=>this.stop(c.id));w.active=false;this.persist();return{workspaceId:w.id,detached:true,message:'已断开源码工作区，原文件和差异记录保留'};}
   if(d.action==='files'){
    const names=(w.kind==='practice'?Object.keys(this.recipe(w).files).filter(n=>fs.existsSync(path.join(w.root,n))):this.git(w.root,['ls-files','-z','--cached','--others','--exclude-standard']).split('\0').filter(Boolean)).filter(n=>{try{relativePath(n);return n.toLowerCase().includes(d.query.toLowerCase());}catch{return false;}});
    const unique=[...new Set(names)].sort();return{workspaceId:w.id,files:unique.slice((d.page-1)*60,d.page*60),page:d.page,total:unique.length};
   }
   if(d.action==='uiPreview'){const c=this.current(w,relayCopyPath);if(c.content===null)throw new DevelopmentError('这个项目没有Relay助手文案源文件',404);const copy=z.object({welcome:z.string().min(1).max(500)}).strict().parse(JSON.parse(c.content));const last=this.checks.filter(c=>c.workspaceId===w.id&&c.command==='test').at(-1);return{workspaceId:w.id,path:relayCopyPath,hash:c.hash,welcome:copy.welcome,test:last?{id:last.id,status:last.status,sourceHash:last.sourceHash,exitCode:last.exitCode}:null,installationChanged:false,message:'已从实际源码读取结果预览，未替换正在运行的安装包'};}
   if(d.action==='read'){const c=this.current(w,d.path);if(c.content===null)throw new DevelopmentError('文件不存在',404);const end=Math.min(c.content.length,d.start+d.length);return{workspaceId:w.id,path:d.path,hash:c.hash,start:d.start,text:c.content.slice(d.start,end),total:c.content.length,nextStart:end<c.content.length?end:null};}
-  if(d.action==='write'||d.action==='delete')return this.edit(w,d.path,d.action==='delete'?null:d.content,d.expectedHash,d.requestId);
+  if(d.action==='write'||d.action==='delete')return this.edit(w,d.path,d.action==='delete'?null:d.content,d.expectedHash,d.requestId,d.checkpointId);
   if(d.action==='replace'){
-   const prior=this.changes.find(c=>c.workspaceId===w.id&&c.requestId===d.requestId);if(prior){if(prior.path!==d.path||prior.beforeHash!==d.expectedHash||prior.before===null||prior.before.split(d.oldText).length!==2||prior.after!==prior.before.replace(d.oldText,()=>d.newText))throw new DevelopmentError('重复替换请求不一致');return this.edit(w,d.path,prior.after,d.expectedHash,d.requestId);}
-   const c=this.current(w,d.path);if(c.hash!==d.expectedHash)throw new DevelopmentError('文件已变化，请重新读取');if(c.content===null||c.content.split(d.oldText).length!==2)throw new DevelopmentError('替换片段必须在当前文件中恰好出现一次');return this.edit(w,d.path,c.content.replace(d.oldText,()=>d.newText),d.expectedHash,d.requestId);
+   const prior=this.changes.find(c=>c.workspaceId===w.id&&c.requestId===d.requestId);if(prior){if(prior.path!==d.path||prior.beforeHash!==d.expectedHash||prior.before===null||prior.before.split(d.oldText).length!==2||prior.after!==prior.before.replace(d.oldText,()=>d.newText))throw new DevelopmentError('重复替换请求不一致');return this.edit(w,d.path,prior.after,d.expectedHash,d.requestId,d.checkpointId);}
+   const c=this.current(w,d.path);if(c.hash!==d.expectedHash)throw new DevelopmentError('文件已变化，请重新读取');if(c.content===null||c.content.split(d.oldText).length!==2)throw new DevelopmentError('替换片段必须在当前文件中恰好出现一次');return this.edit(w,d.path,c.content.replace(d.oldText,()=>d.newText),d.expectedHash,d.requestId,d.checkpointId);
   }
   if(d.action==='diff'){
    if(d.changeId){const c=this.changes.find(c=>c.workspaceId===w.id&&c.id===d.changeId);if(!c)throw new DevelopmentError('差异记录不存在',404);return this.changePublic(c,true);}

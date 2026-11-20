@@ -19,6 +19,7 @@ import {browserControl,BrowserControlError} from './browser-control.ts';
 import {desktopAccess} from './desktop-access.ts';
 import {librarySchedule} from './library-schedule.ts';
 import {legalInfo,legalPage,sourceArchive} from './legal.ts';
+import {RuntimeError} from './development-runtime.ts';
 import {development,DevelopmentError} from './development.ts';
 
 const app=express();
@@ -47,6 +48,8 @@ app.put('/api/studio/browser/blob/:id/:fileId',express.raw({type:'application/oc
 app.get('/api/studio/browser/blob/:id/:fileId',(req,res,next)=>{
  try{res.type('application/octet-stream').send(browserControl.blob(String(req.params.id),req.get('X-Relay-Visual')||'',String(req.params.fileId)));}catch(e){next(e)}
 });
+app.get('/api/studio/development/artifacts/:task/:id',(req,res,next)=>{try{const a=development.runtime.artifact(req.params.task,req.params.id);res.type(path.basename(a.name));res.setHeader('X-Relay-Artifact-Name',encodeURIComponent(path.basename(a.name)));res.setHeader('X-Relay-Artifact-Sha256',a.sha256);if(req.query.view==='1'&&/\.(?:jpe?g|png)$/i.test(a.name))res.sendFile(a.file);else res.download(a.file,path.basename(a.name));}catch(e){next(e);}});
+app.get('/development-preview/:id',(req,res,next)=>{try{res.redirect(302,development.runtime.previewUrl(req.params.id));}catch(e){next(e);}});
 app.post('/api/studio/development',express.json({limit:'2mb'}),async(req,res,next)=>{try{res.json(await development.action(req.body));}catch(e){next(e);}});
 app.use(express.json({limit:'256kb'}));
 app.post('/api/studio/documents/upload',express.raw({type:'application/octet-stream',limit:'25mb'}),(req,res,next)=>{
@@ -172,7 +175,7 @@ app.get('/api/runs/:id/artifacts/:name',(req,res)=>{
 app.use('/api',(_req,res)=>res.status(404).json({error:'接口不存在。'}));
 app.use((error:unknown,_req:express.Request,res:express.Response,next:express.NextFunction)=>{
   if(res.headersSent)return next(error);
-  res.status(error instanceof DocumentError||error instanceof CanvasBindingError||error instanceof BrowserControlError||error instanceof DevelopmentError?error.status:error instanceof z.ZodError?400:500).json({error:error instanceof z.ZodError?error.issues.map(x=>x.message).join('；'):safeError(error)});
+  res.status(error instanceof DocumentError||error instanceof CanvasBindingError||error instanceof BrowserControlError||error instanceof DevelopmentError||error instanceof RuntimeError?error.status:error instanceof z.ZodError?400:500).json({error:error instanceof z.ZodError?error.issues.map(x=>x.message).join('；'):safeError(error)});
 });
 if(process.env.NODE_ENV==='production'){
   const staticRoot=path.resolve(process.env.RELAY_STATIC_DIR||path.join(projectRoot,'dist'));

@@ -2,21 +2,36 @@
 const {app,BrowserWindow,Menu,dialog,shell,protocol,session}=require('electron');
 const {spawn}=require('node:child_process');
 const {randomBytes}=require('node:crypto');
+const {createHash}=require('node:crypto');
+const {Readable,Transform}=require('node:stream');
+const {pipeline}=require('node:stream/promises');
 const fs=require('node:fs');
 const path=require('node:path');
-const {isWorkspaceUrl,externalUrl,backendEnvironment,proxyRequest}=require('./runtime.cjs');
+const {isWorkspaceUrl,externalUrl,backendEnvironment,proxyRequest,proxyDevelopmentPreview}=require('./runtime.cjs');
 const dataDirectory=process.env.RELAY_DESKTOP_USER_DATA?path.resolve(process.env.RELAY_DESKTOP_USER_DATA):path.join(app.getPath('appData'),'Relay Agent Studio');
 app.setName('Relay');app.setPath('userData',dataDirectory);
-protocol.registerSchemesAsPrivileged([{scheme:'relay',privileges:{standard:true,secure:true,supportFetchAPI:true,corsEnabled:true,stream:true}}]);
+protocol.registerSchemesAsPrivileged(['relay','relay-preview'].map(scheme=>({scheme,privileges:{standard:true,secure:true,supportFetchAPI:true,corsEnabled:true,stream:true}})));
 let window,backend,base,quitting=false,exiting=false;
 const token=randomBytes(32).toString('hex');
 const runtimeRoot=path.join(app.getAppPath(),'desktop-runtime');
 const prefs={nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true};
 const repository='https://github.com/shian493719730-art/relay-agent-studio';
 async function openExternal(value){const u=externalUrl(value);if(u)await shell.openExternal(u);}
+async function exportDevelopmentArtifact(task,id){
+ const r=await fetch(base+'/api/studio/development/artifacts/'+task+'/'+id,{headers:{'X-Relay-Desktop':token}});if(!r.ok)throw new Error('产物已不可用，请刷新开发步骤。');
+ const name=decodeURIComponent(r.headers.get('x-relay-artifact-name')||'project-build.zip'),expected=r.headers.get('x-relay-artifact-sha256');
+ const choice=await dialog.showSaveDialog(window,{title:'保存本次真实构建产物',defaultPath:path.basename(name)});if(choice.canceled||!choice.filePath){await r.body?.cancel();return;}
+ const temporary=choice.filePath+'.relay-'+randomBytes(8).toString('hex')+'.tmp',sha=createHash('sha256');
+ try{await pipeline(Readable.fromWeb(r.body),new Transform({transform(chunk,encoding,done){sha.update(chunk);done(null,chunk);}}),fs.createWriteStream(temporary,{flags:'wx',mode:0o600}));if(expected!==sha.digest('hex'))throw new Error('产物校验失败，没有替换目标文件。');await fs.promises.rename(temporary,choice.filePath);}finally{await fs.promises.rm(temporary,{force:true});}
+}
 function secureContents(contents){
  contents.on('will-navigate',(event,url)=>{if(!isWorkspaceUrl(url)){event.preventDefault();void openExternal(url);}});
  contents.setWindowOpenHandler(({url})=>{
+  if(isWorkspaceUrl(url)&&/^\/development-export\/[-a-f0-9]{36}\/[-a-f0-9]{36}$/.test(new URL(url).pathname)){const [, ,task,id]=new URL(url).pathname.split('/');void exportDevelopmentArtifact(task,id).catch(e=>dialog.showErrorBox('产物未保存',e.message));return{action:'deny'};}
+  if(isWorkspaceUrl(url)&&/^\/development-preview\/[-a-f0-9]{36}$/.test(new URL(url).pathname)){
+   const id=new URL(url).pathname.split('/').pop(),child=new BrowserWindow({title:'Relay · 项目实际预览',width:1100,height:800,parent:window,webPreferences:prefs});
+   child.webContents.on('will-navigate',(event,next)=>{if(!next.startsWith('relay-preview://'+id+'/'))event.preventDefault();});child.webContents.setWindowOpenHandler(()=>({action:'deny'}));void child.loadURL('relay-preview://'+id+'/');return{action:'deny'};
+  }
   if(isWorkspaceUrl(url)&&new URL(url).pathname==='/license'){return{action:'allow',overrideBrowserWindowOptions:{width:920,height:720,webPreferences:prefs}};}
   void openExternal(url);return{action:'deny'};
  });
@@ -55,6 +70,7 @@ if(!app.requestSingleInstanceLock()){app.quit();}else{
   session.defaultSession.setPermissionRequestHandler((wc,permission,callback)=>callback(permission==='clipboard-sanitized-write'&&isWorkspaceUrl(wc.getURL())));session.defaultSession.setPermissionCheckHandler((wc,permission)=>permission==='clipboard-sanitized-write'&&!!wc&&isWorkspaceUrl(wc.getURL()));
   await startBackend();
   protocol.handle('relay',request=>proxyRequest(request,base,token).catch(error=>{fs.appendFileSync(path.join(dataDirectory,'logs','desktop.log'),new Date().toISOString()+' '+error.name+': '+error.message+'\n');return new Response('本机服务不可用，请重新打开 Relay。',{status:503});}));
+  protocol.handle('relay-preview',request=>proxyDevelopmentPreview(request,base,token).catch(()=>new Response('预览尚未启动或已停止。',{status:503})));
   menu();createWindow();app.on('activate',()=>{if(!window)createWindow();});
  }).catch(error=>{dialog.showErrorBox('Relay 未能启动',error.message);app.quit();});
  app.on('window-all-closed',()=>app.quit());

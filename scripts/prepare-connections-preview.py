@@ -57,6 +57,8 @@ for name, begin, end in [
     ('software-operator.js', '/* SOFTWARE_OPERATOR_START */', '/* SOFTWARE_OPERATOR_END */'),
     ('development.js', '/* DEVELOPMENT_START */', '/* DEVELOPMENT_END */'),
     ('development.css', '/* DEVELOPMENT_CSS_START */', '/* DEVELOPMENT_CSS_END */'),
+    ('development-runtime.js', '/* DEVELOPMENT_RUNTIME_START */', '/* DEVELOPMENT_RUNTIME_END */'),
+    ('development-runtime.css', '/* DEVELOPMENT_RUNTIME_CSS_START */', '/* DEVELOPMENT_RUNTIME_CSS_END */'),
     ('browser-control.js', '/* BROWSER_CONTROL_START */', '/* BROWSER_CONTROL_END */'),
     ('browser-control.css', '/* BROWSER_CONTROL_CSS_START */', '/* BROWSER_CONTROL_CSS_END */'),
     ('regions.js', '/* REGIONS_START */', '/* REGIONS_END */'),

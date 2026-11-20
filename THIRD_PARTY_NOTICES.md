@@ -11,10 +11,13 @@ Dependencies are installed by npm; see the exact versions in `package-lock.json`
 - Express, Zod and dotenv for the local service.
 - OpenAI Agents packages and Anthropic AI SDK adapter for model integration.
 - Mammoth, ExcelJS, PDF.js and yauzl for document handling.
+- Archiver for streaming build ZIP archives.
 - react-markdown and remark-gfm for rendered content.
 - Lucide icons (ISC). The distributed icon license is retained at `public/design-v2/LUCIDE-LICENSE.txt`.
 
 Dependency artifacts are not vendored into this repository. Redistributors who bundle dependencies must preserve their respective notices and license obligations, including PDF.js Apache-2.0 terms and any relevant transitive notices.
+
+Supported desktop packages also include the build host's official Node.js distribution executable and npm for project development. The complete Node notices are at `desktop-runtime/toolchain/NODE-LICENSE`; npm's license and bundled dependency notices are retained in `desktop-runtime/toolchain/npm`. Toolchain versions are recorded in `toolchain/info.json`. These components retain their own licenses; Relay's AGPL does not replace them. The source archive contains the bundling recipe, not these third-party binaries. Source builders must use a standalone official Node distribution with its full license file (or explicitly supply that same file through `RELAY_NODE_LICENSE`).
 
 ## Skill / workflow metadata
 

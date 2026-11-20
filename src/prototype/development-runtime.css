@@ -1,0 +1,5 @@
+/* DEVELOPMENT_RUNTIME_CSS_START */
+.dr-history{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.dr-history button{font-size:12px}.dr-history [aria-pressed=true]{background:var(--clarity-sel,#eaf1ff);border-color:var(--blue)}.dr-runtime [data-dr-log]{max-height:260px;min-height:120px;overflow:auto;white-space:pre-wrap}.dr-runtime .dr-preview{display:block;width:100%;height:380px;resize:vertical;min-height:180px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-top:10px}.dr-artifact{display:block;margin:8px 0;padding:8px;border:1px solid var(--line);border-radius:8px;overflow-wrap:anywhere}.dr-artifact small{display:block;font-size:10px}.dr-grants code{display:block;white-space:pre-wrap;overflow-wrap:anywhere;padding:6px;background:var(--clarity-sel,#eaf1ff);font-size:11px}.dr-grants{margin:12px 0;padding:8px;border:1px solid var(--line);border-radius:10px}@media(max-width:740px){.dr-runtime .dr-preview{height:280px}}
+.dr-observation{display:block;width:100%;max-height:380px;object-fit:contain;border:1px solid var(--line);border-radius:10px;margin:10px 0}
+.dr-history [aria-pressed=true]{color:var(--ink)}
+/* DEVELOPMENT_RUNTIME_CSS_END */

@@ -22,6 +22,7 @@ export const assistantRequest=guideRequest.extend({
   previous:z.array(z.object({request:text.max(2400),reply:text.max(2400),question:text.max(1000)})).max(4).default([]),
   notes:z.array(z.object({id,pid:id.nullish(),text:text.max(2000)})).max(500).default([]),
   clusters:z.array(z.object({id,boardId:id,name:text.max(240),projectIds:z.array(id).max(100)})).max(100).default([]),
+  focusedProject:z.object({id,name:text.max(240),goal:text.max(1200).optional(),recentMessages:z.array(z.object({from:id,text:text.max(1000),status:text.max(30).optional()})).max(10).default([]),draft:text.max(4000).optional()}).optional(),
   connections:z.array(z.object({id:text.max(90),name:text.max(240),vendor:text.max(40),defaultModel:text.max(180).optional(),configured:z.boolean()})).max(80).default([]),
  }),
 });
@@ -57,6 +58,7 @@ export async function planAssistant(input:unknown,signal?:AbortSignal,generate?:
   '应用效果须通过dev.inspectPreview读取真实浏览器页面并截图；dev.preview只显示Relay欢迎文案，不能代替应用预览。浏览器检查需要Chrome，缺少时报告未验证，不把HTTP可用当作页面功能正确。'+
   '若组织多模型团队审议源码，先dev.read取得实际材料，按用户需要用assistant.write存入对应项目再启动已绑定团队；团队成员未获得独立文件或Shell工具，不要声称成员直接改了仓库。你需读取实际产出并核对，再用dev.*应用源码、运行检查和核对差异。'+
   '这是一个观察—行动闭环。context.execution包含已经执行的步骤、实际结果/正文或失败；context.observation是最新软件状态；followups是用户对此次任务的新要求，最新要求优先。不要重建已完成对象，不因手工编辑改变而使用过期状态。'+
+   '若context.focusedProject或context.roomId/selectedProjectId存在，表示用户当前正聚焦该项目；用户若提到“这个项目”、“给它加角色”、“总结讨论”等代词或上下文，直接以此项目为目标，不反问哪个项目。若上一轮执行存在lastError或failed步骤，必须先分析失败原因，并优先调整参数、选择备选动作或说明具体缺失条件，不要盲目重复相同的失败调用。'+
   '需要先知道文件正文、项目对话、任务成果时，先返回assistant.read或assistant.inspect，结束本批步骤；执行后你会收到真实观察，再决定接下来的内容和操作。绝不能根据文件名、项目名、计划或成功提示猜正文。结果有nextStart表示未读完，应继续分页读取或交给绑定团队处理。'+
   'assistant.inspect可查看项目实际内容、运行成果、连接/能力库/授权状态；assistant.write把你实际写出的文本保存为软件内文件，可展开并交给项目，不是只在聊天里声称已保存。需要运行成员时调用其绑定模型；仅要求你读取分析和整理时可以直接处理后保存，不额外启动成员。'+
   '每批最多12个必要动作。每批完成后会根据最新状态再次调用你；只有观察能证明用户目标完成，才返回finished=true、steps=[]、question=""，reply具体报告已完成的结果/位置和未完成边界。若仍缺操作则finished=false；需要关键用户信息才question，steps=[]。失败后可检查并调整，不伪造成功或重复扣费调用。'+

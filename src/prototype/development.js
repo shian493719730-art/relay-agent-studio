@@ -1,5 +1,8 @@
 /* DEVELOPMENT_START */
-const DW={list:[],current:null,projectId:null,preview:null,tab:'files',files:[],page:1,total:0,query:'',file:null,change:null,changes:[],check:null,error:'',busy:false};
+const DW_MODE_KEY=KEY+':dev-mode-v1';
+let dwInitialDevMode=false;
+try{dwInitialDevMode=JSON.parse(localStorage.getItem(DW_MODE_KEY)||'false')}catch{}
+const DW={list:[],current:null,projectId:null,preview:null,tab:'files',files:[],page:1,total:0,query:'',file:null,change:null,changes:[],check:null,error:'',busy:false,devMode:!!dwInitialDevMode};
 const DW_DRAFT_KEY=KEY+':development-drafts-v1';
 try{DW.drafts=JSON.parse(localStorage.getItem(DW_DRAFT_KEY)||'{}')}catch{DW.drafts={}}
 const dwPanel=document.createElement('section');dwPanel.id='development';dwPanel.className='fl';dwPanel.hidden=true;dwPanel.setAttribute('role','dialog');dwPanel.setAttribute('aria-label','源码开发工作区');document.body.append(dwPanel);
@@ -9,14 +12,17 @@ const dwVisible=()=>DW.list.filter(w=>w.projectId?P(w.projectId)?.boardId===stat
 const dwWorkspace=()=>dwVisible().find(w=>w.id===DW.current)||dwVisible()[0];
 const dwDraftId=(w,p)=>w.id+'|'+p;
 function dwSaveDrafts(){try{localStorage.setItem(DW_DRAFT_KEY,JSON.stringify(DW.drafts))}catch{hint('源码草稿暂未保存到本机，请先保存文件或复制草稿')}}
+function dwSaveDevMode(){try{localStorage.setItem(DW_MODE_KEY,JSON.stringify(!!DW.devMode))}catch{}}
+function dwExitDevMode(){dwStoreDraft();DW.devMode=false;dwSaveDevMode();dwClose();renderAll();hint('已退出高级开发者模式，已恢复普通用户视图')}
+async function dwEnterDevMode(projectId){DW.devMode=true;dwSaveDevMode();renderAll();await dwOpen(projectId);hint('已进入高级开发者模式')}
 async function dwApi(action,args={},signal){const r=await fetch('/api/studio/development',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...args}),signal});const d=await r.json();if(!r.ok)throw new Error(d.error||'源码操作未完成');return d}
 async function dwRefresh(signal){const d=await dwApi('list',{},signal);DW.list=d.workspaces;if(!dwVisible().some(w=>w.id===DW.current))DW.current=dwVisible()[0]?.id||null;return d}
 async function dwFiles(){const w=dwWorkspace();if(!w)return;const d=await dwApi('files',{workspaceId:w.id,query:DW.query,page:DW.page});DW.files=d.files;DW.total=d.total;}
-async function dwOpen(projectId){closePan();DW.projectId=projectId||state.room||state.sel||null;dwPanel.hidden=false;DW.error='';try{await dwRefresh();const matching=dwVisible().find(w=>w.projectId===DW.projectId);if(matching)DW.current=matching.id;const w=dwWorkspace();await dwFiles();if(w?.lastCheck){DW.check=await dwApi('checkStatus',{workspaceId:w.id,runId:w.lastCheck.id});if(!DW.check.settled)void dwFollowCheck(w,DW.check).catch(e=>hint(e.message));}}catch(e){DW.error=e.message}dwRender();}
-function dwClose(){dwPanel.hidden=true;}
+async function dwOpen(projectId){closePan();DW.devMode=true;dwSaveDevMode();DW.projectId=projectId||state.room||state.sel||null;dwPanel.hidden=false;DW.error='';try{await dwRefresh();const matching=dwVisible().find(w=>w.projectId===DW.projectId);if(matching)DW.current=matching.id;const w=dwWorkspace();await dwFiles();if(w?.lastCheck){DW.check=await dwApi('checkStatus',{workspaceId:w.id,runId:w.lastCheck.id});if(!DW.check.settled)void dwFollowCheck(w,DW.check).catch(e=>hint(e.message));}}catch(e){DW.error=e.message}dwRender();renderAll();}
+function dwClose(){dwStoreDraft();dwPanel.hidden=true;renderAll();}
 function dwRender(){
  if(dwPanel.hidden)return;const w=dwWorkspace(),file=DW.file,options=dwVisible();
- dwPanel.innerHTML=`<h3>${icon('code',17)}源码开发<button class="x" data-dw-close aria-label="关闭源码开发">${icon('close',16)}</button></h3><div class="dw-body"><div class="row"><button data-dt-begin>源码自开发教程</button><button data-dw-other>连接其他仓库</button></div><p class="lab">只操作所连接的源码工程；模型调用仍需明确开工。文件编辑有独立差异记录，画板撤销不会偷偷回滚磁盘。</p><div class="row"><select data-dw-workspace aria-label="选择源码工作区"><option value="">连接一个项目…</option>${options.map(x=>`<option value="${x.id}" ${w?.id===x.id?'selected':''}>${esc(P(x.projectId)?.name||x.name)}</option>`).join('')}</select><button data-dw-settings>连接设置</button>${w?'<button data-dw-detach>断开</button>':''}</div>${DW.error?`<p class="dw-error" role="alert">${esc(DW.error)}</p>`:''}${!w||DW.settings?dwConnection():`<p class="dw-location">${esc(w.root)} · ${w.writable?'允许源码写入':'只读'} · ${w.checksAllowed?'已允许项目检查':'检查未授权或脚本已变化'}</p><div class="row dw-tabs">${[['files','文件'],['changes','差异与回滚'],['checks','检查与日志']].map(([id,name])=>`<button data-dw-tab="${id}" aria-pressed="${DW.tab===id}">${name}</button>`).join('')}</div>${DW.tab==='changes'?dwChangesMarkup():DW.tab==='checks'?dwChecksMarkup(w):`<div class="dw-grid"><aside><div class="row"><input data-dw-query aria-label="筛选源码文件" value="${esc(DW.query)}" placeholder="筛选路径"><button data-dw-search>查找</button></div><p class="lab">${DW.total} 个可见文件</p><div class="dw-files">${DW.files.map(p=>`<button data-dw-file="${esc(p)}" title="${esc(p)}" aria-pressed="${file?.path===p}">${esc(p)}</button>`).join('')}</div><div class="row"><button data-dw-page="-1" ${DW.page<2?'disabled':''}>上一页</button><span>${DW.page}</span><button data-dw-page="1" ${DW.page*60>=DW.total?'disabled':''}>下一页</button></div></aside><div class="dw-editor"><div class="row"><input data-dw-path aria-label="源码文件路径" value="${esc(file?.path||'')}" placeholder="src/example.ts"><button data-dw-read-path>打开</button><button data-dw-new>新建草稿</button></div>${file?`<p class="lab">${file.dirty?'手动草稿 · 尚未保存':'磁盘实际内容'} · 已读 ${file.text.length}/${file.total} 字符${file.nextStart!==null?' · 尚未读全':''}</p><textarea data-dw-editor aria-label="源码编辑器" spellcheck="false">${esc(file.text)}</textarea><div class="row"><button data-dw-save ${!w.writable||file.nextStart!==null||file.text.length>180000?'disabled':''}>保存到源码</button><button data-dw-preview-ui ${file.path==='resources/ui/assistant-copy.json'?'':'hidden'}>预览助手文案</button><button data-dw-git>${w.kind==='practice'?'逐次差异':'Git diff'}</button><button data-dw-discard>放弃本文件草稿并重读</button>${file.nextStart!==null?'<button data-dw-more>继续读取</button>':''}<button data-dw-delete ${!w.writable?'disabled':''}>删除文件</button></div><details><summary>精确替换一处片段（适合大文件）</summary><label>唯一的原文片段<textarea data-dw-old aria-label="要替换的原文"></textarea></label><label>替换为<textarea data-dw-new-text aria-label="替换后的源码"></textarea></label><button data-dw-replace ${!w.writable?'disabled':''}>应用精确替换</button></details>`:'<p class="lab">选择文件后读取真实正文；新文件先写草稿，点保存才落盘。</p>'}</div></div>`}`}</div>`;
+ dwPanel.innerHTML=`<h3>${icon('code',17)}源码开发<span class="dw-badge">开发者模式</span><button class="dw-exit-mode" data-dw-dev-exit aria-label="退出高级开发者模式" title="退出高级开发者模式，恢复普通用户视图">${icon('close',13)}退出开发者模式</button><button class="x" data-dw-close aria-label="关闭源码开发">${icon('close',16)}</button></h3><div class="dw-body"><div class="row"><button data-dt-begin>源码自开发教程</button><button data-dw-other>连接其他仓库</button></div><p class="lab">只操作所连接的源码工程；模型调用仍需明确开工。文件编辑有独立差异记录，画板撤销不会偷偷回滚磁盘。</p><div class="row"><select data-dw-workspace aria-label="选择源码工作区"><option value="">连接一个项目…</option>${options.map(x=>`<option value="${x.id}" ${w?.id===x.id?'selected':''}>${esc(P(x.projectId)?.name||x.name)}</option>`).join('')}</select><button data-dw-settings>连接设置</button>${w?'<button data-dw-detach>断开</button>':''}</div>${DW.error?`<p class="dw-error" role="alert">${esc(DW.error)}</p>`:''}${!w||DW.settings?dwConnection():`<p class="dw-location">${esc(w.root)} · ${w.writable?'允许源码写入':'只读'} · ${w.checksAllowed?'已允许项目检查':'检查未授权或脚本已变化'}</p><div class="row dw-tabs">${[['files','文件'],['changes','差异与回滚'],['checks','检查与日志']].map(([id,name])=>`<button data-dw-tab="${id}" aria-pressed="${DW.tab===id}">${name}</button>`).join('')}</div>${DW.tab==='changes'?dwChangesMarkup():DW.tab==='checks'?dwChecksMarkup(w):`<div class="dw-grid"><aside><div class="row"><input data-dw-query aria-label="筛选源码文件" value="${esc(DW.query)}" placeholder="筛选路径"><button data-dw-search>查找</button></div><p class="lab">${DW.total} 个可见文件</p><div class="dw-files">${DW.files.map(p=>`<button data-dw-file="${esc(p)}" title="${esc(p)}" aria-pressed="${file?.path===p}">${esc(p)}</button>`).join('')}</div><div class="row"><button data-dw-page="-1" ${DW.page<2?'disabled':''}>上一页</button><span>${DW.page}</span><button data-dw-page="1" ${DW.page*60>=DW.total?'disabled':''}>下一页</button></div></aside><div class="dw-editor"><div class="row"><input data-dw-path aria-label="源码文件路径" value="${esc(file?.path||'')}" placeholder="src/example.ts"><button data-dw-read-path>打开</button><button data-dw-new>新建草稿</button></div>${file?`<p class="lab">${file.dirty?'手动草稿 · 尚未保存':'磁盘实际内容'} · 已读 ${file.text.length}/${file.total} 字符${file.nextStart!==null?' · 尚未读全':''}</p><textarea data-dw-editor aria-label="源码编辑器" spellcheck="false">${esc(file.text)}</textarea><div class="row"><button data-dw-save ${!w.writable||file.nextStart!==null||file.text.length>180000?'disabled':''}>保存到源码</button><button data-dw-preview-ui ${file.path==='resources/ui/assistant-copy.json'?'':'hidden'}>预览助手文案</button><button data-dw-git>${w.kind==='practice'?'逐次差异':'Git diff'}</button><button data-dw-discard>放弃本文件草稿并重读</button>${file.nextStart!==null?'<button data-dw-more>继续读取</button>':''}<button data-dw-delete ${!w.writable?'disabled':''}>删除文件</button></div><details><summary>精确替换一处片段（适合大文件）</summary><label>唯一的原文片段<textarea data-dw-old aria-label="要替换的原文"></textarea></label><label>替换为<textarea data-dw-new-text aria-label="替换后的源码"></textarea></label><button data-dw-replace ${!w.writable?'disabled':''}>应用精确替换</button></details>`:'<p class="lab">选择文件后读取真实正文；新文件先写草稿，点保存才落盘。</p>'}</div></div>`}`}</div>`;
  dmDecorate();dwCheckPaint();dwPreviewPaint();
 }
 function dwPreviewPaint(){const r=DW.uiPreview,w=dwWorkspace();if(!r||r.workspaceId!==w?.id)return;const host=dwPanel.querySelector('.dw-body');if(!host)return;const box=document.createElement('section');box.className='dw-copy-preview';box.setAttribute('aria-label','Relay源码结果预览');box.innerHTML=`<h4>源码结果预览</h4>${renderAssistantWelcome(r.welcome)}<p class="lab">来自磁盘版本 ${esc(r.hash.slice(0,12))} · ${r.test?.status==='passed'&&r.test.sourceHash===r.hash?'该版本测试已通过':'该版本尚未通过测试'} · 未替换安装包</p>`;host.prepend(box);}
@@ -58,12 +64,39 @@ const dwInvokeBase=asInvoke;asInvoke=async function(name,a,ctx){
  if(r.output!==undefined){const {output,...meta}=r;r={...meta,outputTail:output.slice(-12000),logTruncated:r.truncated||output.length>12000};}
  return AssistantCore.public({...r,message:r.message||'实际源码操作已完成：'+CAT.find(c=>c[0]===name)[1]});
 };
-ACT['dev.open']=a=>{void dwOpen(a?.projectId);return'已打开源码开发工作区'};
-const dwPanBase=renderPan;renderPan=function(){dwPanBase();if(['boards','proj'].includes(panK)&&!$('#pan [data-dw-open]'))$('#pan').insertAdjacentHTML('beforeend',`<button data-dw-open="${panK==='proj'?esc(panId):''}">${icon('code',15)}源码开发</button>`);};
-const dwRoomBase=renderRoom;renderRoom=function(){dwRoomBase();const toolbar=$('#room .rt');if(toolbar&&!toolbar.querySelector('[data-dw-open]'))toolbar.insertAdjacentHTML('beforeend',`<button data-dw-open="${esc(state.room)}">${icon('code',15)}源码</button>`);};
+ACT['dev.open']=a=>{DW.devMode=true;dwSaveDevMode();void dwOpen(a?.projectId);return'已打开源码开发工作区'};
+const dwPanBase=renderPan;renderPan=function(){
+ dwPanBase();
+ if(!['boards','proj'].includes(panK))return;
+ const projId=panK==='proj'?esc(panId):'';
+ const p=$('#pan');if(!p)return;
+ if(DW.devMode){
+  if(!p.querySelector('[data-dw-open]'))p.insertAdjacentHTML('beforeend',`<button data-dw-open="${projId}">${icon('code',15)}源码开发</button>`);
+  if(!p.querySelector('[data-dw-dev-exit]'))p.insertAdjacentHTML('beforeend',`<button data-dw-dev-exit class="dw-dev-exit-btn" title="退出高级开发者模式，恢复普通用户视图">${icon('close',14)}退出开发者模式</button>`);
+ }else{
+  if(!p.querySelector('[data-dw-dev-toggle]'))p.insertAdjacentHTML('beforeend',`<button data-dw-dev-toggle data-dw-open="${projId}" aria-pressed="false" title="切换到高级开发者模式，可查看和使用源码开发">${icon('code',15)}高级开发者模式</button>`);
+ }
+};
+const dwRoomBase=renderRoom;renderRoom=function(){
+ dwRoomBase();
+ const toolbar=$('#room .rt');if(!toolbar)return;
+ const existing=toolbar.querySelector('[data-dw-open]');
+ if(DW.devMode){
+  if(!existing)toolbar.insertAdjacentHTML('beforeend',`<button data-dw-open="${esc(state.room)}">${icon('code',15)}源码</button>`);
+ }else if(existing){
+  existing.remove();
+ }
+};
 document.addEventListener('input',e=>{if(e.target.matches('[data-dw-editor]'))dwStoreDraft();if(e.target.matches('[data-dw-project-name]'))DW.newName=e.target.value;if(e.target.matches('[data-dw-directory]')){DW.directory=e.target.value;DW.preview=null;const button=dwPanel.querySelector('[data-dw-attach]');if(button)button.disabled=true;}if(e.target.matches('[data-dw-query]'))DW.query=e.target.value;});
 document.addEventListener('change',e=>{if(e.target.matches('[data-dw-writable]'))DW.allowWrite=e.target.checked;if(e.target.matches('[data-dw-grant]'))DW.allowChecks=e.target.checked;if(e.target.matches('[data-dw-workspace]')){DW.current=e.target.value;DW.file=null;DW.check=null;void dwFiles().then(dwRender).catch(e=>hint(e.message));}});
-document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.a==='guide'){closePan();dwClose();}if(t.hasAttribute('data-dw-open')){void dwOpen(t.dataset.dwOpen);return;}if(!t.closest('#development')||![...t.attributes].some(a=>a.name.startsWith('data-dw-')))return;t.disabled=true;void(async()=>{DW.error='';const w=dwWorkspace();
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.a==='guide'){closePan();dwClose();}
+ if(t.hasAttribute('data-dw-dev-exit')){e.preventDefault();dwExitDevMode();return;}
+ if(t.hasAttribute('data-dw-dev-toggle')){e.preventDefault();if(DW.devMode)dwExitDevMode();else void dwEnterDevMode(t.dataset.dwOpen);return;}
+ if(t.hasAttribute('data-dw-open')){void dwOpen(t.dataset.dwOpen);return;}
+ if(!t.closest('#development')||![...t.attributes].some(a=>a.name.startsWith('data-dw-')))return;
+ t.disabled=true;void(async()=>{DW.error='';const w=dwWorkspace();
  if(t.hasAttribute('data-dw-close'))return dwClose();
  if(t.hasAttribute('data-dw-other')){DW.settings=true;DW.preview=null;DW.directory='';DW.projectId=null;DW.allowWrite=false;DW.allowChecks=false;dwRender();return;}
  if(t.hasAttribute('data-dw-settings')){DW.settings=!DW.settings;DW.preview=null;DW.directory=w?.root||DW.directory;DW.allowWrite=!!w?.writable;DW.allowChecks=!!w?.checksAllowed;dwRender();return;}

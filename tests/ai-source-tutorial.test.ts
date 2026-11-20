@@ -41,6 +41,7 @@ test('the actual bundled AI tutorial adapter wraps the final source/browser/hist
  const html=fs.readFileSync(new URL('../src/prototype/index.html',import.meta.url),'utf8'),at=html.indexOf('/* AI_SOURCE_TUTORIAL_START */');for(const marker of ['/* DEVELOPMENT_END */','/* BROWSER_CONTROL_END */','/* HISTORY_REPORTS_END */','/* TUTORIAL_EDITING_END */'])assert.ok(at>html.indexOf(marker),marker+' must precede the tutorial adapter');assert.ok(at<html.indexOf('renderAll();if(B().initialFit)'));
 });
 test('numbered guidance points to actual request, execution, pause, continue and source rollback controls',()=>{
+ assert.match(fs.readFileSync('src/prototype/ai-source-tutorial.css','utf8'),/body\.ai-selfdev-running:has\(#guide\.o\.as-panel\) :is\(#dm-tutorial-arrow,#tutorial-spot\)\{visibility:visible;pointer-events:none;z-index:125\}/);
  assert.equal(core.stage({},null,false,'request').selector,'#guide [data-as-send]');assert.equal(core.stage({},null,false,'').number,1);const t={assistantId:'s'};assert.equal(core.stage(t,{status:'running'},true,'').selector,'#guide [data-as-pause]');assert.equal(core.stage(t,{status:'paused'},false,'').selector,'#guide [data-as-continue]');assert.equal(core.stage({...t,verified:true},{status:'completed'},false,'').selector,'#guide [data-aid-rollback]');assert.equal(core.stage({...t,rolledBack:true},{status:'completed'},false,'').number,6);
 });
 test('the actual real-AI request adapter refuses to plan until a real repository has writable and checked script grants',async()=>{

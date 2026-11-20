@@ -8,6 +8,7 @@ on:
       - 'server/**'
       - 'src/**'
       - 'resources/**'
+      - 'tests/**'
       - 'scripts/build-desktop.mjs'
       - 'scripts/bundle-development-toolchain.mjs'
       - 'scripts/desktop-smoke.mjs'

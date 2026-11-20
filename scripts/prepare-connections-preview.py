@@ -71,6 +71,8 @@ for name, begin, end in [
     ('source-tutorial.css', '/* SOURCE_TUTORIAL_CSS_START */', '/* SOURCE_TUTORIAL_CSS_END */'),
     ('ai-source-tutorial.js', '/* AI_SOURCE_TUTORIAL_START */', '/* AI_SOURCE_TUTORIAL_END */'),
     ('ai-source-tutorial.css', '/* AI_SOURCE_TUTORIAL_CSS_START */', '/* AI_SOURCE_TUTORIAL_CSS_END */'),
+    ('runtime-tutorial.js', '/* RUNTIME_TUTORIAL_START */', '/* RUNTIME_TUTORIAL_END */'),
+    ('runtime-tutorial.css', '/* RUNTIME_TUTORIAL_CSS_START */', '/* RUNTIME_TUTORIAL_CSS_END */'),
     ('workspace-editor.css', '/* WORKSPACE_EDITOR_CSS_START */', '/* WORKSPACE_EDITOR_CSS_END */'),
 ]:
     module=root/'src/prototype'/name

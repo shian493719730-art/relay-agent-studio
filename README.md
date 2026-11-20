@@ -67,6 +67,8 @@ Relay 面向习惯用自然语言与 AI 一起解决问题、也愿意亲手调�
 
 也可以从「新手教程 → 用自然语言修改 Relay」体验软件操作助手代你读取源码、修改、真实测试、预览与回滚。本地课程明确使用预设工具流程，不运行模型；另有“准备真实AI开发”入口，把需求草稿和自己的仓库交给已配置模型，准备本身不调用模型。
 
+「新手教程 → 从依赖到交付」提供14步真实安装、测试、应用预览、暂停、更改要求、ZIP清单核对与整轮回滚。本地依赖随课提供，不下载第三方包、不调用模型；桌面自带 Node/npm，课程仍需 Git。
+
 每个人都能从「新手教程 → 人人都能自开发」走完8步真实源码练习：读文件、手动修改、测试、差异和回滚。桌面练习使用内置 Node，不需要 Git/npm、API 或下载依赖；完成后再连接自己的仓库。
 
 源码开发入口在画板菜单和项目详情/聊天中。普通画板无需开发环境；运行源码检查另需本机 Git、Node/npm，Relay 构建还需 Python。源码连接和脚本权限由用户明确选择，操作助手不能自行扩大目录范围。
@@ -120,7 +122,7 @@ npm run build      # 生成沉浸式画板并构建 Web 资源
 npm run check:public
 ```
 
-当前包含 **196 项离线测试**，涵盖源码落盘、冲突保护、逐次回滚与停止真实检查进程。各提交的 [CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml) 和 [实际打包后检查](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/desktop.yml) 分别记录结果。默认只要求 macOS、Linux，Windows 不阻塞验收或发布。自动化检查不等同于完整原生界面或收费供应商验收；历史报错与平台边界见 [验证说明](docs/PLATFORMS.md)。浏览器可视操作需要本机 Chrome；普通画板不需要 Playwright 浏览器安装。
+当前包含 **201 项离线测试**，涵盖源码落盘、冲突保护、逐次回滚与停止真实检查进程。各提交的 [CI](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/ci.yml) 和 [实际打包后检查](https://github.com/shian493719730-art/relay-agent-studio/actions/workflows/desktop.yml) 分别记录结果。默认只要求 macOS、Linux，Windows 不阻塞验收或发布。自动化检查不等同于完整原生界面或收费供应商验收；历史报错与平台边界见 [验证说明](docs/PLATFORMS.md)。浏览器可视操作需要本机 Chrome；普通画板不需要 Playwright 浏览器安装。
 
 欢迎提交复现清楚的 Bug、交互改进和新的连接适配器。开始前请阅读 [贡献指南](CONTRIBUTING.md)、[架构](docs/ARCHITECTURE.md)、[安全说明](SECURITY.md) 和 [行为准则](CODE_OF_CONDUCT.md)。我们尤其需要跨平台验证、无障碍、文件处理和协作恢复方面的贡献。
 

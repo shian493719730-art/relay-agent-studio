@@ -9,6 +9,7 @@ directories:
 files:
   - desktop/**
   - desktop-runtime/**
+  - '!desktop-runtime/toolchain/**'
   - package.json
   - LICENSE
   - NOTICE.md
@@ -18,6 +19,11 @@ files:
   - '!**/.data/**'
   - '!**/.playwright-mcp/**'
   - '!**/test-results/**'
+extraResources:
+  - from: desktop-runtime/toolchain
+    to: app/desktop-runtime/toolchain
+    filter:
+      - '**/*'
 mac:
   category: public.app-category.productivity
   icon: desktop/icon.icns

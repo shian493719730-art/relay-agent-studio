@@ -16,7 +16,7 @@ export async function bundleDevelopmentToolchain(runtime){
  if(!npm){const npmRoot=execFileSync('npm',['root','-g'],{encoding:'utf8',timeout:10000}).trim();npm=path.join(npmRoot,'npm');}
  const out=path.join(runtime,'toolchain');
  await fs.mkdir(path.join(out,'bin'),{recursive:true});await fs.copyFile(node,path.join(out,'bin/node'));await fs.chmod(path.join(out,'bin/node'),0o755);await fs.writeFile(path.join(out,'NODE-LICENSE'),license);
- await fs.cp(npm,path.join(out,'npm'),{recursive:true,filter:p=>!['.npmrc','npmrc','.env','.cache','_logs'].includes(path.basename(p))});
+ await fs.cp(npm,path.join(out,'npm'),{recursive:true,filter:p=>!path.basename(p).startsWith('.env')&&!['.npmrc','npmrc','.cache','_logs'].includes(path.basename(p))});
  for(const name of ['npm','npx'])await fs.writeFile(path.join(out,'bin',name),'#!/bin/sh\nexec "$(dirname "$0")/node" "$(dirname "$0")/../npm/bin/'+name+'-cli.js" "$@"\n',{mode:0o755});
  const nodeVersion=execFileSync(path.join(out,'bin/node'),['--version'],{encoding:'utf8'}).trim(),npmVersion=execFileSync(path.join(out,'bin/node'),[path.join(out,'npm/bin/npm-cli.js'),'--version'],{encoding:'utf8'}).trim();
  await fs.writeFile(path.join(out,'info.json'),JSON.stringify({node:nodeVersion,npm:npmVersion,platform:process.platform,arch:process.arch,nodeSourceSHA256:createHash('sha256').update(await fs.readFile(path.join(out,'bin/node'))).digest('hex')},null,2));

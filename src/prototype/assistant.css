@@ -16,4 +16,18 @@
 #utilities.o.feature-host{display:flex;flex-direction:column}#utilities.feature-host>.utility-grid,#utilities.feature-host>#auth-state{min-height:0;overflow:auto;flex:1 1 auto}#utilities.feature-host>:is(h3,p,.row,.feature-inline){flex-shrink:0}#utilities.feature-host .feature-inline{max-height:180px}
 .as-reply.as-final{display:block;-webkit-line-clamp:unset;white-space:pre-wrap}.as-steps li[data-state=replanned]{opacity:.6}.as-steps li[data-state=failed] small{color:var(--red)}
 .as-completion{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px}.as-completion summary{font-weight:600;cursor:pointer;overflow-wrap:anywhere}.as-completion .as-final{margin-bottom:0}
+.as-empty-state{display:flex;flex-direction:column;gap:6px;padding:2px 0}
+.as-starters-label{font-size:12px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:4px;margin-top:2px}
+.as-starters{display:grid;grid-template-columns:1fr;gap:6px}
+.as-starter-chip{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:7px 9px;background:#F8FAFC;border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:all .15s ease}
+.as-starter-chip:hover{background:#EFF6FF;border-color:var(--blue);transform:translateY(-1px)}
+.as-starter-chip:active{transform:translateY(0)}
+.as-chip-title{font-size:12px;font-weight:600;color:var(--ink)}
+.as-chip-desc{font-size:11px;color:var(--mute);margin-top:1px}
+.pan-readiness{background:#FFFDF5;border:1px solid #F5E0A3;border-radius:9px;padding:8px 10px;margin:6px 0 10px;font-size:12px;display:flex;flex-direction:column;gap:4px}
+.pan-readiness.pan-readiness--ok{background:#EDFDF5;border-color:#70E2AF;color:#0C6B46;font-weight:600;flex-direction:row;align-items:center;gap:6px}
+.pan-readiness-title{font-weight:600;color:var(--ink);display:flex;align-items:center;gap:4px;font-size:12px}
+.pan-readiness-item{color:var(--mute);font-size:11px;line-height:1.4}
+.pan-opt-goal{border:1px solid var(--line);background:#fff;border-radius:6px;color:var(--blue);display:inline-flex;align-items:center;gap:3px;transition:all .15s ease}
+.pan-opt-goal:hover{border-color:var(--blue);background:#EFF6FF}
 /* ASSISTANT_CSS_END */

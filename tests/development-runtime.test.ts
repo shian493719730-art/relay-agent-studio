@@ -95,6 +95,7 @@ test('the actual frontend adapter resumes a stopped development command once ins
   const source=fs.readFileSync(new URL('../src/prototype/development-runtime.js',import.meta.url),'utf8'),adapter=source.slice(source.indexOf('const drInvokeBase=asInvoke;'),source.indexOf('const drPauseBase=asPause;'));
   const scope:any={asInvoke:()=>{throw Error('Unexpected fallback')},DW:{list:[f.w]},DR:{checkpoint:{}},dwVisible:()=>[f.w],dwRefresh:async()=>{},dwPanel:{hidden:true},drClean:()=>{},drSessionCheckpoint:()=>cp.id,drRefresh:async()=>{},dwRender:()=>{},asPersist:()=>{},dwApi:(a:string,b:any)=>f.call(a,b),drFollow:(_w:any,r:any)=>settled(f,r),crypto:{randomUUID},AssistantCore:{public:(x:any)=>x},asWaiting:(s:string)=>Error(s)};vm.runInNewContext(adapter,scope);
   const step:any={checkpoint:{runtimeTaskId:old.id}},session:any={};const r=await scope.asInvoke('dev.install',{workspaceId:f.w.id},{step,session,signal:new AbortController().signal});assert.equal(r.status,'passed',r.output);assert.notEqual(r.id,old.id);assert.equal(step.checkpoint.runtimeTaskId,r.id);assert.equal((await f.call('runtimeStatus')).tasks.length,2);
+  const checked=await scope.asInvoke('dev.check',{workspaceId:f.w.id,command:'test'},{step:{},session,signal:new AbortController().signal});assert.equal(checked.kind,'run');assert.equal(checked.status,'passed');assert.match(checked.output,/DEPENDENCY-INSTALLED/);
  }finally{await f.close();}
 });
 test('opening the real-project or assistant preparation entry cannot fall through into starting a runtime command',()=>{

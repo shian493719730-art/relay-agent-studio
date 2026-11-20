@@ -2,6 +2,8 @@
 
 # Relay
 
+Connected Git/npm projects now have a general development workflow: describe a feature, let the built-in operator read/edit real source, install dependencies in an independent environment, run reviewed scripts, inspect the live application, package actual outputs and restore a development checkpoint. Supported desktop packages bundle Node/npm; Git remains required, and building Relay also needs Python. Fixed free lessons are separate. Real provider acceptance has not been run in this release. [Development guide](docs/SELF_DEVELOPMENT.md).
+
 ### A visual office workspace for vibe coders.
 
 Organize work in natural language and build it by hand. Bring documents, multi-model teams, a maintained GitHub resource library, and authorization handoffs into one visible, interruptible workflow.

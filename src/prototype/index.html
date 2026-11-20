@@ -789,7 +789,7 @@ function sbRecBinding(p){const c=p?.coordinator;return c?.connectionId&&c.model?
 function sbRecKey(p){return JSON.stringify([sbNeeds(p),sbRecBinding(p)||null]);}
 async function sbRecommend(semantic=true,force=false){
  SB.recommendAC?.abort();const p=sbProject();if(!p){SB.busy=false;sbPaint();return;}
- const key=sbRecKey(p),cached=SB.recCache.get(key);if(semantic&&!force&&cached&&Date.now()-cached.at<600000){Object.assign(SB,cached.result,{busy:false});sbPaint();return;}
+ const key=sbRecKey(p),cached=SB.recCache.get(key);if(SB.activeRecKey!==key){SB.recommendations=[];SB.otherItems=[];SB.recMode='';SB.recBinding=null;}SB.activeRecKey=key;if(semantic&&!force&&cached&&Date.now()-cached.at<600000){Object.assign(SB,cached.result,{busy:false,recMessage:'复用本页已完成的 API 推荐（10分钟内） · '+cached.result.recMessage});sbPaint();return;}
  if(!p.summary?.trim()){SB.busy=false;SB.recStatus='needs-goal';SB.recMessage='先在项目目标里写下想得到的成果，再保存目标并'+(sbOnline()?'让 AI 推荐。':'本地匹配。');sbPaint();return;}
  const ac=SB.recommendAC=new AbortController(),epoch=SB.epoch;SB.busy=true;SB.recStatus='loading';SB.recMessage=semantic?'正在调用已配置 API，理解目标并挑选前10项…':'正在进行本地目录匹配…';sbPaint();
  try{const d=await sbApi(semantic?'semantic':'recommend',{project:sbNeeds(p),...(semantic?{binding:sbRecBinding(p)}:{})},ac.signal);if(ac.signal.aborted||epoch!==SB.epoch||sbProject()!==p)return;

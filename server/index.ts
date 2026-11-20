@@ -7,7 +7,7 @@ import { connections,checkConnections,safeError } from './providers.ts';
 import { Workflow } from './runner.ts';
 import {explainStudio,loadSkillGuides} from './studio-ai.ts';
 import {authRelayStatus,openIntegration} from './studio-integrations.ts';
-import {library,refineProjectPrompt} from './skill-library.ts';
+import {library,refineProjectPrompt,projectNeeds} from './skill-library.ts';
 import {refreshSkillLibrary} from './library-refresh.ts';
 import {modelConnections} from './model-connections.ts';
 import {modelHandoffs} from './model-handoffs.ts';
@@ -87,7 +87,7 @@ app.post('/api/studio/open',async(req,res,next)=>{
 });
 const libraryRequest=z.discriminatedUnion('action',[
  z.object({action:z.literal('search'),query:z.string().max(300).optional(),category:z.string().max(60).optional(),kind:z.string().max(60).optional(),page:z.number().int().min(1).max(10000).optional(),pageSize:z.number().int().min(1).max(60).optional(),includeHistorical:z.boolean().optional(),openOnly:z.boolean().optional()}),
- z.object({action:z.enum(['recommend','semantic']),project:z.unknown()}),
+ z.object({action:z.enum(['recommend','semantic']),project:z.unknown(),binding:z.object({connectionId:z.string().min(1).max(90),model:z.string().min(1).max(180)}).optional()}),
  z.object({action:z.literal('guide'),id:z.string().min(1).max(600)}),
  z.object({action:z.enum(['status','refresh','cancel-refresh'])}),
  z.object({action:z.literal('set-schedule'),enabled:z.boolean()}),
@@ -102,7 +102,9 @@ app.post('/api/studio/library',async(req,res,next)=>{
   if(d.action==='recommend')return res.json(await library.recommend(d.project));
   if(d.action==='semantic'){
    if(studioActive>=2)return res.status(429).json({error:'已有两条推敲请求在进行，请先等待或停止。'});
-   studioActive++;chargedSlot=true;return res.json(await library.semanticRecommend(d.project,controller.signal));
+   const project=projectNeeds.parse(d.project);z.string().trim().min(1,'先填写项目目标。').parse(project.goal);
+   const binding=d.binding||defaultAssistantBinding();
+   studioActive++;chargedSlot=true;return res.json({...await library.semanticRecommend(project,AbortSignal.any([controller.signal,AbortSignal.timeout(120000)]),connectedStudioJson(binding)),binding});
   }
   if(d.action==='guide')return res.json(await library.guide(d.id,{signal:controller.signal}));
   if(d.action==='refresh'){

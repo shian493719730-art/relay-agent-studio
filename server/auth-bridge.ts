@@ -5,6 +5,7 @@ import {z} from 'zod';
 import {dataRoot} from './store.ts';
 import {authRelayStatus} from './studio-integrations.ts';
 import {atomicJson} from './skill-library.ts';
+import {redactSecrets} from './secret-redaction.ts';
 type RelayRequest=(route:string,body?:unknown)=>Promise<any>;
 type Overview=()=>Promise<{installed:boolean;connected:boolean;enabled:boolean;activeTasks:number;scope:string[];smsPhase:string;expiresAt?:string|null}>;
 async function relayRequest(route:string,body?:unknown){
@@ -26,7 +27,7 @@ export class AuthBridge{
  constructor(readonly file=path.join(dataRoot,'auth-relay-tasks.json'),readonly call:RelayRequest=relayRequest,readonly overview:Overview=authRelayStatus){}
  private async records(){try{return z.record(z.string(),z.string().uuid()).parse(JSON.parse(await fs.readFile(this.file,'utf8')))}catch{return{}}}
  private async pending(){try{return z.array(z.string().uuid()).parse(JSON.parse(await fs.readFile(this.file+'.pending','utf8')))}catch{return[]}}
- private task(t:any){let origin='';try{origin=new URL(t.origin).origin}catch{}return{id:String(t.id),origin,status:String(t.status||'unknown'),gateId:typeof t.gateId==='string'?t.gateId:null};}
+ private task(t:any){let origin='';try{origin=new URL(t.origin).origin}catch{}return{id:String(t.id),origin,status:String(t.status||'unknown'),gateId:typeof t.gateId==='string'?t.gateId:null,title:typeof t.title==='string'?redactSecrets(t.title).slice(0,160):'',checkpoint:typeof t.checkpoint==='string'?redactSecrets(t.checkpoint.replace(/^\[Relay:[^\]]+\]\s*/,'' )).slice(0,500):''};}
  async status(){const base=await this.overview();if(!base.connected)return{...base,tasks:[],otherTaskCount:0};
   try{const [s,records]=await Promise.all([this.call('/api/status'),this.records()]),owned=new Set(Object.values(records));const tasks=(s.tasks||[]).filter((t:any)=>owned.has(t.id)).map((t:any)=>this.task(t));return{...base,tasks,otherTaskCount:Math.max(0,(s.tasks||[]).length-tasks.length)};}catch{return{...base,connected:false,tasks:[],otherTaskCount:0}}}
  action(input:unknown){const d=request.parse(input);const work=this.queue.catch(()=>{}).then(()=>this.perform(d));this.queue=work;return work;}

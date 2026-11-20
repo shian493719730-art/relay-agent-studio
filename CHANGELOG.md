@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0-alpha.9
+
+- Turn the core capability course into learning by doing: fine numbered operations, purpose and expected observations, explanatory checks, previous-lesson navigation and independent transfer tasks. Preserve existing course progress.
+- Add plain hover/focus explanations and interactive authorization flow diagrams; distinguish actual service receipts from a clearly labeled three-task practice scenario.
+- Default normal project recommendations to the configured model API, rank up to ten entries and keep other candidates plus the full catalog visible. Interpret sparse everyday-language goals before retrieval; never disguise a failed API call as a model recommendation.
+- Keep the assistant transcript and controls usable alongside teaching, fix narrow-window target visibility, and preserve unsaved goals and course prompt results across redraws/reloads.
+
 ## 0.2.0-alpha.8
 
 - 新增14步“从依赖到交付”教程，调用正式工具安装本地依赖、读改需求与源码、测试、实际应用预览、暂停接续、重新验证、ZIP及整轮恢复。

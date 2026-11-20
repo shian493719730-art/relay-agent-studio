@@ -32,6 +32,7 @@ const ALIASES:Record<string,string[]>={
  '调试':['debugging','debug'],'修复':['debugging','bug','test'],'测试':['testing','test-driven','verification'],
  '数据库':['postgres','sql','database'],'前端':['frontend','web','react'],'工作流':['workflow','automation'],
  '自媒体':['content','writing','marketing','video'],'运营':['marketing','automation','workflow','content'],
+ '内容':['content','writing','marketing'],'选题':['brainstorm','content','writing'],'口播':['script','content','writing'],
  '货运':['workflow','automation','integration','operations'],'文献':['literature','review','research'],
 };
 const OPEN=/^(MIT|Apache-2\.0|BSD-[23]-Clause|ISC|MPL-2\.0|GPL-[23]\.0(?:-only|-or-later)?|AGPL-3\.0(?:-only|-or-later)?|CC-BY-4\.0|Unlicense)$/;
@@ -94,21 +95,32 @@ export class SkillLibrary {
    .map(e=>({...e,score:entryScore(e,terms)+matchedCategories.filter(c=>e.categories.includes(c.id)).length*3+(e.review==='body-reviewed'?2:0)}))
    .filter(e=>e.score>2&&(e.kind==='local-method'?entryScore(e,terms)>0:entryScore(e,specific)>0)).sort((a,b)=>b.score-a.score);
   const chosen:typeof candidates=[];const counts:Record<string,number>={};
-  for(const e of candidates){if((counts[e.sourceId]||0)>=3)continue;chosen.push(e);counts[e.sourceId]=(counts[e.sourceId]||0)+1;if(chosen.length>=8)break;}
-  return{mode:'local',goalKey:goalKey(p),message:'按目标、职责和文件类型进行本地初筛；可让统筹进一步判断。',items:chosen.map(e=>({entry:e,reason:'匹配 '+(matchedCategories.filter(c=>e.categories.includes(c.id)).map(c=>c.title).join('、')||terms.filter(t=>entryScore(e,[t])>0).slice(0,4).join('、')),adaptation:'加入项目后按本次目标取用，原项目要求优先。'}))};
+  for(const e of candidates){if((counts[e.sourceId]||0)>=3)continue;chosen.push(e);counts[e.sourceId]=(counts[e.sourceId]||0)+1;if(chosen.length>=10)break;}
+  return{mode:'local',goalKey:goalKey(p),message:'按目标、职责和文件类型匹配，尚未由模型判断。',candidateCount:candidates.length,otherItems:candidates.filter(e=>!chosen.some(c=>c.id===e.id)).slice(0,30),items:chosen.map(e=>({entry:e,reason:'本地匹配：'+(matchedCategories.filter(c=>e.categories.includes(c.id)).map(c=>c.title).join('、')||terms.filter(t=>entryScore(e,[t])>0).slice(0,4).join('、')),adaptation:'加入项目后按本次目标取用，原项目要求优先。'}))};
  }
  async semanticRecommend(input:unknown,signal?:AbortSignal,generate:ClaudeJson=claudeJson){
   const p=projectNeeds.extend({goal:z.string().trim().min(1,'先填写项目目标。').max(10000)}).parse(input);
-  const local=await this.recommend(p),searched=await this.search({query:[p.goal,...p.fileTypes].join(' '),pageSize:50});
-  const candidates=[...new Map([...local.items.map(i=>i.entry),...searched.entries].map(e=>[e.id,e])).values()].slice(0,55);
-  if(!candidates.length)return{...local,mode:'semantic',items:[],message:'当前库中没有合适候选，不强行推荐。'};
+  const local=await this.recommend(p),query=[p.goal,...p.fileTypes].join(' '),searched=expandTerms(query).length?await this.search({query,pageSize:50}):{entries:[] as LibraryEntry[]};
+  let candidates=[...new Map([...local.items.map(i=>i.entry),...('otherItems' in local?local.otherItems||[]:[]),...searched.entries].map(e=>[e.id,e])).values()].filter(e=>!e.historical).slice(0,55);
+  // Natural goals need not contain catalog keywords. Ask the configured model to
+  // interpret sparse matches before retrieving again; never require beginners to
+  // guess English skill names or report local matching as an AI recommendation.
+  if(candidates.length<10&&(await this.entries()).filter(e=>!e.historical).length>candidates.length){
+   const routingSchema={type:'object',properties:{terms:{type:'array',items:{type:'string'},maxItems:8},categories:{type:'array',items:{type:'string',enum:CATEGORIES.map(c=>c.id)},maxItems:3}},required:['terms','categories'],additionalProperties:false};
+   const route=z.object({terms:z.array(z.string().max(80)).max(8),categories:z.array(z.enum(CATEGORIES.map(c=>c.id) as [string,...string[]])).max(3)}).parse(await generate('先理解用户真正想完成的工作，将自然语言目标转成少量可检索的中英文方法词和给定类别。不是执行任务，不虚构已读或已运行；用户不用自己猜专业名词。只返回检索路由。',{project:p,categories:CATEGORIES.map(c=>({id:c.id,title:c.title}))},routingSchema,signal));
+   signal?.throwIfAborted();const query=route.terms.join(' '),extra=(await this.search({query,pageSize:50})).entries;
+   for(const category of route.categories)extra.push(...(await this.search({category,pageSize:12})).entries);
+   candidates=[...new Map([...candidates,...extra].map(e=>[e.id,e])).values()].filter(e=>!e.historical).slice(0,55);
+  }
+  if(!candidates.length)return{...local,mode:'no-candidates',items:[],message:'当前目录没有检索到合适候选。你可以浏览全部资料或补充目标，不强行推荐。'};
   const schema={type:'object',properties:{summary:{type:'string'},items:{type:'array',items:{type:'object',properties:{id:{type:'string',enum:candidates.map(e=>e.id)},reason:{type:'string'},adaptation:{type:'string'}},required:['id','reason','adaptation'],additionalProperties:false}}},required:['summary','items'],additionalProperties:false};
-  const result=z.object({summary:z.string().max(1500),items:z.array(z.object({id:z.string(),reason:z.string().max(1500),adaptation:z.string().max(1500)})).max(8)}).parse(await generate(
-   '你是多 Agent 工作台的项目方法推荐员。先理解真实项目目标、否定约束、职责和文件类型，再从给定候选按语义挑选0—8个必要 Skill/工作流。'+
-   '不要按关键词套模板或为了凑数推荐；可以认为本次无需额外方法。说明为什么适用于此项目、怎样适配及不适用的部分。'+
+  const result=z.object({summary:z.string().max(1500),items:z.array(z.object({id:z.string(),reason:z.string().max(1500),adaptation:z.string().max(1500)})).max(10)}).parse(await generate(
+   '你是多 Agent 工作台的项目方法推荐员。先理解真实项目目标、否定约束、职责和文件类型，再从给定候选按适用程度排序，优先挑选前10个 Skill/工作流。'+
+   '候选足够适用时给满10个；确实不足时如实少选并解释缺口，不为凑数推荐。不要按关键词套模板。用初学者能理解的中文说明为什么适用于此项目、如何使用及需要先准备什么。每个理由和适配建议各不超过100字。'+
    '候选只有索引或审读元数据，不能声称已执行、已安装、依赖已接通或读过未提供正文。原生要求和权限优先，不扩张支出、发布或数据范围。只引用给定ID，不生成虚构来源。',
    {project:p,candidates:candidates.map(e=>({id:e.id,title:e.title,description:e.description,kind:e.kind,categories:e.categories,review:e.review,licenseStatus:e.licenseStatus,instructionAvailable:e.instructionAvailable}))},schema,signal));
-  const seen=new Set<string>();return{mode:'semantic',goalKey:goalKey(p),message:result.summary,items:result.items.map(i=>{const entry=candidates.find(e=>e.id===i.id);if(!entry||seen.has(i.id))throw new Error('推荐引用了未知或重复的条目。');seen.add(i.id);return{entry,reason:i.reason,adaptation:i.adaptation};})};
+  const seen=new Set<string>();const items=result.items.map(i=>{const entry=candidates.find(e=>e.id===i.id);if(!entry||seen.has(i.id))throw new Error('推荐引用了未知或重复的条目。');seen.add(i.id);return{entry,reason:i.reason,adaptation:i.adaptation};});
+  return{mode:'semantic',goalKey:goalKey(p),message:result.summary,candidateCount:candidates.length,items,otherItems:candidates.filter(e=>!seen.has(e.id)),otherMessage:'这些也是按目标检索到的候选，尚未逐项确认适用；可查看来源后自行选择。'};
  }
  async status(){
   const index=await this.index();let update:any=null;try{update=await readJson(path.join(this.directory,'update-status.json'));}catch{}

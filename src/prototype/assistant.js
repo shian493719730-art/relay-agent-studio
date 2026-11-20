@@ -31,7 +31,7 @@ const AS={ac:null,current:null,profiles:[],profilesLoaded:false,loading:false,ap
 state.assistantSessions=state.assistantSessions||[];
 for(const s of state.assistantSessions)if(['running','planning'].includes(s.status)){s.status='paused';s.reason='页面已重新打开，保留已完成步骤；点击继续才会执行后续步骤'}
 const asDelay=(ms,signal)=>new Promise((ok,no)=>{const done=()=>{signal?.removeEventListener('abort',abort);ok()},tm=setTimeout(done,ms),abort=()=>{clearTimeout(tm);no(new DOMException('已暂停','AbortError'))};if(signal?.aborted)abort();else signal?.addEventListener('abort',abort,{once:true})});
-const asSession=()=>state.assistantSessions.find(s=>s.id===AS.current)||state.assistantSessions.at(-1);
+const asSession=()=>state.assistantSessions.find(s=>s.id===AS.current)||state.assistantSessions.filter(s=>s.boardId===state.activeBoard||s.targetBoardId===state.activeBoard).at(-1);
 function asPersist(){save();try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){hint('助手进度暂未保存：'+e.message)}renderGuide();}
 function asCloseAux(){if(skillbook.open)sbClose();if(modelConnect.open)mcClose();if(tutorialHome.open)tutorialHome.close();utility.classList.remove('o');utilityKind=null;closePan()}
 async function asProfiles(){if(AS.loading){while(AS.loading)await new Promise(r=>setTimeout(r,10));return}if(AS.profilesLoaded)return;AS.loading=true;try{const d=await mcApi('list');AS.profiles=d.profiles.filter(p=>p.configured&&p.defaultModel)}catch(e){AS.profileError=e.message}finally{AS.loading=false;AS.profilesLoaded=true;renderGuide()}}

@@ -1,0 +1,27 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import vm from 'node:vm';
+async function core(file:string,marker:string,name:string){const s=await fs.readFile(new URL('../src/prototype/'+file,import.meta.url),'utf8');return vm.runInNewContext(s.split('/* '+marker+'_START */')[1].split('/* '+marker+'_END */')[0]+';'+name);}
+test('learning tooltip placement keeps plain explanations in the viewport',async()=>{
+ const c=await core('learning.js','LEARNING_CORE','LearningCore');const b=c.place({left:1190,top:700,bottom:730},300,90,1200,760);assert.ok(b.x>=8&&b.x+300<=1192);assert.ok(b.y>=8&&b.y+90<=752);assert.match(c.explanations['dev.install'],/隔离/);assert.match(c.explanations['project.delete'],/撤销/);assert.doesNotMatch(c.explanations['run.stopAll'],/自动.*继续/);
+});
+test('feature lessons require each actual mouse operation, not just opening a catalog or observing a sample',async()=>{
+ const c=await core('feature-learning.js','FEATURE_LEARNING_CORE','FeatureLearningCore');const t:any={step:2,projectId:'p',learn:{goalSeen:true,goalSaved:true,detailViewed:true,returned:true,othersViewed:true}},v={libraryOpen:true,correctProject:true,hasReference:false};assert.equal(c.done(t,v),false);v.hasReference=true;assert.equal(c.done(t,v),true);delete t.learn.detailViewed;assert.equal(c.done(t,v),false);
+ const all=Array.from({length:8},(_,step)=>c.plan({step,projectId:'p',learn:{}},{}));assert.ok(all.every(p=>p.length>=2));assert.ok(all.flat().every(o=>o.selector&&!o.selector.includes('data-tut="action"')&&!/快捷键/.test(o.text)&&o.explanation));
+ const auth={step:6,learn:{authViewed:true,scenario:true,authVerified:true,authResumed:false,authCanceled:true}};assert.equal(c.done(auth,{inRoom:false,authOpen:true,authLoaded:true}),false);
+});
+test('recommendation uses API by default, reuses a completed result, never hides API failure behind local matching, and ignores stale responses',async()=>{
+ const s=await fs.readFile(new URL('../src/prototype/skill-library.js',import.meta.url),'utf8');const code=s.slice(s.indexOf('function sbRecKey'),s.indexOf('function sbRecommendationHTML'));
+ let project={id:'a',summary:'为店主制作自媒体选题'},calls:any[]=[],resolve:any;const SB:any={recommendAC:null,recCache:new Map(),epoch:0,goalDrafts:new Map([['a','尚未保存的新目标']])};const context:any={SB,Date,AbortController,skillbook:{open:true},sbProject:()=>project,sbNeeds:(p:any)=>p,sbRecBinding:()=>({connectionId:'bound',model:'exact-model'}),sbPaint:()=>{},sbRemember:()=>{},sbApi:async(action:string,data:any)=>{calls.push({action,data});return{mode:'semantic',items:[{entry:{id:'r'}}],otherItems:[{id:'other'}],message:'适合',binding:data.binding}}};
+ const recommend=vm.runInNewContext(code+';sbRecommend',context);await recommend();assert.equal(calls[0].action,'semantic');assert.equal(calls[0].data.binding.model,'exact-model');assert.equal(SB.recommendations.length,1);assert.equal(SB.otherItems.length,1);await recommend();assert.equal(calls.length,1);assert.equal(SB.goalDrafts.get('a'),'尚未保存的新目标');
+ context.sbApi=async(action:string)=>{calls.push({action});throw new Error('额度不足')};await recommend(true,true);assert.equal(SB.recStatus,'error');assert.match(SB.recMessage,/额度不足/);assert.equal(calls.at(-1).action,'semantic');
+ context.sbApi=()=>new Promise(r=>resolve=r);const pending=recommend(true,true);project={id:'b',summary:'另外项目'};SB.epoch++;resolve({items:[{entry:{id:'stale'}}],message:'old'});await pending;assert.notEqual(SB.recommendations[0].entry.id,'stale');
+});
+test('teaching distinguishes actual authorization receipts from the sandbox and explains resource stages',async()=>{
+ const c=await core('teaching-visuals.js','TEACHING_CORE','TeachingCore');assert.equal(c.lessons.length,8);assert.ok(c.lessons.every((x:any)=>x.why&&x.expected&&x.transfer&&x.options.length===2&&x.feedback));assert.match(c.lessons[6].feedback,/不改变账号或许可/);assert.equal(c.authPhase('needs_user'),1);assert.equal(c.authPhase('canceled'),-1);const p=c.progress([{status:'needs_user'},{status:'running'},{status:'complete'},{status:'canceled'}]);assert.equal(p.waiting,1);assert.equal(p.running,1);assert.equal(p.completed,1);assert.match(c.libraryKinds['skill-entry'][1],/不是固定/);
+});
+test('API course migration removes only its own old local guard and keeps progress/results; draft lesson can complete after closing Prompt',async()=>{
+ const source=await fs.readFile(new URL('../src/prototype/feature-learning.js',import.meta.url),'utf8');const state:any={activeBoard:'course',boards:[{id:'course',name:'亮点工具 · 本地实操',tutorialSessionId:'ft1'},{id:'other',tutorialSessionId:'different'}]};const ctx:any={state,refineResult:null,originalPrompt:''};const migrate=vm.runInNewContext(source.slice(source.indexOf('function flMigrate'),source.indexOf('function flView'))+';flMigrate',ctx);const t:any={id:'ft1',boardId:'course',step:5,flags:{library:true},prompt:{original:'原话',result:{text:'已推敲结果',engine:'exact-model'}},custom:'keep'};migrate(t);assert.equal(t.step,5);assert.equal(t.custom,'keep');assert.equal(t.flags.library,true);assert.equal(state.boards[0].tutorialSessionId,undefined);assert.equal(state.boards[1].tutorialSessionId,'different');assert.equal(ctx.refineResult.text,'已推敲结果');assert.equal(t.mode,'api');
+ const c=await core('feature-learning.js','FEATURE_LEARNING_CORE','FeatureLearningCore');assert.equal(c.done({step:5,projectId:'p',learn:{promptSeen5:true,resultSeen:true,promptClosed:true}},{promptOpen:false,applied:true,roomDraft:true}),true);
+});

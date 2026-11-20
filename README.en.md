@@ -2,6 +2,8 @@
 
 # Relay
 
+**A visual AI workspace for learning by doing.**
+
 Connected Git/npm projects now have a general development workflow: describe a feature, let the built-in operator read/edit real source, install dependencies in an independent environment, run reviewed scripts, inspect the live application, package actual outputs and restore a development checkpoint. Supported desktop packages bundle Node/npm; Git remains required, and building Relay also needs Python. Fixed free lessons are separate. Real provider acceptance has not been run in this release. [Development guide](docs/SELF_DEVELOPMENT.md).
 
 ### A visual office workspace for vibe coders.
@@ -104,3 +106,7 @@ Open **Tutorial → Source self-development** for an eight-step, offline lesson 
 The **Natural-language Relay development** lesson uses the built-in software operator to read the actual assistant-copy source in an isolated copy, apply a version-checked edit, run a real test, preview the same UI component, and roll back. Local mode is explicitly a bounded scripted lesson without model inference. Preparing a real AI task connects your own repository and model without automatically starting inference.
 
 The **From dependencies to delivery** onboarding course walks through 14 real local steps: install the included file dependency, edit requirements and source, test, interact with the actual app preview, pause, change requirements, re-test, package a ZIP, inspect its manifest, and restore the checkpoint. No model inference or third-party package download; Git is required, and desktop bundles Node/npm.
+
+## Learn while doing real work
+
+Numbered arrows point to actual controls; hover or keyboard focus explains options in plain language. Lessons connect purpose, action, observable feedback, understanding checks and a task to try independently. Authorization visualizations distinguish actual local state from an explicitly labeled practice scenario. The resource library calls your configured API for up to ten ranked suggestions and retains other candidates and the full searchable catalog. Free, fixed local lessons remain a separate choice. See [learning guide](docs/LEARNING.md).

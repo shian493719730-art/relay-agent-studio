@@ -28,9 +28,9 @@ test('project recommendations use goals and file types, and do not invent needs 
  const office=await lib.recommend({name:'weekly',goal:'制作 Excel 表格与报表',fileTypes:['xlsx']}),debug=await lib.recommend({name:'fix',goal:'调试代码并修复测试'});
  assert.ok(office.items.some(i=>/xlsx|spreadsheet|excel/.test(i.entry.id)));assert.ok(debug.items.some(i=>/debug/.test(i.entry.id)));assert.notEqual(office.goalKey,debug.goalKey);
  const freight=await lib.recommend({name:'货运管理',goal:'承接运输咨询，连接项目并自动化'});assert.ok(freight.items.length>0);assert.ok(freight.items.every(i=>!/\.github\/workflows|kubernetes|cicd|benchling|dnanexus/.test(i.entry.path)));
- let payload:any;const generate:ClaudeJson=async(_s,u)=>{payload=u;return{summary:'按目标选取',items:[{id:office.items[0].entry.id,reason:'表格文件',adaptation:'检查公式'}]};};
+ let payload:any;const generate:ClaudeJson=async(_s,u:any)=>{if(u.categories)return{terms:['xlsx','spreadsheet'],categories:['spreadsheets']};payload=u;return{summary:'按目标选取',items:[{id:office.items[0].entry.id,reason:'表格文件',adaptation:'检查公式'}]};};
  const selected=await lib.semanticRecommend({goal:'制作 Excel 表格与报表'},undefined,generate);assert.equal(selected.items.length,1);assert.ok(payload.candidates.length<=55);assert.doesNotMatch(JSON.stringify(payload),/instructions|api_key|fileContents/);
- await assert.rejects(()=>lib.semanticRecommend({goal:'制作 Excel'},undefined,async()=>({summary:'x',items:[{id:'invented',reason:'x',adaptation:'x'}]})),/未知或重复/);
+ await assert.rejects(()=>lib.semanticRecommend({goal:'制作 Excel'},undefined,async(_s,u:any)=>u.categories?{terms:['xlsx'],categories:['spreadsheets']}:({summary:'x',items:[{id:'invented',reason:'x',adaptation:'x'}]})),/未知或重复/);
 });
 test('directory updates preserve unrelated fields and invalidate changed body reviews while retaining history',()=>{
  const d=fixture(),s=d.sources[0],old=structuredClone(d.cases[0]);
@@ -60,4 +60,9 @@ test('a semantic router resolves only selected complete guides and rejects dupli
  await refineWithSkills({text:'调试这个问题'},undefined,generate,candidates,async id=>{resolved.push(id);return{...candidates.find(c=>c.id===id)!,body:'actual full instructions'};});
  assert.deepEqual(resolved,['two']);assert.equal(calls[1].providedSkills[0].instructions,'actual full instructions');assert.doesNotMatch(JSON.stringify(calls[0]),/actual full instructions/);
  await assert.rejects(()=>refineWithSkills({text:'x'},undefined,async()=>({intent:'x',selections:[{id:'one',reason:'a'},{id:'one',reason:'b'}]}),candidates,async()=>{throw new Error('must not read');}),/选择重复/);
+});
+test('semantic recommendations return ten real IDs plus other candidates, and interpret everyday goals when lexical retrieval is empty',async t=>{
+ const d=fixture();d.cases=Array.from({length:13},(_,i)=>({...structuredClone(d.cases[0]),id:'example/skills:skills/content-'+i,path:'skills/content-'+i,title:'content writing '+i,native_labels:['content','writing']}));const lib=await isolated(t,d);const phases:string[]=[];
+ const result=await lib.semanticRecommend({goal:'帮小店主把第一次寄大件的注意事项说清楚，不能瞎编经历'},undefined,async(_s,u:any)=>{if(u.categories){phases.push('understand');return{terms:['content','writing'],categories:['writing']};}phases.push('rank');assert.equal(u.project.goal,'帮小店主把第一次寄大件的注意事项说清楚，不能瞎编经历');return{summary:'按实际目标排序',items:u.candidates.slice(0,10).map((e:any)=>({id:e.id,reason:'适合讲清寄件事项',adaptation:'依据已知材料写清，不编造经历'}))};});
+ assert.deepEqual(phases,['understand','rank']);assert.equal(result.items.length,10);assert.equal(result.otherItems?.length,3);assert.equal(new Set([...result.items.map(i=>i.entry.id),...(result.otherItems||[]).map(i=>i.id)]).size,13);
 });

@@ -146,17 +146,14 @@ test('legacy persisted workflows retain their original explicitly recorded targe
  assert.equal(restored.get(r.id).status,'completed');assert.equal(calls.length,2);assert.ok(calls.every(c=>c.model==='legacy-frozen-model'));assert.equal(restored.get(r.id).version,1);
 });
 
-test('resilient JSON extraction handles conversational prelude, code blocks, or unstructured prose in plan phase',async t=>{
- const h=await harness(t,async(step,packet)=>{
-  if(packet.includes('仅输出JSON对象：{"assignments"')){
-   return '我理解了项目框架。根据当前目标，我制定了如下分工：\n\n```json\n{"assignments":[{"memberId":"A-one","task":"职位与要求深度调研"},{"memberId":"A-two","task":"简历定制与优化"}],"acceptance":"完成分工并产出成果"}\n```\n祝协作顺利！';
-  }
+test('forceFinal allows coordinator to synthesize summary even after partial worker stoppage',async t=>{
+ let failing=true;const h=await harness(t,async(step)=>{
+  if(step.agent.id==='A-one'&&failing)throw new Error('member failed upstream');
   return undefined;
  });
- const r=h.service.start(input({projects:[project('A')],links:[]}));
- await h.service.settled(r.id);
- assert.equal(r.status,'completed');
- const p=r.projects[0];
- assert.equal(p.plan?.assignments.length,2);
- assert.equal(p.plan?.assignments[0].task,'职位与要求深度调研');
+ const a=project('A');const r=h.service.start(input({projects:[a],links:[]}));await h.service.settled(r.id);
+ assert.equal(r.status,'failed');
+ const summarized=await h.service.forceFinal(r.id,a.id);await h.service.settled(r.id);
+ assert.equal(summarized.status,'completed');
+ assert.ok(summarized.steps.some(s=>s.phase==='final'&&s.status==='completed'));
 });

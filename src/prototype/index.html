@@ -664,6 +664,336 @@ body.dragging-panel {
 }
 .cl-board-list :focus-visible { outline-offset: 0; }
 body:has(#pan.cl-boards.o) :is(#tutorial-coach, #tutorial-spot) { visibility: hidden; pointer-events: none; }
+
+/* ==========================================================================
+   Apple Frosted Glass & Grand Spacious Chat Room (v35)
+   - Expansive viewport, generous breathing room (80%+ messages area)
+   - Translucent multi-tier glass with specular hairline highlights
+   - Clean role color differentiation (Coordinator, Analyst, Writer, Tracker)
+   - De-noised quiet metadata badges
+   - Prominent coordinator summary action
+   ========================================================================== */
+
+/* ---------- 群聊窗口浮动毛玻璃容器 ---------- */
+#room {
+  position: fixed !important;
+  inset: 12px 20px !important;
+  max-width: min(1520px, calc(100vw - 40px)) !important;
+  max-height: calc(100vh - 24px) !important;
+  margin: auto !important;
+  z-index: 50 !important;
+  display: none;
+  flex-direction: column !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  -webkit-backdrop-filter: blur(34px) saturate(180%) !important;
+  backdrop-filter: blur(34px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  border-radius: 22px !important;
+  box-shadow:
+    0 24px 64px rgba(15, 23, 42, 0.16),
+    0 4px 16px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+  overflow: hidden !important;
+}
+#room.o {
+  display: flex !important;
+}
+#room::before {
+  content: "";
+  position: fixed;
+  inset: -100vw -100vh;
+  z-index: -1;
+  background: rgba(15, 23, 42, 0.15);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+/* ---------- 顶部栏毛玻璃与精细布局 ---------- */
+#room .rh {
+  flex: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 20px !important;
+  min-height: 52px !important;
+  background: rgba(255, 255, 255, 0.65) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
+  backdrop-filter: blur(24px) saturate(150%) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+#room .rh > b {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #0F172A !important;
+}
+#room .rh .crew {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+#room .rh .crew .pc {
+  border-radius: 10px !important;
+  padding: 3px 8px !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  transition: all .15s ease !important;
+}
+#room .rh .crew .pc:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+#room .rh .crew .pc[aria-pressed="true"] {
+  background: #0F172A !important;
+  color: #FFFFFF !important;
+  border-color: #0F172A !important;
+}
+
+/* ---------- 紧凑近况区域（释放 80%+ 纵向空间给消息流） ---------- */
+#room .activity-inline {
+  flex: none !important;
+  padding: 4px 20px !important;
+  background: rgba(255, 255, 255, 0.42) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+  font-size: 12px !important;
+}
+#room .activity-inline details summary {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #64748B !important;
+  cursor: pointer !important;
+  padding: 2px 0 !important;
+}
+#room .activity-inline details summary:hover {
+  color: #0F172A !important;
+}
+#room .activity-inline [data-activity-scope] {
+  max-height: 75px !important;
+  overflow-y: auto !important;
+  margin-top: 4px !important;
+}
+
+/* ---------- 主聊天体与大空间消息列表 ---------- */
+#room .rb {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+#rm {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  padding: 24px 32px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent !important;
+}
+
+/* ---------- 消息气泡与基础角色颜色区分 ---------- */
+.msg {
+  position: relative !important;
+  padding: 14px 20px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  max-width: min(920px, 92%) !important;
+  font-size: 14px !important;
+  line-height: 1.68 !important;
+  color: #1E293B !important;
+  border-left: 4.5px solid #94A3B8 !important;
+  transition: box-shadow .15s ease !important;
+}
+.msg:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+}
+.msg.me {
+  align-self: flex-end !important;
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.9)) !important;
+  border-left: 4.5px solid #334155 !important;
+  color: #0F172A !important;
+}
+
+/* 统筹角色：暖琥珀珊瑚色 */
+.msg.role-coordinator,
+.msg[data-role="coordinator"] {
+  border-left: 4.5px solid #EA580C !important;
+  background: linear-gradient(135deg, rgba(255, 247, 237, 0.95), rgba(255, 255, 255, 0.88)) !important;
+}
+/* 分析角色：青紫靛蓝 */
+.msg.role-analyst,
+.msg[data-role="analyst"] {
+  border-left: 4.5px solid #4F46E5 !important;
+  background: linear-gradient(135deg, rgba(238, 242, 255, 0.95), rgba(255, 255, 255, 0.88)) !important;
+}
+/* 定制/文案角色：海洋洋蓝 */
+.msg.role-writer,
+.msg[data-role="writer"] {
+  border-left: 4.5px solid #0284C7 !important;
+  background: linear-gradient(135deg, rgba(240, 249, 255, 0.95), rgba(255, 255, 255, 0.88)) !important;
+}
+/* 跟踪/质检角色：薄荷翡翠绿 */
+.msg.role-tracker,
+.msg[data-role="tracker"] {
+  border-left: 4.5px solid #10B981 !important;
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.95), rgba(255, 255, 255, 0.88)) !important;
+}
+
+/* 消息标题头与身份徽章 */
+.msg .who {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+}
+.role-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2px 7px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+}
+.role-badge--coordinator {
+  background: rgba(234, 88, 12, 0.12) !important;
+  color: #C2410C !important;
+  border: 1px solid rgba(234, 88, 12, 0.25) !important;
+}
+.role-badge--analyst {
+  background: rgba(79, 70, 229, 0.12) !important;
+  color: #4338CA !important;
+  border: 1px solid rgba(79, 70, 229, 0.25) !important;
+}
+.role-badge--writer {
+  background: rgba(2, 132, 199, 0.12) !important;
+  color: #0369A1 !important;
+  border: 1px solid rgba(2, 132, 199, 0.25) !important;
+}
+.role-badge--tracker {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+.role-badge--me {
+  background: rgba(51, 65, 85, 0.1) !important;
+  color: #1E293B !important;
+  border: 1px solid rgba(51, 65, 85, 0.2) !important;
+}
+
+/* ---------- 极简降噪元数据小标签 ---------- */
+.msg-meta-row {
+  margin-top: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 11px !important;
+  flex-wrap: wrap !important;
+}
+.msg-meta-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 1.5px 7px !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-radius: 5px !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 11px !important;
+  color: #64748B !important;
+  border: 1px solid rgba(0, 0, 0, 0.04) !important;
+}
+.msg-meta-pill--success {
+  color: #059669 !important;
+  background: rgba(16, 185, 129, 0.08) !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+.msg-meta-pill--warn {
+  color: #D97706 !important;
+  background: rgba(245, 158, 11, 0.08) !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
+}
+.msg-meta-pill--fail {
+  color: #DC2626 !important;
+  background: rgba(239, 68, 68, 0.08) !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+/* ---------- 统筹生成总结报告高亮按钮 ---------- */
+.btn-summarize {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 13px !important;
+  border-radius: 9px !important;
+  background: linear-gradient(135deg, #EA580C, #F97316) !important;
+  color: #FFFFFF !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  border: 0 !important;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.35) !important;
+  cursor: pointer !important;
+  transition: all .16s cubic-bezier(0.2, 0, 0, 1) !important;
+  white-space: nowrap !important;
+}
+.btn-summarize:hover:not(:disabled) {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.45) !important;
+}
+.btn-summarize:active:not(:disabled) {
+  transform: translateY(0) !important;
+}
+.btn-summarize:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  filter: grayscale(40%) !important;
+}
+
+/* ---------- 底部输入框毛玻璃质感 ---------- */
+#cmp {
+  flex: none !important;
+  padding: 12px 24px 14px !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  backdrop-filter: blur(24px) !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.07) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+}
+#cmp #rin {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px !important;
+  padding: 11px 15px !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  transition: all .16s ease !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+}
+#cmp #rin:focus {
+  background: #FFFFFF !important;
+  border-color: #6366F1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* ---------- 详情抽屉毛玻璃质感 ---------- */
+.det {
+  background: rgba(255, 255, 255, 0.88) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  backdrop-filter: blur(24px) !important;
+  border-left: 1px solid rgba(0, 0, 0, 0.07) !important;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.05) !important;
+}
+
 /* GLASS_CLARITY_CSS_END */
 /* ASSISTANT_CSS_START */
 /* Claude Opus 5.5 Authoritative Assistant & Vibe Coding Guidance (v34) */
@@ -1808,7 +2138,7 @@ const ACT={
  "project.open":a=>{openPan("proj",rp(a.projectId).id);return"已打开"},
  "project.delete":a=>{const p=rp(a.projectId);conf(a,"删除「"+p.name+"」");pushUndo();[p.coordinator,...p.members].forEach(m=>halt(m.id));state.projects=state.projects.filter(x=>x!==p);state.links=state.links.filter(l=>l.src!==p.id&&l.dst!==p.id);state.notes.forEach(n=>{if(n.pid===p.id)n.pid=null});state.files.forEach(f=>{if(f.pid===p.id)f.pid=null});syncGroups();closePan();save();return"已删除，可撤销"},
  "room.enter":a=>{const p=rp(a.projectId);closePan();state.room=p.id;state.activeBoard=p.boardId;target=null;save();return"已进入「"+p.name+"」"},
- "room.leave":()=>{state.room=null;save();return"已返回画板"},
+ "room.leave":()=>{state.room=null;save();return"已返回画板"},"room.summarize":()=>{const p=P(state.room);if(!p)throw"当前不在项目对话中";const r=cpCurrent(p.id);if(r)void cpControl(r,"summarize",{projectId:p.id});else void sendProject(p,"请统筹根据我们团队已有的全部分析和成员输出，生成一份最终的完整总结报告。",p.coordinator.id,[]);return"已通知统筹生成总结报告"},
  "chat.send":a=>sendProject(rp(a.projectId),a.text,a.memberId?mem(rp(a.projectId),a.memberId).id:null,[]),
  "run.stop":a=>{const m=mem(rp(a.projectId),a.memberId);if(!runs[m.id])return"当前没有运行中的输出";halt(m.id);return"已停止，输出保留"},
  "run.stopAll":a=>{const p=rp(a.projectId);[p.coordinator,...p.members].forEach(m=>halt(m.id));return"已全部停止"},
@@ -1910,7 +2240,7 @@ function renderPan(){const el=$("#pan"),X=`<button class="x" data-close="pan" ar
 function renderRoom(){const r=$("#room"),p=P(state.room);r.classList.toggle("o",!!p);["#bd","#tl","#shelf","#gb","#tools","#tag"].forEach(k=>{$(k).inert=!!p;$(k).setAttribute("aria-hidden",String(!!p))});if(!p){r.innerHTML="";return}const keep=$("#rin")&&$("#rin")===document.activeElement;
  r.style.setProperty("--c",p.ui.color);
  r.innerHTML=`<div class="rh"><button data-act="room.leave">${icon("back")}画板</button><b style="max-width:200px">${esc(p.name)}</b><div class="crew">${[p.coordinator,...p.members].map(m=>`<button class="pc" data-tg="${m.id}" aria-pressed="${target===m.id}" title="点选 @${esc(m.name)}">${piece(m.agent,36,m===p.coordinator)}<span class="nm">${esc(m.name)}</span><span data-status="${m.id}" style="font-size:10px">${ST[m.st]}</span></button>`).join("")}</div>
- ${B_("run.stopAll",{projectId:p.id},"全部停止","stop")}<button data-a="det" aria-pressed="${detOpen}">${icon("layers")}详情</button>${B_("guide.open",{},"讲解员","help")}${B_("auth.open",{},"授权","settings")}<button class="x" data-act="room.leave" aria-label="关闭群聊，回到画板" title="关闭群聊，回到画板" style="margin-left:auto">${icon("close",16)}</button></div>
+ <button class="btn-summarize" data-act="room.summarize" title="无论当前是否有成员未完成，立即让统筹根据已收到的成果生成最终总结报告">${icon("sparkles",14)}统筹总结报告</button>${B_("run.stopAll",{projectId:p.id},"全部停止","stop")}<button data-a="det" aria-pressed="${detOpen}">${icon("layers")}详情</button>${B_("guide.open",{},"讲解员","help")}${B_("auth.open",{},"授权","settings")}<button class="x" data-act="room.leave" aria-label="关闭群聊，回到画板" title="关闭群聊，回到画板" style="margin-left:auto">${icon("close",16)}</button></div>
  <div class="rb"><div style="flex:1;display:flex;flex-direction:column;min-width:0"><div class="msgs" id="rm"></div>
  <div class="comp" id="cmp"><div class="row"><span class="lab" style="margin:0">发给：</span><button data-tg="" aria-pressed="${!target}">全部</button>${target?`<b>@${esc(mem(p,target).name)}</b>`:""}${p.pendingFiles.map(id=>{const f=state.files.find(x=>x.id===id);return f?`<span class="att">${icon("file",12)}${esc(f.name)}<button class="x" data-unatt="${id}" aria-label="取消附件" style="padding:0">×</button></span>`:""}).join("")}</div>
  <textarea id="rin" placeholder="和团队说说想完成什么；文件可拖到这里">${esc(p.ui.composerDraft||"")}</textarea><div class="row"><span class="lab" style="flex:1;margin:0">点击发送才开始工作</span><button data-util="prompt" title="优化当前草稿">${icon("sparkles",14)}Prompt</button><button data-a="rfile">${icon("upload",14)}附件</button><button data-a="rsend" style="background:#2B2A33;color:#fff">${icon("send",14)}发送</button></div></div></div>
@@ -1919,7 +2249,18 @@ function renderRoom(){const r=$("#room"),p=P(state.room);r.classList.toggle("o",
  <div class="lab">产物</div>${(p.artifacts||[]).map(a=>`<label class="row"><input type="checkbox" style="width:auto" data-art="${a.id}" ${a.done?"checked":""}>${esc(a.text)}</label>`).join("")||"<span class=lab>无</span>"}</div></div>`;
  renderMsgs();if(keep){const t=$("#rin");t.focus();t.selectionStart=t.value.length}}
 function renderMsgs(){const draw=(box,msgs,find)=>{if(!box)return;const bot=box.scrollHeight-box.scrollTop-box.clientHeight<40;
-  box.innerHTML=msgs.map(m=>{const me=m.from==="me",a=find(m.from);return`<div class="msg${me?" me":""}"><div class="who">${me?"我":a?esc(a.name):esc(m.fromName||"成员")}${m.to&&find(m.to)?" → @"+esc(find(m.to).name):""} ${m.st&&m.st!=="done"&&!me?(m.st==="stream"?"◐":ST[m.st]||""):""}</div>${esc(m.text)||(m.executionSource==='api'&&m.st==='stop'?'（已停止，尚未收到输出）':'…')}${executionStamp(m)}${(m.attachmentIds||[]).map(id=>{const f=state.files.find(x=>x.id===id);return`<button class="att" data-pvf="${id}">${icon("file",12)}${esc(f?f.name:"已移除的文件")}</button>`}).join("")}</div>`}).join("")||`<div class="lab">还没有对话。写下任务并发送，成员才开始。</div>`;if(bot)box.scrollTop=box.scrollHeight};
+  box.innerHTML=msgs.map(m=>{
+    const me=m.from==="me",a=find(m.from);
+    let roleKind=me?"me":"other";
+    if(a){
+      const nr=((a.name||"")+" "+(a.role||"")).toLowerCase();
+      if(/统筹|架构|协调|lead|coordinator|architect/i.test(nr))roleKind="coordinator";
+      else if(/分析|研判|调研|logic|analyst|audit|research|职位/i.test(nr))roleKind="analyst";
+      else if(/定制|写作|文案|简历|writer|custom|creator/i.test(nr))roleKind="writer";
+      else if(/跟踪|进度|执行|质检|tracker|test|qa/i.test(nr))roleKind="tracker";
+    }
+    const roleLabel=roleKind==="coordinator"?"统筹":roleKind==="analyst"?"分析":roleKind==="writer"?"定制":roleKind==="tracker"?"跟踪":me?"我":"成员";
+    return`<div class="msg${me?" me":""} role-${roleKind}" data-role="${roleKind}"><div class="who"><span class="role-badge role-badge--${roleKind}">${roleLabel}</span><b>${me?"我":a?esc(a.name):esc(m.fromName||"成员")}</b>${m.to&&find(m.to)?" → @"+esc(find(m.to).name):""} ${m.st&&m.st!=="done"&&!me?(m.st==="stream"?"◐":ST[m.st]||""):""}</div><div class="msg-body">${esc(m.text)||(m.executionSource==='api'&&m.st==='stop'?'（已停止，尚未收到输出）':'…')}</div>${executionStamp(m)}${(m.attachmentIds||[]).map(id=>{const f=state.files.find(x=>x.id===id);return`<button class="att" data-pvf="${id}">${icon("file",12)}${esc(f?f.name:"已移除的文件")}</button>`}).join("")}</div>`}).join("")||`<div class="lab">还没有对话。写下任务并发送，成员才开始。</div>`;if(bot)box.scrollTop=box.scrollHeight};
  const p=P(state.room);if(p){draw($("#rm"),p.msgs,id=>[p.coordinator,...p.members].find(x=>x.id===id));[p.coordinator,...p.members].forEach(m=>{const label=document.querySelector(`[data-status="${m.id}"]`);if(label)label.textContent=ST[m.st]})}
  const g=panK==="group"&&state.groups.find(x=>x.id===panId);if(g)draw($("#gm"),g.msgs,id=>id===g.coordinator.id?g.coordinator:null)}
 // ---------- 讲解员 ----------
@@ -2190,20 +2531,20 @@ function mcPickModelForRole(conn,roleName,memberIndex=0){
  const models=conn?.models||[];const lower=(roleName||'').toLowerCase();
  const findModel=prefs=>{for(const p of prefs){const match=models.find(m=>m.toLowerCase()===p.toLowerCase()||m.toLowerCase().includes(p.toLowerCase()));if(match)return match;}return null;};
  if(/统筹|架构|规划|协调|总监|组长|主管|主导|调度|lead|coordinator|architect/i.test(lower)){
-  return findModel(['claude-opus-5-5','claude-3-7-sonnet-20250219','claude-3-5-sonnet-20241022','claude-opus-4-5','gpt-5.4','gpt-5.5','claude-sonnet-4-5'])||conn?.defaultModel||models[0]||'claude-opus-5-5';
+  return findModel(['claude-opus-5-5','claude-3-7-sonnet-20250219','claude-opus-4-5','claude-sonnet-4-5','gpt-5.4','gpt-5.5'])||conn?.defaultModel||models[0]||'claude-opus-5-5';
  }
  if(/分析|研判|调研|逻辑|审查|数据|研究|算法|职位|analyst|audit|research|logic/i.test(lower)){
-  return findModel(['deepseek-v4.1-flash','claude-3-5-sonnet-20241022','claude-3-7-sonnet-20250219','gpt-5.4','gemini-2.5-pro','kimi-k3'])||conn?.defaultModel||models[1]||'deepseek-v4.1-flash';
+  return findModel(['deepseek-v4.1-flash','claude-3-7-sonnet-20250219','claude-opus-5-5','gpt-5.4','gemini-2.5-pro','kimi-k3'])||conn?.defaultModel||models[1]||'deepseek-v4.1-flash';
  }
  if(/定制|写作|文案|创意|润色|简历|生成|设计|前端|writer|custom|creator|design/i.test(lower)){
-  return findModel(['claude-3-5-sonnet-20241022','claude-3-7-sonnet-20250219','claude-fable-5-1','gemini-2.5-pro','gpt-5.4','claude-opus-5-5'])||conn?.defaultModel||models[2]||'claude-3-5-sonnet-20241022';
+  return findModel(['claude-3-7-sonnet-20250219','claude-sonnet-4-5','claude-sonnet-5-5','claude-opus-5-5','claude-3-5-sonnet-20240620','claude-fable-5-1','deepseek-v4.1-flash','gemini-2.5-pro','gpt-5.4'])||conn?.defaultModel||models[2]||'claude-3-7-sonnet-20250219';
  }
  if(/进度|跟踪|执行|质检|质控|采集|助手|测试|验收|qa|tracker|test|assistant/i.test(lower)){
   return findModel(['gemini-2.5-flash','claude-3-5-haiku-20241022','gemini-2.5-pro','deepseek-v4.1-flash','gemini-3-flash','gpt-5.4'])||conn?.defaultModel||models[3]||'gemini-2.5-flash';
  }
- const defaultDist=[['claude-opus-5-5','claude-3-5-sonnet-20241022','gpt-5.4'],['deepseek-v4.1-flash','claude-3-5-sonnet-20241022'],['claude-3-5-sonnet-20241022','gemini-2.5-pro'],['gemini-2.5-flash','claude-3-5-haiku-20241022']];
+ const defaultDist=[['claude-opus-5-5','claude-3-7-sonnet-20250219','gpt-5.4'],['deepseek-v4.1-flash','claude-3-7-sonnet-20250219'],['claude-3-7-sonnet-20250219','gemini-2.5-pro'],['gemini-2.5-flash','claude-3-5-haiku-20241022']];
  const prefs=defaultDist[memberIndex%defaultDist.length]||[];
- return findModel(prefs)||conn?.defaultModel||models[memberIndex%(models.length||1)]||'claude-3-5-sonnet-20241022';
+ return findModel(prefs)||conn?.defaultModel||models[memberIndex%(models.length||1)]||'claude-3-7-sonnet-20250219';
 }
 
 function mcAutoAssignTeamModels(p,notify=false,forceReassign=false){
@@ -2241,7 +2582,15 @@ const mcRoom=renderRoom;renderRoom=function(){
   else{text.textContent=bound.length===[p.coordinator,...p.members].length&&conn?`多模型团队就绪 · 统筹与 ${p.members.length} 位成员已分配专属模型 (${conn.name})`:bound.length?`已连接 ${bound.length} 位；请选成员，全部发送需每位都已连接`:'点击发送开始按各自模型协作';}
  }
 };
-function executionStamp(m){if(m.executionSource==='document')return `<div class="lab" style="font-size:10px">本机正文读取 · ${m.st==='done'?'已完成':m.st==='stop'?'已暂停':m.st==='error'?'未完成':'正在读取'}</div>`;return m.from!=='me'&&['api','canvas'].includes(m.executionSource)?`<div class="lab" style="font-size:10px">${esc(m.connectionName||'API')} · ${esc(m.model||'')}${m.phase?' · '+esc(m.phase):''} · ${m.st==='done'?'真实回复':m.st==='stop'?'已停止':m.st==='error'?'未完成':'正在生成'}</div>`:'';}
+function executionStamp(m){
+ if(m.executionSource==='document')return `<div class="msg-meta-row"><span class="msg-meta-pill">本机读取</span><span class="msg-meta-pill msg-meta-pill--${m.st==='done'?'success':'warn'}">${m.st==='done'?'已完成':m.st==='stop'?'已暂停':m.st==='error'?'未完成':'正在读取'}</span></div>`;
+ if(m.from!=='me'&&['api','canvas'].includes(m.executionSource)){
+  const stClass=m.st==='done'?'success':m.st==='error'?'fail':'warn';
+  const stText=m.st==='done'?'真实完成':m.st==='stop'?'已停止':m.st==='error'?'未完成':'生成中';
+  return `<div class="msg-meta-row"><span class="msg-meta-pill">${esc(m.model||'AI')}</span>${m.connectionName?`<span class="msg-meta-pill">${esc(m.connectionName)}</span>`:''}<span class="msg-meta-pill msg-meta-pill--${stClass}">${stText}</span></div>`;
+ }
+ return '';
+}
 CAT.find(c=>c[0]==='chat.send')[1]='向项目发消息（已连接成员会调用 API）';
 CAT.push(['models.open','设置官方 API 或自己的中转站',''],['models.handoff','为成员准备模型接手（预览，不生成）','projectId,memberId?'],['models.stop','停止成员真实 API 请求','projectId,memberId']);
 ACT['models.open']=()=>{mcOpen('connections');return'已打开模型连接；密钥只在专用表单填写'};
@@ -2440,12 +2789,26 @@ async function cpStart(pid,text,atts=[],group=null,manualLinkId){
   if(group&&(group.composerDraft||'').trim()===text){group.composerDraft='';if(panK==='group'&&panId===group.id&&$('#gin')?.value.trim()===text)$('#gin').value='';}cpApply(r);renderAll();hint(r.status==='paused'?'流程已暂停，原件和正文保留':'已开始读取文件并按成员模型协作 · 可暂停或停止');
  }catch(e){if(prep.phase==='binding')CP.preparing.delete(key);prep.status=prep.ac.signal.aborted?'paused':'failed';CP.error=prep.ac.signal.aborted?'文件准备已暂停，草稿和原件保留':e.message;const p=pid&&P(pid);if(p){p.msgs.push({id:'err-'+uid(),from:'system',text:'⚠️ 协作未能启动：'+CP.error+'。请在右上角「模型 / 接手」绑定模型，或由 AI 操作助手自动配置。',st:'error'});save();if(state.room===p.id)renderMsgs();}hint(CP.error)}finally{CP.pending.delete(key);cpPaintRoom();cpPaintGroup()}
 }
-async function cpControl(r,action,scope={}){try{cpApply(await cpApi(action,{id:r.id,...scope}));hint(action==='pause'?'已暂停，保留输出':action==='stop'?'已停止流程，成果保留':'已继续，完成阶段不会重跑')}catch(e){hint(e.message)}}
+async function cpControl(r,action,scope={}){try{cpApply(await cpApi(action,{id:r.id,...scope}));hint(action==='pause'?'已暂停，保留输出':action==='stop'?'已停止流程，成果保留':action==='summarize'?'已通知统筹生成总结报告':'已继续，完成阶段不会重跑')}catch(e){hint(e.message)}}
 function cpPaintRoom(){const p=P(state.room);if(!p||cpPractice())return;const r=cpCurrent(p.id),prep=CP.preparing.get(p.id),rh=$('#room .rh');if(!rh)return;
  let prepare=rh.querySelector('[data-cp-prepare]');if(prep&&!prepare){prepare=document.createElement('button');prepare.dataset.cpPrepare=p.id;rh.append(prepare)}if(prepare){if(!prep)prepare.remove();else prepare.textContent=prep.status==='running'?'暂停文件准备':'继续文件准备';}
  let button=rh.querySelector('[data-cp-control]');if(r&&!button){button=document.createElement('button');button.dataset.cpControl='pause';rh.append(button)}
  if(button){button.dataset.cpRun=r.id;button.dataset.cpControl=r.status==='running'?'pause':'resume';button.textContent=r.status==='running'?'暂停流程':'继续流程';button.disabled=r.status==='completed';button.title='暂停会中断当前请求并保留输出；继续只运行未完成阶段。';}
  if(r&&!rh.querySelector('[data-cp-record]')){const b=document.createElement('button');b.dataset.cpRecord=r.id;b.textContent='流程记录';rh.append(b)}
+ let summarizeBtn=rh.querySelector('[data-cp-summarize]');
+ if(r&&!summarizeBtn){
+  summarizeBtn=document.createElement('button');
+  summarizeBtn.dataset.cpSummarize='1';
+  summarizeBtn.className='btn-summarize';
+  summarizeBtn.innerHTML=icon('sparkles',14)+'统筹总结报告';
+  summarizeBtn.title='无论各成员是否受阻或暂停，让统筹立即基于现有已产出的成果生成完整总结报告';
+  rh.append(summarizeBtn);
+ }
+ if(summarizeBtn){
+  const completed=r?.status==='completed'&&!!r?.projects.find(x=>x.data.id===p.id)?.result;
+  summarizeBtn.disabled=completed;
+  if(completed)summarizeBtn.title='统筹已完成最终总结报告（可在上方查看）';
+ }
  const label=$('#cmp .row:last-child>.lab');if(label&&!target)label.textContent=r?.status==='running'?'多模型团队协作中 · 刷新可重连 · 可暂停/停止':'发送读取项目正文 → 按成员绑定模型分工、执行与汇总';
  const row=$('#cmp>.row');if(row&&!row.querySelector('[data-cp-mode]')){const b=document.createElement('span');b.dataset.cpMode='1';b.className='lab';b.style.margin='0 0 0 auto';b.title='统筹与成员各用自己的绑定模型；开始前核验全部绑定，执行和恢复使用同一份线路快照。';row.append(b)}
  const mode=row?.querySelector('[data-cp-mode]');if(mode)mode.textContent=target?'单独对话':r?cpStatus[r.status]+' · '+cpTeamLabel(r):'多模型团队';
@@ -2494,7 +2857,14 @@ const cpPan=renderPan;renderPan=function(){if(panK!=='collaboration'){const resu
 CAT.find(c=>c[0]==='chat.send')[1]='按成员各自绑定模型启动团队协作，或单独发消息';
 CAT.push(['collaboration.pause','暂停当前项目所在真实流程','projectId'],['collaboration.resume','继续当前项目所在真实流程','projectId'],['collaboration.stop','停止当前项目所在真实流程','projectId']);
 for(const [name,action]of [['pause','pause'],['resume','resume'],['stop','stop']])ACT['collaboration.'+name]=a=>{const r=cpCurrent(rp(a.projectId).id);if(!r)throw'此项目尚无真实流程';void cpControl(r,action);return'正在'+({pause:'暂停',resume:'继续',stop:'停止'})[name]+'真实流程'};
-document.addEventListener('click',e=>{const b=e.target.closest('[data-cp-control],[data-cp-record],[data-cp-prepare]');if(!b)return;if(b.dataset.cpPrepare){const prep=CP.preparing.get(b.dataset.cpPrepare);if(!prep)return;if(prep.status==='running')prep.ac.abort();else void cpStart(prep.pid,prep.text,prep.atts,prep.group,prep.manualLinkId);return}if(b.dataset.cpRecord){openPan('collaboration',b.dataset.cpRecord);return}const r=CP.runs.get(b.dataset.cpRun);if(r)void cpControl(r,b.dataset.cpControl);});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-cp-control],[data-cp-record],[data-cp-prepare],[data-cp-summarize]');if(!b)return;
+ if(b.dataset.cpSummarize){
+  const p=P(state.room);if(!p)return;
+  const r=cpCurrent(p.id);
+  if(r)void cpControl(r,'summarize',{projectId:p.id});
+  else void sendProject(p,'请统筹根据我们团队已有的全部分析和成员输出，生成一份最终的完整总结报告。',p.coordinator.id,[]);
+  return;
+ }if(b.dataset.cpPrepare){const prep=CP.preparing.get(b.dataset.cpPrepare);if(!prep)return;if(prep.status==='running')prep.ac.abort();else void cpStart(prep.pid,prep.text,prep.atts,prep.group,prep.manualLinkId);return}if(b.dataset.cpRecord){openPan('collaboration',b.dataset.cpRecord);return}const r=CP.runs.get(b.dataset.cpRun);if(r)void cpControl(r,b.dataset.cpControl);});
 setInterval(cpPoll,800);
 
 document.addEventListener('input',e=>{if(e.target.id==='gin'&&panK==='group'){const g=state.groups.find(g=>g.id===panId);if(g){g.composerDraft=e.target.value;save()}}});

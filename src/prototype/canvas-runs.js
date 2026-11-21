@@ -59,12 +59,26 @@ async function cpStart(pid,text,atts=[],group=null,manualLinkId){
   if(group&&(group.composerDraft||'').trim()===text){group.composerDraft='';if(panK==='group'&&panId===group.id&&$('#gin')?.value.trim()===text)$('#gin').value='';}cpApply(r);renderAll();hint(r.status==='paused'?'流程已暂停，原件和正文保留':'已开始读取文件并按成员模型协作 · 可暂停或停止');
  }catch(e){if(prep.phase==='binding')CP.preparing.delete(key);prep.status=prep.ac.signal.aborted?'paused':'failed';CP.error=prep.ac.signal.aborted?'文件准备已暂停，草稿和原件保留':e.message;const p=pid&&P(pid);if(p){p.msgs.push({id:'err-'+uid(),from:'system',text:'⚠️ 协作未能启动：'+CP.error+'。请在右上角「模型 / 接手」绑定模型，或由 AI 操作助手自动配置。',st:'error'});save();if(state.room===p.id)renderMsgs();}hint(CP.error)}finally{CP.pending.delete(key);cpPaintRoom();cpPaintGroup()}
 }
-async function cpControl(r,action,scope={}){try{cpApply(await cpApi(action,{id:r.id,...scope}));hint(action==='pause'?'已暂停，保留输出':action==='stop'?'已停止流程，成果保留':'已继续，完成阶段不会重跑')}catch(e){hint(e.message)}}
+async function cpControl(r,action,scope={}){try{cpApply(await cpApi(action,{id:r.id,...scope}));hint(action==='pause'?'已暂停，保留输出':action==='stop'?'已停止流程，成果保留':action==='summarize'?'已通知统筹生成总结报告':'已继续，完成阶段不会重跑')}catch(e){hint(e.message)}}
 function cpPaintRoom(){const p=P(state.room);if(!p||cpPractice())return;const r=cpCurrent(p.id),prep=CP.preparing.get(p.id),rh=$('#room .rh');if(!rh)return;
  let prepare=rh.querySelector('[data-cp-prepare]');if(prep&&!prepare){prepare=document.createElement('button');prepare.dataset.cpPrepare=p.id;rh.append(prepare)}if(prepare){if(!prep)prepare.remove();else prepare.textContent=prep.status==='running'?'暂停文件准备':'继续文件准备';}
  let button=rh.querySelector('[data-cp-control]');if(r&&!button){button=document.createElement('button');button.dataset.cpControl='pause';rh.append(button)}
  if(button){button.dataset.cpRun=r.id;button.dataset.cpControl=r.status==='running'?'pause':'resume';button.textContent=r.status==='running'?'暂停流程':'继续流程';button.disabled=r.status==='completed';button.title='暂停会中断当前请求并保留输出；继续只运行未完成阶段。';}
  if(r&&!rh.querySelector('[data-cp-record]')){const b=document.createElement('button');b.dataset.cpRecord=r.id;b.textContent='流程记录';rh.append(b)}
+ let summarizeBtn=rh.querySelector('[data-cp-summarize]');
+ if(r&&!summarizeBtn){
+  summarizeBtn=document.createElement('button');
+  summarizeBtn.dataset.cpSummarize='1';
+  summarizeBtn.className='btn-summarize';
+  summarizeBtn.innerHTML=icon('sparkles',14)+'统筹总结报告';
+  summarizeBtn.title='无论各成员是否受阻或暂停，让统筹立即基于现有已产出的成果生成完整总结报告';
+  rh.append(summarizeBtn);
+ }
+ if(summarizeBtn){
+  const completed=r?.status==='completed'&&!!r?.projects.find(x=>x.data.id===p.id)?.result;
+  summarizeBtn.disabled=completed;
+  if(completed)summarizeBtn.title='统筹已完成最终总结报告（可在上方查看）';
+ }
  const label=$('#cmp .row:last-child>.lab');if(label&&!target)label.textContent=r?.status==='running'?'多模型团队协作中 · 刷新可重连 · 可暂停/停止':'发送读取项目正文 → 按成员绑定模型分工、执行与汇总';
  const row=$('#cmp>.row');if(row&&!row.querySelector('[data-cp-mode]')){const b=document.createElement('span');b.dataset.cpMode='1';b.className='lab';b.style.margin='0 0 0 auto';b.title='统筹与成员各用自己的绑定模型；开始前核验全部绑定，执行和恢复使用同一份线路快照。';row.append(b)}
  const mode=row?.querySelector('[data-cp-mode]');if(mode)mode.textContent=target?'单独对话':r?cpStatus[r.status]+' · '+cpTeamLabel(r):'多模型团队';
@@ -113,7 +127,14 @@ const cpPan=renderPan;renderPan=function(){if(panK!=='collaboration'){const resu
 CAT.find(c=>c[0]==='chat.send')[1]='按成员各自绑定模型启动团队协作，或单独发消息';
 CAT.push(['collaboration.pause','暂停当前项目所在真实流程','projectId'],['collaboration.resume','继续当前项目所在真实流程','projectId'],['collaboration.stop','停止当前项目所在真实流程','projectId']);
 for(const [name,action]of [['pause','pause'],['resume','resume'],['stop','stop']])ACT['collaboration.'+name]=a=>{const r=cpCurrent(rp(a.projectId).id);if(!r)throw'此项目尚无真实流程';void cpControl(r,action);return'正在'+({pause:'暂停',resume:'继续',stop:'停止'})[name]+'真实流程'};
-document.addEventListener('click',e=>{const b=e.target.closest('[data-cp-control],[data-cp-record],[data-cp-prepare]');if(!b)return;if(b.dataset.cpPrepare){const prep=CP.preparing.get(b.dataset.cpPrepare);if(!prep)return;if(prep.status==='running')prep.ac.abort();else void cpStart(prep.pid,prep.text,prep.atts,prep.group,prep.manualLinkId);return}if(b.dataset.cpRecord){openPan('collaboration',b.dataset.cpRecord);return}const r=CP.runs.get(b.dataset.cpRun);if(r)void cpControl(r,b.dataset.cpControl);});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-cp-control],[data-cp-record],[data-cp-prepare],[data-cp-summarize]');if(!b)return;
+ if(b.dataset.cpSummarize){
+  const p=P(state.room);if(!p)return;
+  const r=cpCurrent(p.id);
+  if(r)void cpControl(r,'summarize',{projectId:p.id});
+  else void sendProject(p,'请统筹根据我们团队已有的全部分析和成员输出，生成一份最终的完整总结报告。',p.coordinator.id,[]);
+  return;
+ }if(b.dataset.cpPrepare){const prep=CP.preparing.get(b.dataset.cpPrepare);if(!prep)return;if(prep.status==='running')prep.ac.abort();else void cpStart(prep.pid,prep.text,prep.atts,prep.group,prep.manualLinkId);return}if(b.dataset.cpRecord){openPan('collaboration',b.dataset.cpRecord);return}const r=CP.runs.get(b.dataset.cpRun);if(r)void cpControl(r,b.dataset.cpControl);});
 setInterval(cpPoll,800);
 
 document.addEventListener('input',e=>{if(e.target.id==='gin'&&panK==='group'){const g=state.groups.find(g=>g.id===panId);if(g){g.composerDraft=e.target.value;save()}}});

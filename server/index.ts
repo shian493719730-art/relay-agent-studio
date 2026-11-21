@@ -135,14 +135,14 @@ app.post('/api/studio/models',async(req,res,next)=>{
 });
 app.post('/api/studio/collaboration',async(req,res,next)=>{
  try{
-  const action=z.enum(['start','list','get','pause','resume','stop','link']).parse(req.body.action);
+  const action=z.enum(['start','list','get','pause','resume','stop','link','summarize']).parse(req.body.action);
   if(action==='start')return res.status(201).json(canvasRuns.start(req.body.run));
   if(action==='list')return res.json(canvasRuns.list(z.string().min(1).max(180).parse(req.body.boardId)));
   const id=z.string().uuid().parse(req.body.id);
   if(action==='get')return res.json(canvasRuns.get(id));
   if(action==='link')return res.json(canvasRuns.updateLink(id,z.string().min(1).max(180).parse(req.body.linkId),req.body.patch));
   const scope=z.object({projectId:z.string().min(1).max(180).optional(),memberId:z.string().min(1).max(180).optional()}).parse(req.body);
-  return res.json(action==='pause'?await canvasRuns.pause(id,scope.projectId,scope.memberId):action==='resume'?await canvasRuns.resume(id,scope.projectId):await canvasRuns.stop(id));
+  return res.json(action==='pause'?await canvasRuns.pause(id,scope.projectId,scope.memberId):action==='resume'?await canvasRuns.resume(id,scope.projectId):action==='summarize'?await canvasRuns.forceFinal(id,scope.projectId):await canvasRuns.stop(id));
  }catch(e){next(e)}
 });
 app.get('/api/studio/collaboration/:id/events',(req,res,next)=>{

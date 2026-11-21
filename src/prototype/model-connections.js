@@ -45,20 +45,20 @@ function mcPickModelForRole(conn,roleName,memberIndex=0){
  const models=conn?.models||[];const lower=(roleName||'').toLowerCase();
  const findModel=prefs=>{for(const p of prefs){const match=models.find(m=>m.toLowerCase()===p.toLowerCase()||m.toLowerCase().includes(p.toLowerCase()));if(match)return match;}return null;};
  if(/统筹|架构|规划|协调|总监|组长|主管|主导|调度|lead|coordinator|architect/i.test(lower)){
-  return findModel(['claude-opus-5-5','claude-3-7-sonnet-20250219','claude-3-5-sonnet-20241022','claude-opus-4-5','gpt-5.4','gpt-5.5','claude-sonnet-4-5'])||conn?.defaultModel||models[0]||'claude-opus-5-5';
+  return findModel(['claude-opus-5-5','claude-3-7-sonnet-20250219','claude-opus-4-5','claude-sonnet-4-5','gpt-5.4','gpt-5.5'])||conn?.defaultModel||models[0]||'claude-opus-5-5';
  }
  if(/分析|研判|调研|逻辑|审查|数据|研究|算法|职位|analyst|audit|research|logic/i.test(lower)){
-  return findModel(['deepseek-v4.1-flash','claude-3-5-sonnet-20241022','claude-3-7-sonnet-20250219','gpt-5.4','gemini-2.5-pro','kimi-k3'])||conn?.defaultModel||models[1]||'deepseek-v4.1-flash';
+  return findModel(['deepseek-v4.1-flash','claude-3-7-sonnet-20250219','claude-opus-5-5','gpt-5.4','gemini-2.5-pro','kimi-k3'])||conn?.defaultModel||models[1]||'deepseek-v4.1-flash';
  }
  if(/定制|写作|文案|创意|润色|简历|生成|设计|前端|writer|custom|creator|design/i.test(lower)){
-  return findModel(['claude-3-5-sonnet-20241022','claude-3-7-sonnet-20250219','claude-fable-5-1','gemini-2.5-pro','gpt-5.4','claude-opus-5-5'])||conn?.defaultModel||models[2]||'claude-3-5-sonnet-20241022';
+  return findModel(['claude-3-7-sonnet-20250219','claude-sonnet-4-5','claude-sonnet-5-5','claude-opus-5-5','claude-3-5-sonnet-20240620','claude-fable-5-1','deepseek-v4.1-flash','gemini-2.5-pro','gpt-5.4'])||conn?.defaultModel||models[2]||'claude-3-7-sonnet-20250219';
  }
  if(/进度|跟踪|执行|质检|质控|采集|助手|测试|验收|qa|tracker|test|assistant/i.test(lower)){
   return findModel(['gemini-2.5-flash','claude-3-5-haiku-20241022','gemini-2.5-pro','deepseek-v4.1-flash','gemini-3-flash','gpt-5.4'])||conn?.defaultModel||models[3]||'gemini-2.5-flash';
  }
- const defaultDist=[['claude-opus-5-5','claude-3-5-sonnet-20241022','gpt-5.4'],['deepseek-v4.1-flash','claude-3-5-sonnet-20241022'],['claude-3-5-sonnet-20241022','gemini-2.5-pro'],['gemini-2.5-flash','claude-3-5-haiku-20241022']];
+ const defaultDist=[['claude-opus-5-5','claude-3-7-sonnet-20250219','gpt-5.4'],['deepseek-v4.1-flash','claude-3-7-sonnet-20250219'],['claude-3-7-sonnet-20250219','gemini-2.5-pro'],['gemini-2.5-flash','claude-3-5-haiku-20241022']];
  const prefs=defaultDist[memberIndex%defaultDist.length]||[];
- return findModel(prefs)||conn?.defaultModel||models[memberIndex%(models.length||1)]||'claude-3-5-sonnet-20241022';
+ return findModel(prefs)||conn?.defaultModel||models[memberIndex%(models.length||1)]||'claude-3-7-sonnet-20250219';
 }
 
 function mcAutoAssignTeamModels(p,notify=false,forceReassign=false){
@@ -96,7 +96,15 @@ const mcRoom=renderRoom;renderRoom=function(){
   else{text.textContent=bound.length===[p.coordinator,...p.members].length&&conn?`多模型团队就绪 · 统筹与 ${p.members.length} 位成员已分配专属模型 (${conn.name})`:bound.length?`已连接 ${bound.length} 位；请选成员，全部发送需每位都已连接`:'点击发送开始按各自模型协作';}
  }
 };
-function executionStamp(m){if(m.executionSource==='document')return `<div class="lab" style="font-size:10px">本机正文读取 · ${m.st==='done'?'已完成':m.st==='stop'?'已暂停':m.st==='error'?'未完成':'正在读取'}</div>`;return m.from!=='me'&&['api','canvas'].includes(m.executionSource)?`<div class="lab" style="font-size:10px">${esc(m.connectionName||'API')} · ${esc(m.model||'')}${m.phase?' · '+esc(m.phase):''} · ${m.st==='done'?'真实回复':m.st==='stop'?'已停止':m.st==='error'?'未完成':'正在生成'}</div>`:'';}
+function executionStamp(m){
+ if(m.executionSource==='document')return `<div class="msg-meta-row"><span class="msg-meta-pill">本机读取</span><span class="msg-meta-pill msg-meta-pill--${m.st==='done'?'success':'warn'}">${m.st==='done'?'已完成':m.st==='stop'?'已暂停':m.st==='error'?'未完成':'正在读取'}</span></div>`;
+ if(m.from!=='me'&&['api','canvas'].includes(m.executionSource)){
+  const stClass=m.st==='done'?'success':m.st==='error'?'fail':'warn';
+  const stText=m.st==='done'?'真实完成':m.st==='stop'?'已停止':m.st==='error'?'未完成':'生成中';
+  return `<div class="msg-meta-row"><span class="msg-meta-pill">${esc(m.model||'AI')}</span>${m.connectionName?`<span class="msg-meta-pill">${esc(m.connectionName)}</span>`:''}<span class="msg-meta-pill msg-meta-pill--${stClass}">${stText}</span></div>`;
+ }
+ return '';
+}
 CAT.find(c=>c[0]==='chat.send')[1]='向项目发消息（已连接成员会调用 API）';
 CAT.push(['models.open','设置官方 API 或自己的中转站',''],['models.handoff','为成员准备模型接手（预览，不生成）','projectId,memberId?'],['models.stop','停止成员真实 API 请求','projectId,memberId']);
 ACT['models.open']=()=>{mcOpen('connections');return'已打开模型连接；密钥只在专用表单填写'};

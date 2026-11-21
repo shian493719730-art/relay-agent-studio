@@ -1,54 +1,447 @@
 /* GLASS_CLARITY_CSS_START */
-:root{--clarity-glass:rgba(250,251,253,.74);--clarity-glass-strong:rgba(255,255,255,.92);--clarity-solid:#FFFFFF;--clarity-blur:saturate(150%) blur(16px);--clarity-edge:color-mix(in srgb,var(--ink) 14%,transparent);--clarity-ink:color-mix(in srgb,var(--ink) 82%,transparent);--clarity-hi:inset 0 1px 0 rgba(255,255,255,.75);--clarity-shadow:0 1px 2px rgba(27,34,48,.08),0 6px 18px rgba(27,34,48,.09);--clarity-shadow-lg:0 2px 6px rgba(27,34,48,.08),0 18px 48px rgba(27,34,48,.16);--clarity-hover:color-mix(in srgb,var(--ink) 7%,transparent);--clarity-sel:color-mix(in srgb,var(--blue) 9%,#fff)}
-.fl{border-width:1.5px;border-color:var(--clarity-ink);box-shadow:var(--clarity-shadow),var(--clarity-hi)}
-#tl,#gb,#tools,#shelf,#tutorial-launcher,#dm-toast{background:var(--clarity-glass);-webkit-backdrop-filter:var(--clarity-blur);backdrop-filter:var(--clarity-blur);border:1.5px solid var(--clarity-ink);box-shadow:var(--clarity-shadow),var(--clarity-hi)}
-#tl,#gb,#tools{border-radius:14px}#shelf{border-radius:16px}
-:is(#tl,#gb,#tools) button{border:1.5px solid transparent;border-radius:9px;background:transparent;font-weight:550}
-:is(#tl,#gb,#tools) button:hover{background:var(--clarity-hover);border-color:transparent}
-:is(#tl,#gb,#tools) button[aria-pressed=true]{background:var(--ink);color:#fff}
-#pan,#guide,#utilities{background:var(--clarity-glass-strong);-webkit-backdrop-filter:var(--clarity-blur);backdrop-filter:var(--clarity-blur);border-color:var(--ink)}
-#pan h3,#guide h3{background:var(--clarity-solid);border-bottom:1px solid var(--clarity-edge);font-weight:700;letter-spacing:.01em}
-#pan :is(input,textarea,select),#utilities :is(input,textarea),#pan .ac{background:var(--clarity-solid)}
-.dm-reader.fl,#tutorial-coach{background:var(--clarity-solid);border-color:var(--ink)}
-#tutorial-coach{border-width:1.5px;box-shadow:var(--clarity-shadow-lg)}
-.dm-reader>header,.tm-head{background:var(--clarity-solid);border-bottom:1px solid var(--clarity-edge)}
-.dm-reader-tools{border-bottom:1px solid var(--line)}.dm-reader article{color:var(--ink)}
-#room .rh{background:var(--clarity-solid);border-bottom:1.5px solid var(--clarity-ink);box-shadow:inset 0 5px 0 var(--c),0 1px 8px rgba(27,34,48,.06)}
-#cmp,.comp{border-top:1.5px solid var(--clarity-ink);box-shadow:0 -1px 8px rgba(27,34,48,.05)}.det{border-left-width:1.5px}
-#skillbook,#model-connect,#tutorial-home{border:1.5px solid var(--ink);box-shadow:var(--clarity-shadow-lg)}
-.sb-head,.mc-head,.mc-tabs{border-bottom:1px solid var(--clarity-edge)}
-dialog::backdrop{background:rgba(27,34,48,.30);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
-@media(min-width:681px){#pan.cl-boards{width:380px}}
-.cl-board-count{margin:0 0 6px;font-size:12px;font-weight:600;color:var(--mute)}
-.cl-board-list{display:flex;flex-direction:column;gap:2px;max-height:min(420px,calc(100vh - 330px));min-height:64px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:3px}
-.cl-board-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:4px;border-radius:10px}
-.cl-board-open{width:100%;min-width:0;flex-direction:column;align-items:flex-start;gap:1px;padding:7px 10px;white-space:normal;text-align:left;background:none;border:1.5px solid transparent;border-radius:9px}
-.cl-board-open:hover{background:var(--clarity-hover)}
-.cl-board-open[aria-pressed=true]{background:var(--clarity-sel);color:var(--ink);border-color:color-mix(in srgb,var(--blue) 40%,transparent);box-shadow:inset 3px 0 0 var(--blue)}
-.cl-board-name{max-width:100%;font-weight:650;line-height:1.35;overflow-wrap:anywhere;word-break:break-word}
-.cl-board-meta{font-size:12px;font-weight:400;color:var(--mute)}
-.cl-board-actions{display:flex;gap:2px;padding-top:4px}
-.cl-board-actions button{width:30px;min-height:30px;padding:0;justify-content:center;color:var(--mute);background:none;border:1.5px solid transparent;border-radius:8px}
-.cl-board-actions button:hover{background:var(--clarity-hover);color:var(--ink)}
-.cl-board-actions [data-act='board.delete']:hover:not(:disabled){color:var(--red);background:#FEF1F0}
-.cl-board-edit{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:var(--clarity-solid);border:1.5px solid var(--blue);border-radius:10px}
-.cl-board-edit input{flex:1 1 150px;min-width:0}.cl-board-edit button{min-height:34px}
-.cl-board-edit [type=submit]{background:var(--ink);color:#fff;border-color:var(--ink)}
-.cl-board-empty{margin:8px 4px;font-size:13px;color:var(--mute)}
-.cl-board-footer{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--clarity-edge)}
-.cl-board-footer>button{flex:1 1 140px;justify-content:center;white-space:normal}
-.cl-board-footer [data-tut=menu]{border-color:var(--line);color:var(--mute)}
-.cl-board-footer [data-tut=menu]:hover{color:var(--ink);border-color:#8A94A6}
-:is(#tl,#gb,#tools,#shelf,#pan,#guide,#utilities,.dm-reader,#tutorial-coach,#dm-toast) :focus-visible{outline:3px solid var(--blue);outline-offset:2px;box-shadow:0 0 0 5px rgba(255,255,255,.9)}
-.cl-board-list :focus-visible{outline-offset:0}
-@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#tl,#gb,#tools,#shelf,#tutorial-launcher,#dm-toast,#pan,#guide,#utilities{background:var(--clarity-solid)}dialog::backdrop{background:rgba(27,34,48,.45)}}
-@media(prefers-reduced-transparency:reduce){#tl,#gb,#tools,#shelf,#tutorial-launcher,#dm-toast,#pan,#guide,#utilities{background:var(--clarity-solid);-webkit-backdrop-filter:none;backdrop-filter:none}dialog::backdrop{background:rgba(27,34,48,.55);-webkit-backdrop-filter:none;backdrop-filter:none}}
-@media(prefers-contrast:more){#tl,#gb,#tools,#shelf,#tutorial-launcher,#dm-toast,#pan,#guide,#utilities,.fl,#tutorial-coach,#skillbook,#model-connect,#tutorial-home{background-color:var(--clarity-solid);-webkit-backdrop-filter:none;backdrop-filter:none;border:2px solid var(--ink)}#pan h3,#guide h3,.dm-reader>header,.tm-head,.sb-head,.mc-head,.mc-tabs,.cl-board-footer{border-color:var(--ink);border-bottom-width:2px}.cl-board-footer{border-bottom-width:0;border-top:2px solid var(--ink)}.cl-board-open[aria-pressed=true]{border-color:var(--ink);box-shadow:inset 4px 0 0 var(--ink)}.cl-board-meta,.cl-board-count{color:#3B4454}.cl-board-actions button{border-color:var(--line)}dialog::backdrop{background:rgba(27,34,48,.6);backdrop-filter:none;-webkit-backdrop-filter:none}}
-/* Engineering: keep the menu below the second toolbar row and let its task own this area.
-   This only hides the coach visually while browsing boards; course progress stays intact. */
-#pan.cl-boards.o{display:flex;flex-direction:column;overflow:hidden}
-#pan.cl-boards>.cl-board-list{flex:0 1 auto;min-height:0}
-#pan.cl-boards>:is(h3,.cl-board-count,.cl-board-footer){flex-shrink:0}
-@media(max-width:1100px){#pan,#guide{top:142px}}
-body:has(#pan.cl-boards.o) :is(#tutorial-coach,#tutorial-spot){visibility:hidden;pointer-events:none}
+/* Claude Opus 5.5 Authoritative Frosted Glass Harmonization (v34)
+   Left panel (#pan) and Right panel (#guide) unified in Glass Clarity,
+   controls, geometry, resize behavior, and zero low-quality animations. */
+
+:root {
+  --clarity-glass: rgba(250, 251, 253, 0.74);
+  --clarity-glass-strong: rgba(255, 255, 255, 0.92);
+  --clarity-solid: #FFFFFF;
+  --clarity-blur: 16px;
+  --clarity-edge: color-mix(in srgb, var(--ink) 14%, transparent);
+  --clarity-ink: color-mix(in srgb, var(--ink) 82%, transparent);
+  --clarity-hi: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  --clarity-shadow: 0 1px 2px rgba(27, 34, 48, 0.08), 0 6px 18px rgba(27, 34, 48, 0.09);
+  --clarity-shadow-lg: 0 2px 6px rgba(27, 34, 48, 0.08), 0 18px 48px rgba(27, 34, 48, 0.16);
+  --clarity-hover: color-mix(in srgb, var(--ink) 7%, transparent);
+  --clarity-sel: color-mix(in srgb, var(--blue) 9%, #fff);
+
+  --cl-top: 64px;
+  --cl-gap: 12px;
+  --cl-radius: 14px;
+  --cl-head-h: 44px;
+  --cl-canvas-min: 320px;
+  --cl-pan-w: clamp(280px, 22vw, 360px);
+  --cl-guide-w: clamp(440px, 36vw, 580px);
+  --cl-guide-w-expanded: clamp(620px, 54vw, 980px);
+  --cl-blur: 16px;
+  --cl-muted: color-mix(in srgb, var(--clarity-ink) 62%, transparent);
+  --cl-shadow:
+    0 1px 2px color-mix(in srgb, var(--ink) 6%, transparent),
+    0 8px 24px color-mix(in srgb, var(--ink) 8%, transparent),
+    0 24px 48px color-mix(in srgb, var(--ink) 6%, transparent);
+}
+
+.fl {
+  border-width: 1.5px;
+  border-color: var(--clarity-ink);
+  box-shadow: var(--clarity-shadow), var(--clarity-hi);
+}
+
+#tl, #gb, #tools, #shelf, #tutorial-launcher, #dm-toast {
+  background: var(--clarity-glass);
+  -webkit-backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  border: 1.5px solid var(--clarity-ink);
+  box-shadow: var(--clarity-shadow), var(--clarity-hi);
+}
+#tl, #gb, #tools { border-radius: 14px; }
+#shelf { border-radius: 16px; }
+:is(#tl, #gb, #tools) button { border: 1.5px solid transparent; border-radius: 9px; background: transparent; font-weight: 550; }
+:is(#tl, #gb, #tools) button:hover { background: var(--clarity-hover); border-color: transparent; }
+:is(#tl, #gb, #tools) button[aria-pressed=true] { background: var(--ink); color: #fff; }
+
+/* ---------- 统一毛玻璃材质与双翼面板 ---------- */
+:is(#pan, #guide, .cl-panel-glass) {
+  position: fixed;
+  z-index: 40;
+  display: none;
+  flex-direction: column;
+  min-height: 0;
+  box-sizing: border-box;
+  color: var(--clarity-ink);
+  background: var(--clarity-glass-strong);
+  -webkit-backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  border: 1px solid var(--line);
+  border-radius: var(--cl-radius);
+  box-shadow: var(--cl-shadow);
+  overflow: hidden;
+  transition: width .18s ease, height .18s ease;
+}
+:is(#pan, #guide).o { display: flex; }
+:is(#pan, #guide)[hidden],
+:is(#pan, #guide).is-closed { display: none !important; }
+
+/* ---------- 桌面几何与左右避让 ---------- */
+@media (min-width: 901px) {
+  :is(#pan, #guide) {
+    top: var(--cl-top);
+    bottom: var(--cl-gap);
+    max-height: calc(100vh - var(--cl-top) - var(--cl-gap));
+  }
+  #pan {
+    left: var(--cl-gap);
+    right: auto;
+    width: var(--cl-pan-w);
+    min-width: 260px;
+    max-width: 440px;
+    resize: horizontal;
+  }
+  #pan[data-size="expanded"],
+  #pan.as-expanded {
+    width: clamp(360px, 32vw, 500px);
+    max-width: 500px;
+  }
+  #guide {
+    right: var(--cl-gap);
+    left: auto;
+    width: var(--cl-guide-w);
+    min-width: 380px;
+    max-width: calc(100vw - 2 * var(--cl-gap) - var(--cl-canvas-min));
+    resize: horizontal;
+  }
+  #guide[data-size="expanded"],
+  #guide.as-expanded {
+    width: var(--cl-guide-w-expanded);
+  }
+  body[data-pan-open="true"] #guide {
+    max-width: calc(100vw - var(--cl-pan-w) - 3 * var(--cl-gap) - var(--cl-canvas-min));
+  }
+}
+
+/* 折叠：只保留标题栏 */
+:is(#pan, #guide).is-collapsed {
+  bottom: auto !important;
+  height: var(--cl-head-h) !important;
+  max-height: var(--cl-head-h) !important;
+  resize: none !important;
+}
+.is-collapsed :is(.cl-panel-body, #gl, .cl-composer, .as-compose, .cl-resize, .cl-progress, .as-model) {
+  display: none !important;
+}
+
+/* ---------- 统一标题栏 ---------- */
+.cl-panel-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--cl-head-h);
+  padding: 0 10px 0 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--clarity-solid);
+  user-select: none;
+  box-sizing: border-box;
+}
+.cl-panel-head__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--ink);
+}
+.cl-panel-head__title {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--clarity-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cl-panel-ctrl {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+/* 控制按钮：CSS 线性图标，不依赖系统字符 */
+.cl-ctrl {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--clarity-ink);
+  font-size: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .12s ease;
+}
+.cl-ctrl:hover { background: var(--clarity-hover); }
+.cl-ctrl:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.cl-ctrl::before,
+.cl-ctrl::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  box-sizing: border-box;
+}
+.cl-ctrl--min::before {
+  width: 12px;
+  height: 1.5px;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+.cl-ctrl--max::before {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  transform: translate(-50%, -50%);
+}
+:is([data-size="expanded"], .as-expanded) .cl-ctrl--max::before {
+  width: 8px;
+  height: 8px;
+  transform: translate(-30%, -70%);
+}
+:is([data-size="expanded"], .as-expanded) .cl-ctrl--max::after {
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  background: var(--clarity-glass-strong);
+  transform: translate(-70%, -30%);
+}
+.cl-ctrl--close::before,
+.cl-ctrl--close::after {
+  width: 13px;
+  height: 1.5px;
+  background: currentColor;
+}
+.cl-ctrl--close::before { transform: translate(-50%, -50%) rotate(45deg); }
+.cl-ctrl--close::after { transform: translate(-50%, -50%) rotate(-45deg); }
+.cl-ctrl--close:hover { background: color-mix(in srgb, var(--ink) 12%, transparent); }
+
+/* ---------- 静态状态标签与进度线 ---------- */
+.cl-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 11.5px;
+  color: var(--cl-muted);
+  background: var(--clarity-solid);
+  white-space: nowrap;
+}
+.cl-tag[data-tone="active"] {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--ink) 40%, transparent);
+  font-weight: 500;
+}
+.cl-progress {
+  flex: none;
+  height: 2px;
+  background: var(--line);
+}
+.cl-progress > i {
+  display: block;
+  height: 100%;
+  width: var(--p, 0%);
+  background: var(--ink);
+  transition: width .3s ease;
+}
+
+/* ---------- 内容区与内部滚动 ---------- */
+.cl-panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  font-size: 13.5px;
+  line-height: 22px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+#pan .cl-panel-body { padding: 14px; }
+#pan :is(input, textarea, select), #utilities :is(input, textarea), #pan .ac {
+  background: var(--clarity-solid);
+}
+.cl-section-title {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: var(--cl-muted);
+}
+.cl-note { font-size: 12px; line-height: 18px; color: var(--cl-muted); }
+
+/* ---------- 拉伸手柄 ---------- */
+.cl-resize {
+  position: absolute;
+  top: var(--cl-head-h);
+  bottom: 0;
+  z-index: 10;
+  width: 8px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+#pan .cl-resize { right: 0; }
+#guide .cl-resize { left: 0; }
+.cl-resize::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 2px;
+  height: 40px;
+  border-radius: 1px;
+  background: var(--ink);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity .15s ease;
+}
+.cl-resize:hover::after,
+.cl-resize.is-dragging::after { opacity: .5; }
+
+/* ---------- 窄屏与响应式 ---------- */
+@media (max-width: 1200px) {
+  :root {
+    --cl-pan-w: clamp(260px, 26vw, 320px);
+    --cl-guide-w: clamp(380px, 42vw, 500px);
+  }
+}
+@media (max-width: 900px) {
+  :is(#pan, #guide),
+  :is(#pan, #guide)[data-size="expanded"],
+  :is(#pan, #guide).as-expanded {
+    left: 8px !important;
+    right: 8px !important;
+    top: auto !important;
+    bottom: 8px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: min(78vh, calc(100vh - var(--cl-top) - 8px)) !important;
+  }
+  #guide[data-size="expanded"],
+  #guide.as-expanded {
+    height: calc(100vh - var(--cl-top) - 8px) !important;
+  }
+  body[data-pan-open="true"][data-guide-open="true"] #pan {
+    top: var(--cl-top) !important;
+    bottom: auto !important;
+    height: 34vh !important;
+  }
+  body[data-pan-open="true"][data-guide-open="true"] #guide {
+    height: calc(100vh - var(--cl-top) - 34vh - 24px) !important;
+  }
+  .cl-resize { display: none; }
+}
+
+/* ---------- 零低质动效 ---------- */
+:is(#pan, #guide) :is(.pulse-dot, .cl-spin, .typing-dots, .as-pulse-dot) {
+  display: none !important;
+}
+:is(#pan, #guide),
+:is(#pan, #guide) *,
+:is(#pan, #guide) *::before,
+:is(#pan, #guide) *::after {
+  animation: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(#pan, #guide, .cl-canvas-safe),
+  :is(#pan, #guide) * { transition: none !important; }
+}
+
+/* ---------- 画板列表保留规则 ---------- */
+@media (min-width: 681px) { #pan.cl-boards { width: var(--cl-pan-w); } }
+.cl-board-count { margin: 0 0 6px; font-size: 12px; font-weight: 600; color: var(--mute); }
+.cl-board-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: min(420px, calc(100vh - 330px));
+  min-height: 64px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: 3px;
+}
+.cl-board-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 4px; border-radius: 10px; }
+.cl-board-open {
+  width: 100%;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 7px 10px;
+  white-space: normal;
+  text-align: left;
+  background: none;
+  border: 1.5px solid transparent;
+  border-radius: 9px;
+}
+.cl-board-open:hover { background: var(--clarity-hover); }
+.cl-board-open[aria-pressed=true] {
+  background: var(--clarity-sel);
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--blue) 40%, transparent);
+  box-shadow: inset 3px 0 0 var(--blue);
+}
+.cl-board-name { max-width: 100%; font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; word-break: break-word; }
+.cl-board-meta { font-size: 12px; font-weight: 400; color: var(--mute); }
+.cl-board-actions { display: flex; gap: 2px; padding-top: 4px; }
+.cl-board-actions button {
+  width: 30px;
+  min-height: 30px;
+  padding: 0;
+  justify-content: center;
+  color: var(--mute);
+  background: none;
+  border: 1.5px solid transparent;
+  border-radius: 8px;
+}
+.cl-board-actions button:hover { background: var(--clarity-hover); color: var(--ink); }
+.cl-board-actions [data-act='board.delete']:hover:not(:disabled) { color: var(--red); background: #FEF1F0; }
+.cl-board-edit {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  background: var(--clarity-solid);
+  border: 1.5px solid var(--blue);
+  border-radius: 10px;
+}
+.cl-board-edit input { flex: 1 1 150px; min-width: 0; }
+.cl-board-edit button { min-height: 34px; }
+.cl-board-edit [type=submit] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.cl-board-empty { margin: 8px 4px; font-size: 13px; color: var(--mute); }
+.cl-board-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--clarity-edge);
+}
+.cl-board-footer > button { flex: 1 1 140px; justify-content: center; white-space: normal; }
+.cl-board-footer [data-tut=menu] { border-color: var(--line); color: var(--mute); }
+.cl-board-footer [data-tut=menu]:hover { color: var(--ink); border-color: #8A94A6; }
+
+/* 焦点指示 */
+:is(#tl, #gb, #tools, #shelf, #pan, #guide, #utilities, .dm-reader, #tutorial-coach, #dm-toast) :focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.9);
+}
+.cl-board-list :focus-visible { outline-offset: 0; }
+body:has(#pan.cl-boards.o) :is(#tutorial-coach, #tutorial-spot) { visibility: hidden; pointer-events: none; }
 /* GLASS_CLARITY_CSS_END */

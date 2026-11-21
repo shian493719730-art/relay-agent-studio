@@ -559,69 +559,101 @@ body:has(#pan.cl-boards.o) :is(#tutorial-coach, #tutorial-spot) { visibility: hi
   pointer-events: none;
 }
 
-/* ---------- 顶部栏毛玻璃与精细布局 ---------- */
+/* ---------- 顶部栏毛玻璃与极简清爽布局 (Forehead Liberated) ---------- */
 #room .rh {
   flex: none !important;
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
-  padding: 10px 20px !important;
+  justify-content: space-between !important;
+  height: 52px !important;
   min-height: 52px !important;
-  background: rgba(255, 255, 255, 0.65) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
-  backdrop-filter: blur(24px) saturate(150%) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.5) !important;
+  padding: 0 20px !important;
+  background: rgba(255, 255, 255, 0.68) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  gap: 12px !important;
+  flex-wrap: nowrap !important;
 }
-#room .rh > b {
-  font-size: 15px !important;
-  font-weight: 700 !important;
-  color: #0F172A !important;
+.room-btn-back {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 14px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(203, 213, 225, 0.7) !important;
+  color: #334155 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.16s ease !important;
+  cursor: pointer !important;
 }
-#room .rh .crew {
+.room-btn-back:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-0.5px) !important;
+}
+.room-title-group {
   display: flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
 }
-#room .rh .crew .pc {
-  border-radius: 10px !important;
-  padding: 3px 8px !important;
-  background: rgba(255, 255, 255, 0.5) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  transition: all .15s ease !important;
+.room-title {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.01em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
-#room .rh .crew .pc:hover {
-  background: rgba(255, 255, 255, 0.9) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+.room-status-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2.5px 9px !important;
+  border-radius: 9999px !important;
+  background: rgba(99, 102, 241, 0.08) !important;
+  color: #4f46e5 !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  border: 1px solid rgba(99, 102, 241, 0.18) !important;
 }
-#room .rh .crew .pc[aria-pressed="true"] {
-  background: #0F172A !important;
-  color: #FFFFFF !important;
-  border-color: #0F172A !important;
+.room-win-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
 }
-
-/* ---------- 紧凑近况区域（释放 80%+ 纵向空间给消息流） ---------- */
-#room .activity-inline {
-  flex: none !important;
-  padding: 4px 20px !important;
-  background: rgba(255, 255, 255, 0.42) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
-  font-size: 12px !important;
-}
-#room .activity-inline details summary {
-  font-size: 12px !important;
-  font-weight: 600 !important;
-  color: #64748B !important;
+.room-win-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(203, 213, 225, 0.6) !important;
+  color: #475569 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.15s ease !important;
   cursor: pointer !important;
-  padding: 2px 0 !important;
+  padding: 0 !important;
 }
-#room .activity-inline details summary:hover {
-  color: #0F172A !important;
+.room-win-btn:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
 }
-#room .activity-inline [data-activity-scope] {
-  max-height: 75px !important;
-  overflow-y: auto !important;
-  margin-top: 4px !important;
+.room-win-close:hover {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  border-color: #fca5a5 !important;
 }
 
 /* ---------- 主聊天体与大空间消息列表 ---------- */
@@ -630,6 +662,14 @@ body:has(#pan.cl-boards.o) :is(#tutorial-coach, #tutorial-spot) { visibility: hi
   display: flex !important;
   min-height: 0 !important;
   overflow: hidden !important;
+  position: relative !important;
+}
+.room-main {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
   position: relative !important;
 }
 #rm {
@@ -643,6 +683,160 @@ body:has(#pan.cl-boards.o) :is(#tutorial-coach, #tutorial-spot) { visibility: hi
   gap: 16px !important;
   scrollbar-width: thin !important;
   scrollbar-color: rgba(0, 0, 0, 0.12) transparent !important;
+}
+
+/* ---------- 侧边操作栏 (Right Rail) ---------- */
+.room-rail {
+  width: 290px !important;
+  flex: 0 0 290px !important;
+  height: 100% !important;
+  background: rgba(255, 255, 255, 0.55) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+  backdrop-filter: blur(30px) saturate(180%) !important;
+  border-left: 1px solid rgba(226, 232, 240, 0.75) !important;
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.7) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  padding: 16px 14px !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  scrollbar-width: thin !important;
+}
+.rail-card {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+.rail-card-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #475569 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+.rail-badge {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 1px 6px !important;
+  border-radius: 9999px !important;
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: #475569 !important;
+}
+.rail-crew {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
+}
+.rail-crew .pc {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 6px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(226, 232, 240, 0.7) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  position: relative !important;
+}
+.rail-crew .pc:hover {
+  background: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  transform: translateY(-1px) !important;
+}
+.rail-crew .pc[aria-pressed="true"] {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+.rail-crew .pc .nm {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  margin-top: 4px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100px !important;
+}
+.rail-member-st {
+  font-size: 10px !important;
+  opacity: 0.75 !important;
+}
+.rail-actions-row, .room-rail-tools {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+.rail-btn, .room-rail-tools button, .rail-actions-row button, .mc-reassign-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  padding: 6px 12px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(203, 213, 225, 0.75) !important;
+  color: #334155 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.15s ease !important;
+  cursor: pointer !important;
+  flex: 1 1 calc(50% - 6px) !important;
+  min-height: 32px !important;
+  white-space: nowrap !important;
+}
+.rail-btn:hover, .room-rail-tools button:hover, .rail-actions-row button:hover, .mc-reassign-btn:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06) !important;
+  transform: translateY(-0.5px) !important;
+}
+.rail-summarize-btn {
+  width: 100% !important;
+  padding: 9px 16px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border: 0 !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.rail-summarize-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4338ca, #6d28d9) !important;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45) !important;
+  transform: translateY(-1px) !important;
+}
+.rail-activity-details summary {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  padding: 2px 0 !important;
+}
+.rail-activity-details #room-rail-activity-slot {
+  margin-top: 8px !important;
+  font-size: 12px !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
 }
 
 /* ---------- 消息气泡与基础角色颜色区分 ---------- */

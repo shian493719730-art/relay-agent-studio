@@ -60,24 +60,24 @@ async function cpStart(pid,text,atts=[],group=null,manualLinkId){
  }catch(e){if(prep.phase==='binding')CP.preparing.delete(key);prep.status=prep.ac.signal.aborted?'paused':'failed';CP.error=prep.ac.signal.aborted?'文件准备已暂停，草稿和原件保留':e.message;const p=pid&&P(pid);if(p){p.msgs.push({id:'err-'+uid(),from:'system',text:'⚠️ 协作未能启动：'+CP.error+'。请在右上角「模型 / 接手」绑定模型，或由 AI 操作助手自动配置。',st:'error'});save();if(state.room===p.id)renderMsgs();}hint(CP.error)}finally{CP.pending.delete(key);cpPaintRoom();cpPaintGroup()}
 }
 async function cpControl(r,action,scope={}){try{cpApply(await cpApi(action,{id:r.id,...scope}));hint(action==='pause'?'已暂停，保留输出':action==='stop'?'已停止流程，成果保留':action==='summarize'?'已通知统筹生成总结报告':'已继续，完成阶段不会重跑')}catch(e){hint(e.message)}}
-function cpPaintRoom(){const p=P(state.room);if(!p||cpPractice())return;const r=cpCurrent(p.id),prep=CP.preparing.get(p.id),rh=$('#room .rh');if(!rh)return;
- let prepare=rh.querySelector('[data-cp-prepare]');if(prep&&!prepare){prepare=document.createElement('button');prepare.dataset.cpPrepare=p.id;rh.append(prepare)}if(prepare){if(!prep)prepare.remove();else prepare.textContent=prep.status==='running'?'暂停文件准备':'继续文件准备';}
- let button=rh.querySelector('[data-cp-control]');if(r&&!button){button=document.createElement('button');button.dataset.cpControl='pause';rh.append(button)}
+function cpPaintRoom(){const p=P(state.room);if(!p||cpPractice())return;const r=cpCurrent(p.id),prep=CP.preparing.get(p.id),railSlot=$('#room .rail-actions-row')||$('#room .room-rail-tools'),rh=$('#room .rh');if(!rh)return;
+ let prepare=document.querySelector('#room [data-cp-prepare]');if(prep&&!prepare){prepare=document.createElement('button');prepare.className='rail-btn';prepare.dataset.cpPrepare=p.id;(railSlot||rh).append(prepare)}if(prepare){if(!prep)prepare.remove();else prepare.textContent=prep.status==='running'?'暂停文件准备':'继续文件准备';}
+ let button=document.querySelector('#room [data-cp-control]');if(r&&!button){button=document.createElement('button');button.className='rail-btn';button.dataset.cpControl='pause';(railSlot||rh).append(button)}
  if(button){button.dataset.cpRun=r.id;button.dataset.cpControl=r.status==='running'?'pause':'resume';button.textContent=r.status==='running'?'暂停流程':'继续流程';button.disabled=r.status==='completed';button.title='暂停会中断当前请求并保留输出；继续只运行未完成阶段。';}
- if(r&&!rh.querySelector('[data-cp-record]')){const b=document.createElement('button');b.dataset.cpRecord=r.id;b.textContent='流程记录';rh.append(b)}
- let summarizeBtn=rh.querySelector('[data-cp-summarize]');
+ if(r&&!document.querySelector('#room [data-cp-record]')){const b=document.createElement('button');b.className='rail-btn';b.dataset.cpRecord=r.id;b.textContent='流程记录';(railSlot||rh).append(b)}
+ let summarizeBtn=document.querySelector('#room [data-cp-summarize]')||document.querySelector('#room .btn-summarize');
  if(r&&!summarizeBtn){
   summarizeBtn=document.createElement('button');
   summarizeBtn.dataset.cpSummarize='1';
-  summarizeBtn.className='btn-summarize';
-  summarizeBtn.innerHTML=icon('sparkles',14)+'统筹总结报告';
-  summarizeBtn.title='无论各成员是否受阻或暂停，让统筹立即基于现有已产出的成果生成完整总结报告';
-  rh.append(summarizeBtn);
+  summarizeBtn.className='btn-summarize rail-summarize-btn';
+  summarizeBtn.innerHTML=icon('sparkles',14)+'统筹阶段汇报';
+  summarizeBtn.title='无论各成员是否受阻或暂停，让统筹立即基于现有已产出的成果生成阶段性总结汇报';
+  ($('#room .rail-actions-card')||railSlot||rh).prepend(summarizeBtn);
  }
  if(summarizeBtn){
   const completed=r?.status==='completed'&&!!r?.projects.find(x=>x.data.id===p.id)?.result;
   summarizeBtn.disabled=completed;
-  if(completed)summarizeBtn.title='统筹已完成最终总结报告（可在上方查看）';
+  if(completed)summarizeBtn.title='统筹已完成阶段性汇报（可在消息流中查看）';
  }
  const label=$('#cmp .row:last-child>.lab');if(label&&!target)label.textContent=r?.status==='running'?'多模型团队协作中 · 刷新可重连 · 可暂停/停止':'发送读取项目正文 → 按成员绑定模型分工、执行与汇总';
  const row=$('#cmp>.row');if(row&&!row.querySelector('[data-cp-mode]')){const b=document.createElement('span');b.dataset.cpMode='1';b.className='lab';b.style.margin='0 0 0 auto';b.title='统筹与成员各用自己的绑定模型；开始前核验全部绑定，执行和恢复使用同一份线路快照。';row.append(b)}

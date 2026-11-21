@@ -172,39 +172,69 @@ export class CanvasRuns{
    if(packet.length>120000)throw new Error('本阶段共享内容太长，请减少共享范围后再继续。');
    const target=s.target||(s.target=this.targetFor(r,s.projectId,s.member.id));
    const connection=this.connections.resolve({provider:'openai',connectionId:target.connectionId,connectionRevision:target.connectionRevision});
-   Object.assign(agent,{provider:connection.protocol==='anthropic'?'anthropic':'openai',model:target.model,connectionId:target.connectionId,connectionRevision:target.connectionRevision});r.modelCalls++;
-   this.event(r,'step',s.member.name+' · '+target.name+' / '+target.model+'：'+s.phase+' 开始');this.save(r);
-   const output=await this.execute(step,packet,{signal:AbortSignal.any([ac.signal,AbortSignal.timeout(180000)]),artifacts:new Artifacts(path.join(this.directory,r.id,hash(s.projectId||'group').slice(0,16))),artifactTools:false,settings:{agents:[agent],maxOutputTokens:target.vendor==='gemini'||/^gemini-/i.test(target.model)?8192:s.phase.includes('plan')?1800:2400,maxTurns:5},emit:(type,text)=>{this.event(r,type,text);this.save(r)},update:()=>{s.text=step.text;if(Date.now()-(this.lastWrite.get(r.id)||0)>180)this.save(r)}});
-   ac.signal.throwIfAborted();if(r.status!=='running')throw new Error('流程已暂停');s.text=output;
-   if(s.phase==='group-plan'){
-    const plan=z.object({projectTasks:z.array(z.object({projectId:id,task:z.string().min(1).max(3000)})).min(1).max(8)}).parse(parseJson(output));
-    const ids=plan.projectTasks.map(a=>a.projectId);
-    if(new Set(ids).size!==r.projects.length||ids.length!==r.projects.length||r.projects.some(p=>!ids.includes(p.data.id)))throw new Error('跨项目统筹返回的项目分工不完整，请检查后继续');
-    for(const p of r.projects)p.task=plan.projectTasks.find(a=>a.projectId===p.data.id)!.task;
-   }
-   if(s.phase==='plan'){
-    const p=r.projects.find(p=>p.data.id===s.projectId)!;
-    const plan=z.object({assignments:z.array(z.object({memberId:id,task:z.string().min(1).max(3000),dependsOn:z.array(id).max(8).optional()})).min(1).max(8),acceptance:z.string().min(1).max(3000)}).parse(parseJson(output));
-    const ids=plan.assignments.map(a=>a.memberId);
-    if(new Set(ids).size!==p.data.members.length||ids.length!==p.data.members.length||p.data.members.some(m=>!ids.includes(m.id)))throw new Error('统筹返回的成员分工不完整，请检查后继续');
-    const visiting=new Set<string>(),done=new Set<string>();
-    const visit=(mid:string)=>{
-     if(visiting.has(mid))throw new Error('成员分工依赖成环，请检查后继续');
-     if(done.has(mid))return;
-     visiting.add(mid);
-     const a=plan.assignments.find(a=>a.memberId===mid)!;
-     for(const dep of a.dependsOn||[]){
-      if(!ids.includes(dep)||dep===mid)throw new Error('成员分工依赖编号无效');
-      visit(dep);
+   const FALLBACK_MODELS=['claude-3-7-sonnet-20250219','deepseek-v4.1-flash','claude-sonnet-4-5','claude-opus-5-5','gemini-2.5-pro','gpt-5.4'];
+   const triedModels=new Set<string>();
+   const hasAlternativeModels=Array.isArray(connection.models)&&connection.models.length>1;const maxAttempts=hasAlternativeModels?4:1;
+   let lastErr:any=null;
+   for(let attempt=0;attempt<maxAttempts;attempt++){
+    try{
+     ac.signal.throwIfAborted();if(r.status!=='running')throw new Error('流程已暂停');
+     triedModels.add(target.model);
+     Object.assign(agent,{provider:connection.protocol==='anthropic'?'anthropic':'openai',model:target.model,connectionId:target.connectionId,connectionRevision:target.connectionRevision});r.modelCalls++;
+     this.event(r,'step',s.member.name+' · '+target.name+' / '+target.model+'：'+s.phase+(attempt>0?' (自主换模型重试第'+attempt+'次)':'')+' 开始');this.save(r);
+     const output=await this.execute(step,packet,{signal:AbortSignal.any([ac.signal,AbortSignal.timeout(180000)]),artifacts:new Artifacts(path.join(this.directory,r.id,hash(s.projectId||'group').slice(0,16))),artifactTools:false,settings:{agents:[agent],maxOutputTokens:target.vendor==='gemini'||/^gemini-/i.test(target.model)?8192:s.phase.includes('plan')?1800:2400,maxTurns:5},emit:(type,text)=>{this.event(r,type,text);this.save(r)},update:()=>{s.text=step.text;if(Date.now()-(this.lastWrite.get(r.id)||0)>180)this.save(r)}});
+     ac.signal.throwIfAborted();if(r.status!=='running')throw new Error('流程已暂停');s.text=output;
+     if(s.phase==='group-plan'){
+      const plan=z.object({projectTasks:z.array(z.object({projectId:id,task:z.string().min(1).max(3000)})).min(1).max(8)}).parse(parseJson(output));
+      const ids=plan.projectTasks.map(a=>a.projectId);
+      if(new Set(ids).size!==r.projects.length||ids.length!==r.projects.length||r.projects.some(p=>!ids.includes(p.data.id)))throw new Error('跨项目统筹返回的项目分工不完整，请检查后继续');
+      for(const p of r.projects)p.task=plan.projectTasks.find(a=>a.projectId===p.data.id)!.task;
      }
-     visiting.delete(mid);
-     done.add(mid);
-    };
-    for(const mid of ids)visit(mid);
-    p.plan=plan;
+     if(s.phase==='plan'){
+      const p=r.projects.find(p=>p.data.id===s.projectId)!;
+      const plan=z.object({assignments:z.array(z.object({memberId:id,task:z.string().min(1).max(3000),dependsOn:z.array(id).max(8).optional()})).min(1).max(8),acceptance:z.string().min(1).max(3000)}).parse(parseJson(output));
+      const ids=plan.assignments.map(a=>a.memberId);
+      if(new Set(ids).size!==p.data.members.length||ids.length!==p.data.members.length||p.data.members.some(m=>!ids.includes(m.id)))throw new Error('统筹返回的成员分工不完整，请检查后继续');
+      const visiting=new Set<string>(),done=new Set<string>();
+      const visit=(mid:string)=>{
+       if(visiting.has(mid))throw new Error('成员分工依赖成环，请检查后继续');
+       if(done.has(mid))return;
+       visiting.add(mid);
+       const a=plan.assignments.find(a=>a.memberId===mid)!;
+       for(const dep of a.dependsOn||[]){
+        if(!ids.includes(dep)||dep===mid)throw new Error('成员分工依赖编号无效');
+        visit(dep);
+       }
+       visiting.delete(mid);
+       done.add(mid);
+      };
+      for(const mid of ids)visit(mid);
+      p.plan=plan;
+     }
+     s.status='completed';if(s.phase==='final'){const p=r.projects.find(p=>p.data.id===s.projectId)!;p.result=output;p.status='completed';}if(s.phase==='group-final')r.result=output;
+     return;
+    }catch(err:any){
+     lastErr=err;
+     if(ac.signal.aborted||r.status==='paused'||r.status==='stopped'||r.pausedProjects.includes(s.projectId||''))throw err;
+     if(attempt+1<maxAttempts){
+      let nextModel:string|undefined;
+      if(Array.isArray(connection.models)&&connection.models.length>0){
+       for(const fm of FALLBACK_MODELS){if(!triedModels.has(fm)&&connection.models.includes(fm)){nextModel=fm;break;}}
+       if(!nextModel){nextModel=connection.models.find(m=>!triedModels.has(m)&&!m.includes('480')&&!m.includes('mini'));}
+      }else if(connection.kind==='relay'){
+       for(const fm of FALLBACK_MODELS){if(!triedModels.has(fm)){nextModel=fm;break;}}
+      }
+      if(nextModel){
+       this.event(r,'retry',s.member.name+' 调用 '+target.model+' 受阻（'+safeError(err).slice(0,80)+'），正在自主换模型至 '+nextModel+' 重试...');
+       s.attempts.push({attempt:s.attempt,text:step.text||s.text,status:'retrying',target:{...target}});
+       s.attempt++;target.model=nextModel;this.save(r);continue;
+      }
+     }
+     throw err;
+    }
    }
-   s.status='completed';if(s.phase==='final'){const p=r.projects.find(p=>p.data.id===s.projectId)!;p.result=output;p.status='completed';}if(s.phase==='group-final')r.result=output;
-   }catch(e){s.text=step.text||s.text;if(ac.signal.aborted||r.status==='paused'||r.status==='stopped'||r.pausedProjects.includes(s.projectId||'')){s.status='paused';}else{s.status='failed';s.error=safeError(e);r.status='failed';r.error=s.error;for(const [sid,c]of active)if(sid!==s.id)c.abort();}}
+   if(lastErr)throw lastErr;
+   }catch(e){s.text=step.text||s.text;if(ac.signal.aborted||r.status==='paused'||r.status==='stopped'||r.pausedProjects.includes(s.projectId||'')){s.status='paused';}else{s.status='failed';s.error=safeError(e);this.event(r,'warn',);if(s.phase.includes('plan')){r.status='failed';r.error=s.error;for(const [sid,c]of active)if(sid!==s.id)c.abort();}}}
   finally{s.inputTokens+=step.inputTokens;s.outputTokens+=step.outputTokens;s.finishedAt=new Date().toISOString();active.delete(s.id);this.save(r)}
  }
  private kick(r:CanvasRun){if(this.pumps.has(r.id))return;const done=this.pump(r).catch(e=>{r.status='failed';r.error=safeError(e);this.save(r)}).finally(()=>this.pumps.delete(r.id));this.pumps.set(r.id,done);}
@@ -216,6 +246,7 @@ export class CanvasRuns{
    // Creating worker steps or resolving a skipped source can unlock work in the same tick.
    const follow=this.ready(r);if(follow.length)continue;
    if(r.projects.every(p=>terminal(p.status))&&(!r.group||r.steps.some(s=>s.phase==='group-final'&&s.status==='completed'))){r.status='completed';r.result=r.result||r.projects.find(p=>p.data.id===r.rootIds[0])?.result||'';this.event(r,'complete','本轮真实协作已完成');}
+   else if(r.steps.some(s=>s.status==='failed')&&!r.steps.some(s=>s.status==='completed'&&s.phase==='final')){r.status='failed';r.error=r.steps.find(s=>s.status==='failed')?.error;}
    else{r.status=r.pausedProjects.length?'paused':'blocked';this.event(r,'waiting',r.pausedProjects.length?'项目已暂停，等待明确恢复':'等待连接启用/恢复；点击继续流程后才接续待交付内容');}
    this.save(r);break;
   }}finally{await Promise.allSettled(active.values());this.controllers.delete(r.id);this.save(r)}

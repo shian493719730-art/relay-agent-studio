@@ -142,7 +142,7 @@ body.rm *,body.rm *::before{transition:none!important;animation:none!important}
 .dm-member{display:flex;align-items:flex-start;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}.dm-member>div:first-of-type{flex:1;min-width:0}.dm-member input{margin-bottom:5px}.dm-member small{display:block;color:var(--mute);overflow-wrap:anywhere}.dm-member>div:last-child{display:flex;flex-direction:column;gap:5px}.dm-model-picks{display:flex;gap:6px;flex-wrap:wrap;padding-bottom:10px}.crew{overflow-x:auto;min-width:80px}.crew .pc{position:relative}.crew .pc [data-dm-remove]{position:absolute;top:0;right:0;display:grid;place-items:center;width:18px;height:18px;border:1.5px solid var(--ink);border-radius:50%;background:#fff;font:14px/1 system-ui;opacity:.4;cursor:pointer}.crew .pc:hover [data-dm-remove]{opacity:1}.dm-add-person{display:flex;flex-direction:column;align-items:center;border:0;min-width:44px;padding:4px;font-size:11px}
 #dm-toast{position:fixed;z-index:130;bottom:76px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 24px);display:flex;align-items:center;gap:8px;padding:8px 12px;background:#fff;border:2px solid var(--ink);border-radius:10px;box-shadow:var(--hard);font-size:13px}#dm-toast span{overflow-wrap:anywhere}#dm-toast button{min-height:26px;padding:2px 8px}#dm-tutorial-arrow{position:fixed;inset:0;width:100%;height:100%;z-index:125;pointer-events:none;overflow:visible;filter:drop-shadow(2px 2px 0 #F7C948)}#pan.dm-window{padding-bottom:30px}#room.dm-window{position:fixed;min-width:0;max-width:100vw!important;max-height:100dvh!important}#room .rh{flex-shrink:0}#cmp.dm-window{position:relative;max-width:100%!important;min-width:0}.dm-reader [data-act="file.delete"]{color:var(--mute)}
 #tutorial-launcher{bottom:74px!important}#tag{bottom:78px;max-width:calc(100vw - 180px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dm-bundle-path{pointer-events:stroke;cursor:pointer}
-#room .rh{flex-wrap:wrap}#room .rh>.crew{order:3;flex:1 0 100%;min-width:0;justify-content:safe center;padding-inline:8px}#room .crew>.pc,#room .dm-add-person{flex-shrink:0}.tutorial-room-tools{display:flex;gap:4px;flex-wrap:wrap;min-width:0}
+#room .rh{flex-wrap:nowrap}#room .crew>.pc,#room .dm-add-person{flex-shrink:0}.tutorial-room-tools{display:flex;gap:4px;flex-wrap:wrap;min-width:0}
 #tutorial-home.dm-collapsed>.tm-home{display:block!important;padding:8px 12px}#tutorial-home.dm-collapsed>.tm-home>*:not(h2){display:none!important}#tutorial-home.dm-collapsed h2{font-size:14px;margin:0;white-space:nowrap;overflow:hidden}#room.dm-collapsed .rh{height:44px;flex-wrap:nowrap;overflow:hidden}#room.dm-collapsed .rh>:not([data-act="room.leave"]):not(b):not(.dm-window-control){display:none!important}
 .tutorial-operations{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}.tutorial-operations li{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#fff}.tutorial-operations li>span{flex-shrink:0;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#EEF1F5;color:var(--ink);font-size:12px;font-weight:650}.tutorial-operations p{margin:0;font-size:12px;line-height:1.5}.tutorial-operations li[aria-current=step]{border-color:var(--blue);background:#EAF1FF}.tutorial-operations li[aria-current=step]>span{background:var(--blue);color:#fff}.tutorial-operations .is-done{color:var(--mute)}.tutorial-operations b{margin-left:auto;color:var(--grn)}.tutorial-example{font-size:12px;margin-top:10px}.tutorial-example>summary{cursor:pointer;color:var(--mute)}.tutorial-example [data-tut=action]{margin-top:6px;font-size:12px}.tutorial-local-control{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 8px;margin-bottom:6px;border:1px solid var(--line);border-radius:8px;background:#FFF8DF}.tutorial-local-control small{flex:1;font-size:11px;color:var(--mute)}#dm-tutorial-arrow{filter:drop-shadow(0 1px 1px #1B223022)}
 body.tutorial-native-panel #tutorial-coach{visibility:hidden;pointer-events:none}#tutorial-operation-caption{position:fixed;z-index:126;top:84px;left:14px;max-width:min(360px,calc(100vw - 28px));display:flex;gap:8px;align-items:center;padding:7px 10px;background:var(--clarity-glass-strong,#fff);border:1px solid var(--line);border-radius:10px;box-shadow:var(--clarity-shadow);font-size:12px;pointer-events:none}#tutorial-operation-caption[hidden]{display:none}#tutorial-operation-caption b{flex-shrink:0;width:24px;height:24px;display:grid;place-items:center;background:#F7C948;border:1px solid var(--ink);border-radius:50%;color:var(--ink)}
@@ -709,69 +709,101 @@ body:has(#pan.cl-boards.o) :is(#tutorial-coach, #tutorial-spot) { visibility: hi
   pointer-events: none;
 }
 
-/* ---------- 顶部栏毛玻璃与精细布局 ---------- */
+/* ---------- 顶部栏毛玻璃与极简清爽布局 (Forehead Liberated) ---------- */
 #room .rh {
   flex: none !important;
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
-  padding: 10px 20px !important;
+  justify-content: space-between !important;
+  height: 52px !important;
   min-height: 52px !important;
-  background: rgba(255, 255, 255, 0.65) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(150%) !important;
-  backdrop-filter: blur(24px) saturate(150%) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
-  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.5) !important;
+  padding: 0 20px !important;
+  background: rgba(255, 255, 255, 0.68) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.7) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  gap: 12px !important;
+  flex-wrap: nowrap !important;
 }
-#room .rh > b {
-  font-size: 15px !important;
-  font-weight: 700 !important;
-  color: #0F172A !important;
+.room-btn-back {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 6px 14px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(203, 213, 225, 0.7) !important;
+  color: #334155 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.16s ease !important;
+  cursor: pointer !important;
 }
-#room .rh .crew {
+.room-btn-back:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-0.5px) !important;
+}
+.room-title-group {
   display: flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  flex: 1 !important;
 }
-#room .rh .crew .pc {
-  border-radius: 10px !important;
-  padding: 3px 8px !important;
-  background: rgba(255, 255, 255, 0.5) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  transition: all .15s ease !important;
+.room-title {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.01em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
-#room .rh .crew .pc:hover {
-  background: rgba(255, 255, 255, 0.9) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+.room-status-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 2.5px 9px !important;
+  border-radius: 9999px !important;
+  background: rgba(99, 102, 241, 0.08) !important;
+  color: #4f46e5 !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  border: 1px solid rgba(99, 102, 241, 0.18) !important;
 }
-#room .rh .crew .pc[aria-pressed="true"] {
-  background: #0F172A !important;
-  color: #FFFFFF !important;
-  border-color: #0F172A !important;
+.room-win-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
 }
-
-/* ---------- 紧凑近况区域（释放 80%+ 纵向空间给消息流） ---------- */
-#room .activity-inline {
-  flex: none !important;
-  padding: 4px 20px !important;
-  background: rgba(255, 255, 255, 0.42) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
-  font-size: 12px !important;
-}
-#room .activity-inline details summary {
-  font-size: 12px !important;
-  font-weight: 600 !important;
-  color: #64748B !important;
+.room-win-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(203, 213, 225, 0.6) !important;
+  color: #475569 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.15s ease !important;
   cursor: pointer !important;
-  padding: 2px 0 !important;
+  padding: 0 !important;
 }
-#room .activity-inline details summary:hover {
-  color: #0F172A !important;
+.room-win-btn:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
 }
-#room .activity-inline [data-activity-scope] {
-  max-height: 75px !important;
-  overflow-y: auto !important;
-  margin-top: 4px !important;
+.room-win-close:hover {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  border-color: #fca5a5 !important;
 }
 
 /* ---------- 主聊天体与大空间消息列表 ---------- */
@@ -780,6 +812,14 @@ body:has(#pan.cl-boards.o) :is(#tutorial-coach, #tutorial-spot) { visibility: hi
   display: flex !important;
   min-height: 0 !important;
   overflow: hidden !important;
+  position: relative !important;
+}
+.room-main {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
   position: relative !important;
 }
 #rm {
@@ -793,6 +833,160 @@ body:has(#pan.cl-boards.o) :is(#tutorial-coach, #tutorial-spot) { visibility: hi
   gap: 16px !important;
   scrollbar-width: thin !important;
   scrollbar-color: rgba(0, 0, 0, 0.12) transparent !important;
+}
+
+/* ---------- 侧边操作栏 (Right Rail) ---------- */
+.room-rail {
+  width: 290px !important;
+  flex: 0 0 290px !important;
+  height: 100% !important;
+  background: rgba(255, 255, 255, 0.55) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+  backdrop-filter: blur(30px) saturate(180%) !important;
+  border-left: 1px solid rgba(226, 232, 240, 0.75) !important;
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.7) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  padding: 16px 14px !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  scrollbar-width: thin !important;
+}
+.rail-card {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  border-radius: 14px !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+.rail-card-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #475569 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+.rail-badge {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 1px 6px !important;
+  border-radius: 9999px !important;
+  background: rgba(15, 23, 42, 0.06) !important;
+  color: #475569 !important;
+}
+.rail-crew {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
+}
+.rail-crew .pc {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 6px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(226, 232, 240, 0.7) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  position: relative !important;
+}
+.rail-crew .pc:hover {
+  background: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+  transform: translateY(-1px) !important;
+}
+.rail-crew .pc[aria-pressed="true"] {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+.rail-crew .pc .nm {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  margin-top: 4px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100px !important;
+}
+.rail-member-st {
+  font-size: 10px !important;
+  opacity: 0.75 !important;
+}
+.rail-actions-row, .room-rail-tools {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+.rail-btn, .room-rail-tools button, .rail-actions-row button, .mc-reassign-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  padding: 6px 12px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(203, 213, 225, 0.75) !important;
+  color: #334155 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.15s ease !important;
+  cursor: pointer !important;
+  flex: 1 1 calc(50% - 6px) !important;
+  min-height: 32px !important;
+  white-space: nowrap !important;
+}
+.rail-btn:hover, .room-rail-tools button:hover, .rail-actions-row button:hover, .mc-reassign-btn:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06) !important;
+  transform: translateY(-0.5px) !important;
+}
+.rail-summarize-btn {
+  width: 100% !important;
+  padding: 9px 16px !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  border: 0 !important;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  cursor: pointer !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.rail-summarize-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4338ca, #6d28d9) !important;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45) !important;
+  transform: translateY(-1px) !important;
+}
+.rail-activity-details summary {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  cursor: pointer !important;
+  padding: 2px 0 !important;
+}
+.rail-activity-details #room-rail-activity-slot {
+  margin-top: 8px !important;
+  font-size: 12px !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
 }
 
 /* ---------- 消息气泡与基础角色颜色区分 ---------- */
@@ -2239,14 +2433,66 @@ function renderPan(){const el=$("#pan"),X=`<button class="x" data-close="pan" ar
 // ---------- 房间 ----------
 function renderRoom(){const r=$("#room"),p=P(state.room);r.classList.toggle("o",!!p);["#bd","#tl","#shelf","#gb","#tools","#tag"].forEach(k=>{$(k).inert=!!p;$(k).setAttribute("aria-hidden",String(!!p))});if(!p){r.innerHTML="";return}const keep=$("#rin")&&$("#rin")===document.activeElement;
  r.style.setProperty("--c",p.ui.color);
- r.innerHTML=`<div class="rh"><button data-act="room.leave">${icon("back")}画板</button><b style="max-width:200px">${esc(p.name)}</b><div class="crew">${[p.coordinator,...p.members].map(m=>`<button class="pc" data-tg="${m.id}" aria-pressed="${target===m.id}" title="点选 @${esc(m.name)}">${piece(m.agent,36,m===p.coordinator)}<span class="nm">${esc(m.name)}</span><span data-status="${m.id}" style="font-size:10px">${ST[m.st]}</span></button>`).join("")}</div>
- <button class="btn-summarize" data-act="room.summarize" title="无论当前是否有成员未完成，立即让统筹根据已收到的成果生成最终总结报告">${icon("sparkles",14)}统筹总结报告</button>${B_("run.stopAll",{projectId:p.id},"全部停止","stop")}<button data-a="det" aria-pressed="${detOpen}">${icon("layers")}详情</button>${B_("guide.open",{},"讲解员","help")}${B_("auth.open",{},"授权","settings")}<button class="x" data-act="room.leave" aria-label="关闭群聊，回到画板" title="关闭群聊，回到画板" style="margin-left:auto">${icon("close",16)}</button></div>
- <div class="rb"><div style="flex:1;display:flex;flex-direction:column;min-width:0"><div class="msgs" id="rm"></div>
- <div class="comp" id="cmp"><div class="row"><span class="lab" style="margin:0">发给：</span><button data-tg="" aria-pressed="${!target}">全部</button>${target?`<b>@${esc(mem(p,target).name)}</b>`:""}${p.pendingFiles.map(id=>{const f=state.files.find(x=>x.id===id);return f?`<span class="att">${icon("file",12)}${esc(f.name)}<button class="x" data-unatt="${id}" aria-label="取消附件" style="padding:0">×</button></span>`:""}).join("")}</div>
- <textarea id="rin" placeholder="和团队说说想完成什么；文件可拖到这里">${esc(p.ui.composerDraft||"")}</textarea><div class="row"><span class="lab" style="flex:1;margin:0">点击发送才开始工作</span><button data-util="prompt" title="优化当前草稿">${icon("sparkles",14)}Prompt</button><button data-a="rfile">${icon("upload",14)}附件</button><button data-a="rsend" style="background:#2B2A33;color:#fff">${icon("send",14)}发送</button></div></div></div>
- <div class="det${detOpen?" o":""}"><div class="lab">目标</div><div>${esc(p.summary||"未写")}</div><div class="lab">职责</div>${[p.coordinator,...p.members].map(m=>`<div class="row">${esc(m.name)}：<input data-mr="${p.id}|${m.id}" value="${esc(m.role||"")}" style="flex:1;width:auto"><button data-act="run.stop" data-args='${esc(JSON.stringify({projectId:p.id,memberId:m.id}))}'>${icon("stop",12)}</button></div>`).join("")}
- <div class="lab">收件</div>${state.inbox.filter(i=>i.pid===p.id).reverse().map(i=>{const d=state.deliveries.find(x=>x.id===i.did);return d?`<div class="ac">${d.path.map(x=>esc((P(x)||{name:"?"}).name)).join("→")}<br>${d.items.map(t=>"· "+esc(t.text.slice(0,60))).join("<br>")}${i.done?"":`<br><button data-read="${i.id}">${icon("check",12)}已读</button>`}</div>`:""}).join("")||"<span class=lab>无</span>"}
- <div class="lab">产物</div>${(p.artifacts||[]).map(a=>`<label class="row"><input type="checkbox" style="width:auto" data-art="${a.id}" ${a.done?"checked":""}>${esc(a.text)}</label>`).join("")||"<span class=lab>无</span>"}</div></div>`;
+ r.innerHTML=`<div class="rh">
+  <button class="room-btn-back" data-act="room.leave">${icon("back")}画板</button>
+  <div class="room-title-group">
+   <b class="room-title">${esc(p.name)}</b>
+   <span class="room-status-badge">${[p.coordinator,...p.members].length} 位成员 · 多模型协作</span>
+  </div>
+  <div class="room-win-actions">
+   <button class="room-win-btn" data-act="undo" aria-label="撤销" title="撤销">${icon("undo",16)}</button>
+   <button class="room-win-btn" data-act="redo" aria-label="重做" title="重做">${icon("redo",16)}</button>
+   <button class="room-win-btn room-win-close" data-act="room.leave" aria-label="关闭群聊，回到画板" title="关闭回到画板">${icon("close",16)}</button>
+  </div>
+ </div>
+ <div class="rb">
+  <div class="room-main">
+   <div class="msgs" id="rm"></div>
+   <div class="comp" id="cmp">
+    <div class="row"><span class="lab" style="margin:0">发给：</span><button data-tg="" aria-pressed="${!target}">全部</button>${target?`<b>@${esc(mem(p,target).name)}</b>`:""}${p.pendingFiles.map(id=>{const f=state.files.find(x=>x.id===id);return f?`<span class="att">${icon("file",12)}${esc(f.name)}<button class="x" data-unatt="${id}" aria-label="取消附件" style="padding:0">×</button></span>`:""}).join("")}</div>
+    <textarea id="rin" placeholder="和团队说说想完成什么；文件可拖到这里">${esc(p.ui.composerDraft||"")}</textarea>
+    <div class="row"><span class="lab" style="flex:1;margin:0">点击发送才开始工作</span><button data-util="prompt" title="优化当前草稿">${icon("sparkles",14)}Prompt</button><button data-a="rfile">${icon("upload",14)}附件</button><button data-a="rsend" style="background:#2B2A33;color:#fff">${icon("send",14)}发送</button></div>
+   </div>
+  </div>
+  <aside class="room-rail">
+   <div class="rail-card rail-crew-card">
+    <div class="rail-card-title">
+     <span>团队成员</span>
+     <span class="rail-badge">${[p.coordinator,...p.members].length}人</span>
+    </div>
+    <div class="crew rail-crew">
+     ${[p.coordinator,...p.members].map(m=>`<button class="pc" data-tg="${m.id}" aria-pressed="${target===m.id}" title="点选 @${esc(m.name)}">${piece(m.agent,34,m===p.coordinator)}<span class="nm">${esc(m.name)}</span><span data-status="${m.id}" class="rail-member-st">${ST[m.st]}</span></button>`).join("")}
+    </div>
+   </div>
+   <div class="rail-card rail-actions-card">
+    <div class="rail-card-title">协作操作</div>
+    <button class="btn-summarize rail-summarize-btn" data-act="room.summarize" title="无论当前是否有成员未完成，立即让统筹根据已收到的成果生成最终阶段总结报告">${icon("sparkles",14)}统筹阶段汇报</button>
+    <div class="rail-actions-row">
+     ${B_("run.stopAll",{projectId:p.id},"全部停止","stop")}
+     <button data-a="det" class="rail-btn" aria-pressed="${detOpen}">${icon("layers",14)} 详情</button>
+    </div>
+   </div>
+   <div class="rail-card rail-tools-card">
+    <div class="rail-card-title">工作台</div>
+    <div class="room-rail-tools">
+     ${B_("guide.open",{},"讲解员","help")}
+     ${B_("auth.open",{},"授权","settings")}
+    </div>
+   </div>
+   <div class="rail-card rail-activity-card">
+    <details open class="rail-activity-details">
+     <summary>项目近况与成果</summary>
+     <div id="room-rail-activity-slot"></div>
+    </details>
+   </div>
+  </aside>
+  <div class="det${detOpen?" o":""}">
+   <div class="lab">目标</div><div>${esc(p.summary||"未写")}</div>
+   <div class="lab">职责</div>${[p.coordinator,...p.members].map(m=>`<div class="row">${esc(m.name)}：<input data-mr="${p.id}|${m.id}" value="${esc(m.role||"")}" style="flex:1;width:auto"><button data-act="run.stop" data-args='${esc(JSON.stringify({projectId:p.id,memberId:m.id}))}'>${icon("stop",12)}</button></div>`).join("")}
+   <div class="lab">收件</div>${state.inbox.filter(i=>i.pid===p.id).reverse().map(i=>{const d=state.deliveries.find(x=>x.id===i.did);return d?`<div class="ac">${d.path.map(x=>esc((P(x)||{name:"?"}).name)).join("→")}<br>${d.items.map(t=>"· "+esc(t.text.slice(0,60))).join("<br>")}${i.done?"":`<br><button data-read="${i.id}">${icon("check",12)}已读</button>`}</div>`:""}).join("")||"<span class=lab>无</span>"}
+   <div class="lab">产物</div>${(p.artifacts||[]).map(a=>`<label class="row"><input type="checkbox" style="width:auto" data-art="${a.id}" ${a.done?"checked":""}>${esc(a.text)}</label>`).join("")||"<span class=lab>无</span>"}
+  </div>
+ </div>`;
  renderMsgs();if(keep){const t=$("#rin");t.focus();t.selectionStart=t.value.length}}
 function renderMsgs(){const draw=(box,msgs,find)=>{if(!box)return;const bot=box.scrollHeight-box.scrollTop-box.clientHeight<40;
   box.innerHTML=msgs.map(m=>{
@@ -2416,7 +2662,7 @@ const sbReview=e=>e.bodyReadOn?'指南已读取':e.review==='adapted-method'?'�
 function sbPins(p){return sbRefs(p).map(r=>`<span class="sb-pin" title="${esc(r.mode==='guide'?'已读取，保留此版本':'项目参考')}" style="--c:${p.ui.color}">${esc(r.title)}${r.mode==='guide'?' · 指南':''}</span>`).join('');}
 const sbRenderTop=renderTop;renderTop=function(){sbRenderTop();$('#tools').insertAdjacentHTML('beforeend',`<button data-sb-open aria-label="打开能力库">${icon('layers')}能力库</button>`)};
 const sbRenderPan=renderPan;renderPan=function(){sbRenderPan();if(panK==='proj'){const p=P(panId);if(p)$('#pan').insertAdjacentHTML('beforeend',`<div class="lab">项目方法</div><div class="sb-pins">${sbPins(p)||'<span class="lab">按项目目标寻找合适的方法</span>'}</div><button data-sb-open="${p.id}">${icon('layers',14)}能力与工作流</button>`)}};
-const sbRenderRoom=renderRoom;renderRoom=function(){sbRenderRoom();const p=P(state.room);if(!p)return;$('#room .rh').insertAdjacentHTML('beforeend',`<button data-sb-open="${p.id}">${icon('layers')}能力库${sbRefs(p).length?' · '+sbRefs(p).length:''}</button>`);$('#room .det').insertAdjacentHTML('beforeend',`<div class="lab">项目方法 · 仅作参考或 Prompt 指南</div><div class="sb-pins">${sbPins(p)||'<span class="lab">尚未选择</span>'}</div>`)};
+const sbRenderRoom=renderRoom;renderRoom=function(){sbRenderRoom();const p=P(state.room);if(!p)return;($('#room .room-rail-tools')||$('#room .rh')).insertAdjacentHTML('beforeend',`<button class="rail-btn" data-sb-open="${p.id}">${icon('layers')}能力库${sbRefs(p).length?' · '+sbRefs(p).length:''}</button>`);$('#room .det').insertAdjacentHTML('beforeend',`<div class="lab">项目方法 · 仅作参考或 Prompt 指南</div><div class="sb-pins">${sbPins(p)||'<span class="lab">尚未选择</span>'}</div>`)};
 CAT.push(['library.open','打开项目能力库','projectId?'],['library.search','搜索 Skill 或工作流','query,category?'],['library.recommend','通过已配置API按项目目标推荐前10项方法','projectId'],['library.add','把已展示的条目加入项目参考','projectId,resourceId'],['library.remove','移除项目方法引用','projectId,resourceId']);
 ACT['library.open']=a=>{sbOpen(a.projectId);return'已打开能力库'};
 ACT['library.search']=a=>{SB.query=String(a.query||'');SB.category=String(a.category||'');sbOpen(undefined,false);return'正在搜索能力库'};
@@ -2427,7 +2673,7 @@ paramLabels.resourceId='方法编号（能力库中可查看）';paramLabels.que
 const sbCtx=ctx;ctx=function(){const c=sbCtx();c.library=[...new Map([...sbRefs(P(state.room)||P(state.sel)),...SB.entries,...SB.recommendations.map(x=>x.entry)].map(e=>[e.id,e])).values()].slice(0,60).map(e=>({id:e.id,title:e.title,kind:e.kind}));return c};
 function sbAdd(p,id,mode,guide){const entry=SB.known.get(id)||sbRefs(p).find(r=>r.id===id);if(!entry)throw'先在能力库搜索或查看此条目';if(entry.historical)throw'此条目已归档或移除，请查看来源';const refs=sbRefs(p);if(!refs.some(r=>r.id===id)&&refs.length>=40)throw'每个项目最多保存 40 项方法，请先整理';if(mode==='guide'&&(!guide||guide.id!==id||!guide.bodyHash))throw'先读取指南正文';pushUndo();p.skillRefs=[...refs.filter(r=>r.id!==id),{id,title:entry.title,url:entry.url,mode,referenceRevision:entry.revision,bodyHash:mode==='guide'?guide.bodyHash:undefined,addedOn:new Date().toISOString()}];save();sbRefreshProject();return'已加入「'+p.name+'」'+(mode==='guide'?'的 Prompt 指南':'的项目参考');}
 function sbRemove(p,id){if(!sbRefs(p).some(r=>r.id===id))throw'项目未引用此条目';pushUndo();p.skillRefs=sbRefs(p).filter(r=>r.id!==id);save();sbRefreshProject();return'已移除方法引用';}
-function sbRefreshProject(){if(skillbook.open)sbPaint();if(panK==='proj')renderPan();/* Keep a room draft and its caret in place. */const p=P(state.room);if(p){const det=$('#room .det');const pins=det?.querySelector('.sb-pins');if(pins)pins.innerHTML=sbPins(p);const btn=$('#room .rh [data-sb-open]');if(btn)btn.innerHTML=icon('layers')+'能力库'+(sbRefs(p).length?' · '+sbRefs(p).length:'');}}
+function sbRefreshProject(){if(skillbook.open)sbPaint();if(panK==='proj')renderPan();/* Keep a room draft and its caret in place. */const p=P(state.room);if(p){const det=$('#room .det');const pins=det?.querySelector('.sb-pins');if(pins)pins.innerHTML=sbPins(p);const btn=$('#room [data-sb-open]');if(btn)btn.innerHTML=icon('layers')+'能力库'+(sbRefs(p).length?' · '+sbRefs(p).length:'');}}
 function sbOpen(projectId,reset=true){SB.projectId=projectId?rp(projectId).id:(P(state.room)||P(state.sel))?.id||null;SB.epoch++;SB.detail=null;SB.guide=null;SB.notice='';if(reset){SB.query='';SB.category='';SB.kind='';SB.page=1;SB.view=SB.projectId?'recommend':'browse';}SB.recommendations=[];SB.otherItems=[];SB.recMessage='';SB.recStatus='idle';SB.recMode='';SB.recBinding=null;if(!skillbook.open)skillbook.showModal();sbPaint();sbSearch();sbStatus();void sbRecommend(sbOnline());}
 function sbClose(){SB.epoch++;SB.searchAC?.abort();SB.recommendAC?.abort();SB.detailAC?.abort();skillbook.close();}
 function sbPaint(){
@@ -2572,9 +2818,9 @@ const mcRoom=renderRoom;renderRoom=function(){
  mcRoom();const p=P(state.room);if(!p)return;
  void mcEnsureData().then(()=>{if(state.room===p.id&&mcAutoAssignTeamModels(p,false)){renderMsgs();renderBoard();}});
  const conn=mcGetActiveConnection();if(conn)mcAutoAssignTeamModels(p,false);
- const rh=$('#room .rh');
- if(rh&&!rh.querySelector('[data-mc-handoff]'))rh.insertAdjacentHTML('beforeend',`<button data-mc-handoff="${p.id}">${icon('network',14)}模型 / 接手</button>`);
- if(rh&&conn&&!rh.querySelector('[data-mc-reassign]'))rh.insertAdjacentHTML('beforeend',`<button data-mc-reassign="${p.id}" class="mc-reassign-btn" title="按「${conn.name}」重新智能分配全员专属模型分工（如 Claude Opus、DeepSeek、Gemini 等）">${icon('sparkles',13)}智能重配多模型</button>`);
+ const targetSlot=$('#room .room-rail-tools')||$('#room .rh');
+ if(targetSlot&&!document.querySelector('#room [data-mc-handoff]'))targetSlot.insertAdjacentHTML('beforeend',`<button class="rail-btn" data-mc-handoff="${p.id}">${icon('network',14)}模型 / 接手</button>`);
+ if(targetSlot&&conn&&!document.querySelector('#room [data-mc-reassign]'))targetSlot.insertAdjacentHTML('beforeend',`<button data-mc-reassign="${p.id}" class="mc-reassign-btn rail-btn" title="按「${conn.name}」重新智能分配全员专属模型分工（如 Claude Opus、DeepSeek、Gemini 等）">${icon('sparkles',13)}智能重配多模型</button>`);
  const m=target&&[p.coordinator,...p.members].find(x=>x.id===target),bound=[p.coordinator,...p.members].filter(x=>x.connectionId);
  const text=$('#cmp .row:last-child>.lab');
  if(text){
@@ -2790,24 +3036,24 @@ async function cpStart(pid,text,atts=[],group=null,manualLinkId){
  }catch(e){if(prep.phase==='binding')CP.preparing.delete(key);prep.status=prep.ac.signal.aborted?'paused':'failed';CP.error=prep.ac.signal.aborted?'文件准备已暂停，草稿和原件保留':e.message;const p=pid&&P(pid);if(p){p.msgs.push({id:'err-'+uid(),from:'system',text:'⚠️ 协作未能启动：'+CP.error+'。请在右上角「模型 / 接手」绑定模型，或由 AI 操作助手自动配置。',st:'error'});save();if(state.room===p.id)renderMsgs();}hint(CP.error)}finally{CP.pending.delete(key);cpPaintRoom();cpPaintGroup()}
 }
 async function cpControl(r,action,scope={}){try{cpApply(await cpApi(action,{id:r.id,...scope}));hint(action==='pause'?'已暂停，保留输出':action==='stop'?'已停止流程，成果保留':action==='summarize'?'已通知统筹生成总结报告':'已继续，完成阶段不会重跑')}catch(e){hint(e.message)}}
-function cpPaintRoom(){const p=P(state.room);if(!p||cpPractice())return;const r=cpCurrent(p.id),prep=CP.preparing.get(p.id),rh=$('#room .rh');if(!rh)return;
- let prepare=rh.querySelector('[data-cp-prepare]');if(prep&&!prepare){prepare=document.createElement('button');prepare.dataset.cpPrepare=p.id;rh.append(prepare)}if(prepare){if(!prep)prepare.remove();else prepare.textContent=prep.status==='running'?'暂停文件准备':'继续文件准备';}
- let button=rh.querySelector('[data-cp-control]');if(r&&!button){button=document.createElement('button');button.dataset.cpControl='pause';rh.append(button)}
+function cpPaintRoom(){const p=P(state.room);if(!p||cpPractice())return;const r=cpCurrent(p.id),prep=CP.preparing.get(p.id),railSlot=$('#room .rail-actions-row')||$('#room .room-rail-tools'),rh=$('#room .rh');if(!rh)return;
+ let prepare=document.querySelector('#room [data-cp-prepare]');if(prep&&!prepare){prepare=document.createElement('button');prepare.className='rail-btn';prepare.dataset.cpPrepare=p.id;(railSlot||rh).append(prepare)}if(prepare){if(!prep)prepare.remove();else prepare.textContent=prep.status==='running'?'暂停文件准备':'继续文件准备';}
+ let button=document.querySelector('#room [data-cp-control]');if(r&&!button){button=document.createElement('button');button.className='rail-btn';button.dataset.cpControl='pause';(railSlot||rh).append(button)}
  if(button){button.dataset.cpRun=r.id;button.dataset.cpControl=r.status==='running'?'pause':'resume';button.textContent=r.status==='running'?'暂停流程':'继续流程';button.disabled=r.status==='completed';button.title='暂停会中断当前请求并保留输出；继续只运行未完成阶段。';}
- if(r&&!rh.querySelector('[data-cp-record]')){const b=document.createElement('button');b.dataset.cpRecord=r.id;b.textContent='流程记录';rh.append(b)}
- let summarizeBtn=rh.querySelector('[data-cp-summarize]');
+ if(r&&!document.querySelector('#room [data-cp-record]')){const b=document.createElement('button');b.className='rail-btn';b.dataset.cpRecord=r.id;b.textContent='流程记录';(railSlot||rh).append(b)}
+ let summarizeBtn=document.querySelector('#room [data-cp-summarize]')||document.querySelector('#room .btn-summarize');
  if(r&&!summarizeBtn){
   summarizeBtn=document.createElement('button');
   summarizeBtn.dataset.cpSummarize='1';
-  summarizeBtn.className='btn-summarize';
-  summarizeBtn.innerHTML=icon('sparkles',14)+'统筹总结报告';
-  summarizeBtn.title='无论各成员是否受阻或暂停，让统筹立即基于现有已产出的成果生成完整总结报告';
-  rh.append(summarizeBtn);
+  summarizeBtn.className='btn-summarize rail-summarize-btn';
+  summarizeBtn.innerHTML=icon('sparkles',14)+'统筹阶段汇报';
+  summarizeBtn.title='无论各成员是否受阻或暂停，让统筹立即基于现有已产出的成果生成阶段性总结汇报';
+  ($('#room .rail-actions-card')||railSlot||rh).prepend(summarizeBtn);
  }
  if(summarizeBtn){
   const completed=r?.status==='completed'&&!!r?.projects.find(x=>x.data.id===p.id)?.result;
   summarizeBtn.disabled=completed;
-  if(completed)summarizeBtn.title='统筹已完成最终总结报告（可在上方查看）';
+  if(completed)summarizeBtn.title='统筹已完成阶段性汇报（可在消息流中查看）';
  }
  const label=$('#cmp .row:last-child>.lab');if(label&&!target)label.textContent=r?.status==='running'?'多模型团队协作中 · 刷新可重连 · 可暂停/停止':'发送读取项目正文 → 按成员绑定模型分工、执行与汇总';
  const row=$('#cmp>.row');if(row&&!row.querySelector('[data-cp-mode]')){const b=document.createElement('span');b.dataset.cpMode='1';b.className='lab';b.style.margin='0 0 0 auto';b.title='统筹与成员各用自己的绑定模型；开始前核验全部绑定，执行和恢复使用同一份线路快照。';row.append(b)}
@@ -3075,7 +3321,7 @@ function dmClusterMarkup(c){return `<h3>项目组 · ${esc(c.name)}<button class
 function dmConnectMarkup(src){return `<div class="lab">连接项目 / 整个项目组</div><div class="row"><select data-dm-destination="${src}">${[...onB(state.projects).map(p=>({id:p.id,name:p.name})),...dmClusters().map(c=>({id:'cluster:'+c.id,name:'项目组 · '+c.name}))].filter(p=>p.id!==src).map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select><button data-dm-connect="${src}">连接</button></div>`}
 function dmBundleMarkup(b){const l=state.links.find(l=>b.edgeIds.includes(l.id));if(!l)return`<h3>${esc(b.name)}<button class="x" data-close="pan" aria-label="关闭">×</button></h3><p>项目组暂无有效路径，可加入子项目或断开此连接。</p><button data-dm-bundle-delete="${b.id}">断开</button>`;return `<h3>${esc(b.name)}<button class="x" data-close="pan" aria-label="关闭">${icon('close')}</button></h3><p class="lab">${b.edgeIds.length} 条子项目路径 · ${LS[l.state]}</p><label>触发<select data-dm-bundle-trigger="${b.id}">${Object.entries(TRIG).map(([k,v])=>`<option value="${k}" ${l.trigger===k?'selected':''}>${v}</option>`).join('')}</select></label><label>关键词（可选）<input data-dm-bundle-keyword="${b.id}" value="${esc(l.keyword||'')}"></label>${[['summary','目标摘要'],['artifacts','已完成产物'],['documents','已读取文件正文']].map(([k,n])=>`<label class="row"><input type="checkbox" data-dm-bundle-share="${b.id}|${k}" ${l.share[k]?'checked':''}>${n}</label>`).join('')}<p class="lab">仅共享勾选内容。连线配置不会自动开始模型请求。</p><div class="row"><button data-dm-bundle-state="${b.id}|${l.state==='on'?'paused':'on'}">${l.state==='on'?'暂停':l.state==='paused'?'恢复':'启用'}</button><button data-dm-bundle-delete="${b.id}">断开</button></div>`}
 const dmPanBase=renderPan;renderPan=function(){if(panK==='team'){const p=P(panId);if(!p)return closePan();$('#pan').innerHTML=dmTeamMarkup(p)}else if(panK==='cluster'){const c=dmCluster(panId);if(!c)return closePan();$('#pan').innerHTML=dmClusterMarkup(c)}else if(panK==='bundle'){const b=state.bundleLinks.find(x=>x.id===panId);if(!b)return closePan();$('#pan').innerHTML=dmBundleMarkup(b)}else{dmPanBase();if(panK==='proj'){const p=P(panId);if(p)$('#pan').insertAdjacentHTML('beforeend',`<div class="lab">选区大小</div><input type="range" min="88" max="440" value="${p.space.r}" aria-label="项目选区大小" data-dm-radius="${p.id}">${B_('team.open',{projectId:p.id},'增减团队成员','users')}${dmConnectMarkup(p.id)}`)}if(panK==='boards')for(const b of state.boards){const row=[...$('#pan').querySelectorAll('.row')].find(row=>row.querySelector('[data-brn]')?.dataset.brn===b.id);row?.insertAdjacentHTML('beforeend',B_('board.delete',{boardId:b.id},'删除','trash'))}if(panK==='file')$('#pan #pv')?.insertAdjacentHTML('beforebegin',B_('reader.open',{fileId:panId},'展开关联阅读框','file'))}dmDecorate()};
-const dmRoomBase=renderRoom;renderRoom=function(){dmRoomBase();const p=P(state.room);if(!p)return;const roomTools=$('#room .tutorial-room-tools')||$('#room .rh');roomTools?.insertAdjacentHTML('beforeend',`<button data-act="undo" aria-label="撤销" title="撤销">${icon('undo',16)}</button><button data-act="redo" aria-label="重做" title="重做">${icon('redo',16)}</button>`);const crew=$('#room .crew');if(crew){crew.insertAdjacentHTML('beforeend',`<button class="dm-add-person" data-act="team.open" data-args='${esc(JSON.stringify({projectId:p.id}))}' aria-label="添加或管理模型成员">${icon('plus',22)}<span>成员</span></button>`);crew.querySelectorAll('[data-tg]').forEach(b=>{const m=mem(p,b.dataset.tg);if(m!==p.coordinator)b.insertAdjacentHTML('beforeend',`<span role="button" tabindex="0" data-dm-remove="${p.id}|${m.id}" aria-label="移除 ${esc(m.name)}">−</span>`)})}dmDecorate()};
+const dmRoomBase=renderRoom;renderRoom=function(){dmRoomBase();const p=P(state.room);if(!p)return;if(!document.querySelector('#room [data-act="undo"]')){const winActions=$('#room .room-win-actions')||$('#room .rh');winActions?.insertAdjacentHTML('afterbegin',`<button class="room-win-btn" data-act="undo" aria-label="撤销" title="撤销">${icon('undo',16)}</button><button class="room-win-btn" data-act="redo" aria-label="重做" title="重做">${icon('redo',16)}</button>`);}const crew=$('#room .crew');if(crew&&!crew.querySelector('.dm-add-person')){crew.insertAdjacentHTML('beforeend',`<button class="dm-add-person pc" data-act="team.open" data-args='${esc(JSON.stringify({projectId:p.id}))}' aria-label="添加或管理模型成员">${icon('plus',22)}<span>成员</span></button>`);crew.querySelectorAll('[data-tg]').forEach(b=>{const m=mem(p,b.dataset.tg);if(m&&m!==p.coordinator&&!b.querySelector('[data-dm-remove]'))b.insertAdjacentHTML('beforeend',`<span role="button" tabindex="0" data-dm-remove="${p.id}|${m.id}" aria-label="移除 ${esc(m.name)}">−</span>`)});}dmDecorate()};
 async function dmRead(f){if(DF.reading.has(f.id))return;if(B()?.tutorialSessionId){const blob=await idb('get',f.id).catch(()=>null);if(blob&&/\.(md|txt|csv|json|log)$/i.test(f.name)){DF.records.set(f.id,{status:'ready',segments:[{location:'本地练习文本',text:await blob.text()}],warnings:['本地演练，不调用模型']});dmUpdateReaders()}return}try{const ac=new AbortController();DF.reading.set(f.id,ac);await dfRead(f,ac.signal)}catch(e){DF.error=e.message}finally{DF.reading.delete(f.id);dmUpdateReaders()}}
 function dmReaderBody(f){const record=DF.records.get(f.id);return{status:dfStatus[record?.status]||'待读取正文',text:record?.segments?.map(s=>'['+s.location+']\n'+s.text).join('\n\n')||record?.error||DF.error||'正在本机读取…'}}
 function dmReaderMarkup(r){const f=state.files.find(f=>f.id===r.fileId);if(!f)return'';const body=dmReaderBody(f);return `<section class="dm-reader fl${r.collapsed?' dm-collapsed':''}" data-reader="${r.fileId}" style="left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.collapsed?44:r.h}px" aria-label="阅读框 ${esc(f.name)}"><header data-dm-reader-drag="${r.fileId}"><b>${icon('file',14)}${esc(f.name)}</b><button data-dm-reader-fold="${r.fileId}" aria-label="${r.collapsed?'展开':'收拢'}阅读框">${r.collapsed?'+':'−'}</button><button data-act="reader.close" data-args='${esc(JSON.stringify({fileId:r.fileId}))}' aria-label="收回阅读框">×</button></header><div class="dm-reader-tools"><small data-reader-status>${esc(body.status)}</small><button data-dm-file-settings="${f.id}">文件</button><button data-dm-reader-read="${f.id}">读取</button>${B_('file.delete',{fileId:f.id},'移除','trash')}</div><article tabindex="0" aria-label="${esc(f.name)} 正文" data-reader-body>${esc(body.text)}</article><button class="dm-resize" data-dm-reader-resize="${f.id}" aria-label="调整阅读框大小">◢</button></section>`}
@@ -4491,7 +4737,7 @@ const activityPanBase=renderPan;renderPan=function(){activityPanBase();if(!['pro
  if(!$('#pan .activity-edit-actions')){let remove='';if(panK==='proj')remove=B_('project.delete',{projectId:panId},'删除项目','trash');if(panK==='cluster')remove=B_('cluster.remove',{clusterId:panId},'删除组及子项目','trash');if(panK==='file')remove=B_('file.delete',{fileId:panId},'移除文件','trash');if(panK==='link')remove=B_('link.delete',{linkId:panId},'断开连接','trash');$('#pan>h3')?.insertAdjacentHTML('afterend',`<div class="activity-edit-actions">${activityButtons()}${remove}</div>`)}activityRefresh();dmDecorate();
 };
 const activityOpenPanBase=openPan;openPan=function(k,id){const kind={proj:'project',cluster:'cluster',group:'group'}[k];if(kind&&!DM.restoring)activityOpen({kind,id});else if(k!=='boards')activityPanel.hidden=true;activityOpenPanBase(k,id)};
-const activityRoomBase=renderRoom;renderRoom=function(){activityRoomBase();const p=P(state.room);if(!p)return;const scope={kind:'project',id:p.id};if(!$('#room [data-activity-scope]'))$('#rm')?.insertAdjacentHTML('beforebegin',`<section class="activity-inline activity-room"><details open><summary>项目近况</summary><div data-activity-scope="${HistoryCore.key(scope)}">${activityMarkup(scope,true)}</div></details></section>`);if(!$('#room [data-activity-project]'))$('#room .rh')?.insertAdjacentHTML('beforeend',`<button data-activity-project="${p.id}">${icon('activity',14)}近况</button>`);activityRefresh()};
+const activityRoomBase=renderRoom;renderRoom=function(){activityRoomBase();const p=P(state.room);if(!p)return;const scope={kind:'project',id:p.id};const railSlot=$('#room-rail-activity-slot');if(!$('#room [data-activity-scope]')){if(railSlot)railSlot.innerHTML=`<div data-activity-scope="${HistoryCore.key(scope)}">${activityMarkup(scope,true)}</div>`;else $('#rm')?.insertAdjacentHTML('beforebegin',`<section class="activity-inline activity-room"><details open><summary>项目近况</summary><div data-activity-scope="${HistoryCore.key(scope)}">${activityMarkup(scope,true)}</div></details></section>`);}if(!$('#room [data-activity-project]')){($('#room .room-rail-tools')||$('#room .rh'))?.insertAdjacentHTML('beforeend',`<button class="rail-btn" data-activity-project="${p.id}">${icon('activity',14)}近况</button>`);}activityRefresh()};
 for(const name of ['board.switch','board.create','board.delete','room.enter','room.leave']){const base=ACT[name];ACT[name]=a=>{const result=base(a);activityOpen(state.room?{kind:'project',id:state.room}:{kind:'board',id:state.activeBoard},!state.room);return result}}
 document.addEventListener('click',e=>{if(e.target.closest('[data-activity-close]')){activityPanel.hidden=true;HA.report=null}if(e.target.closest('[data-activity-board]')){activityOpen({kind:'board',id:state.activeBoard},true)}const project=e.target.closest('[data-activity-project]');if(project)openPan('proj',project.dataset.activityProject)},true);
 // Attachment removal used to bypass history; it now enters the same edit boundary.

@@ -86,9 +86,9 @@ const mcRoom=renderRoom;renderRoom=function(){
  mcRoom();const p=P(state.room);if(!p)return;
  void mcEnsureData().then(()=>{if(state.room===p.id&&mcAutoAssignTeamModels(p,false)){renderMsgs();renderBoard();}});
  const conn=mcGetActiveConnection();if(conn)mcAutoAssignTeamModels(p,false);
- const rh=$('#room .rh');
- if(rh&&!rh.querySelector('[data-mc-handoff]'))rh.insertAdjacentHTML('beforeend',`<button data-mc-handoff="${p.id}">${icon('network',14)}模型 / 接手</button>`);
- if(rh&&conn&&!rh.querySelector('[data-mc-reassign]'))rh.insertAdjacentHTML('beforeend',`<button data-mc-reassign="${p.id}" class="mc-reassign-btn" title="按「${conn.name}」重新智能分配全员专属模型分工（如 Claude Opus、DeepSeek、Gemini 等）">${icon('sparkles',13)}智能重配多模型</button>`);
+ const targetSlot=$('#room .room-rail-tools')||$('#room .rh');
+ if(targetSlot&&!document.querySelector('#room [data-mc-handoff]'))targetSlot.insertAdjacentHTML('beforeend',`<button class="rail-btn" data-mc-handoff="${p.id}">${icon('network',14)}模型 / 接手</button>`);
+ if(targetSlot&&conn&&!document.querySelector('#room [data-mc-reassign]'))targetSlot.insertAdjacentHTML('beforeend',`<button data-mc-reassign="${p.id}" class="mc-reassign-btn rail-btn" title="按「${conn.name}」重新智能分配全员专属模型分工（如 Claude Opus、DeepSeek、Gemini 等）">${icon('sparkles',13)}智能重配多模型</button>`);
  const m=target&&[p.coordinator,...p.members].find(x=>x.id===target),bound=[p.coordinator,...p.members].filter(x=>x.connectionId);
  const text=$('#cmp .row:last-child>.lab');
  if(text){

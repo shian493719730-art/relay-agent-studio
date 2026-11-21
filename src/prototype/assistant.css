@@ -1,6 +1,11 @@
 /* ASSISTANT_CSS_START */
 /* Claude Opus 5.5 Authoritative Assistant & Vibe Coding Guidance (v34) */
 
+#guide {
+  resize: both;
+  min-width: 380px;
+}
+
 #guide.as-panel {
   gap: 0;
   padding: 0;

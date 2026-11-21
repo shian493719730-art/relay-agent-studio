@@ -532,4 +532,317 @@
   transition: all .12s ease;
 }
 .pan-opt-goal:hover { border-color: var(--blue, #2563EB); background: #EFF6FF; }
+
+/* ---------- Claude Opus 5.5 Pedagogical Micro-Interactions (v35) ---------- */
+
+/* 微交互 ①：改动点亮 + 一句话旁白 */
+.ring.cl-node-illuminated {
+  outline: 3px solid var(--blue, #2563EB) !important;
+  outline-offset: 4px;
+  box-shadow: 0 0 24px rgba(37, 99, 235, 0.32) !important;
+  transition: outline .2s ease, box-shadow .2s ease;
+}
+.cl-intent-callout {
+  position: absolute;
+  z-index: 50;
+  width: 290px;
+  max-width: calc(100vw - 32px);
+  background: var(--clarity-glass-strong);
+  -webkit-backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--clarity-shadow-lg);
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--clarity-ink);
+  pointer-events: auto;
+  animation: clCalloutIn .2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes clCalloutIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cl-intent-callout__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.cl-intent-callout__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 12px;
+}
+.cl-intent-callout__close {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  color: var(--cl-muted);
+  font-size: 14px;
+  border-radius: 4px;
+}
+.cl-intent-callout__close:hover { color: var(--ink); background: var(--clarity-hover); }
+.cl-intent-callout__row {
+  display: flex;
+  gap: 6px;
+  margin: 3px 0;
+  font-size: 12px;
+}
+.cl-intent-callout__k {
+  color: var(--cl-muted);
+  flex-shrink: 0;
+  font-weight: 550;
+}
+.cl-intent-callout__v {
+  color: var(--ink);
+  word-break: break-all;
+}
+.cl-intent-callout__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+.cl-intent-callout__btn {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink);
+  transition: all .12s ease;
+}
+.cl-intent-callout__btn:hover { background: var(--clarity-hover); border-color: var(--ink); }
+
+/* 微交互 ②：断线诊断卡 & 暖珊瑚色 */
+path.cl-link-broken {
+  stroke: #E06C75 !important;
+  stroke-width: 3.5px !important;
+  stroke-dasharray: 8 6 !important;
+  filter: drop-shadow(0 0 6px rgba(224, 108, 117, 0.45));
+}
+.cl-diag-trigger-btn {
+  background: #FFF1F2 !important;
+  border: 1px solid #FDA4AF !important;
+  color: #BE123C !important;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+  transition: all .12s ease;
+}
+.cl-diag-trigger-btn:hover {
+  background: #FFE4E6 !important;
+  border-color: #F43F5E !important;
+}
+.cl-diag-modal {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.38);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.cl-diag-card {
+  width: 480px;
+  max-width: 95vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--clarity-glass-strong);
+  -webkit-backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  border: 1.5px solid #F87171;
+  border-radius: 14px;
+  box-shadow: var(--clarity-shadow-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--clarity-ink);
+  animation: clCalloutIn .18s ease;
+}
+.cl-diag-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #FECDD3;
+  padding-bottom: 8px;
+}
+.cl-diag-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #BE123C;
+}
+.cl-diag-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cl-diag-layer {
+  background: #FFFDF9;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 8px 12px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cl-diag-layer__title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cl-muted);
+}
+.cl-diag-layer__desc {
+  color: var(--ink);
+  line-height: 1.5;
+}
+.cl-diag-raw {
+  background: #1E293B;
+  color: #E2E8F0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  max-height: 110px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 4px 0 0;
+}
+.cl-diag-guess-box {
+  background: #F0FDF4;
+  border: 1px solid #86EFAC;
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #166534;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cl-diag-guess-option {
+  background: #fff;
+  border: 1px solid #BBF7D0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #166534;
+  text-align: left;
+  transition: all .12s ease;
+}
+.cl-diag-guess-option:hover {
+  background: #DCFCE7;
+  border-color: #22C55E;
+}
+.cl-diag-guess-feedback {
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #1E40AF;
+  line-height: 1.45;
+}
+.cl-diag-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+/* 微交互 ③：旋钮——第一次亲手改 */
+.cl-knob-group {
+  background: #F9FAFB;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cl-knob-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.cl-knob-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+.cl-knob-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--cl-muted);
+}
+.cl-knob-val {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-weight: 600;
+  color: var(--ink);
+}
+.cl-knob-slider {
+  width: 100%;
+  accent-color: var(--blue, #2563EB);
+  cursor: pointer;
+}
+.cl-knob-hint {
+  font-size: 11px;
+  color: #0369A1;
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 6px;
+  padding: 6px 8px;
+  line-height: 1.4;
+  word-break: break-all;
+}
+.cl-knob-celebrate {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #FEF3C7;
+  border: 1px solid #F59E0B;
+  color: #B45309;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  animation: clCalloutIn .2s ease;
+}
 /* ASSISTANT_CSS_END */

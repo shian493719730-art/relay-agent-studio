@@ -1129,6 +1129,319 @@ body:has(#pan.cl-boards.o) :is(#tutorial-coach, #tutorial-spot) { visibility: hi
   transition: all .12s ease;
 }
 .pan-opt-goal:hover { border-color: var(--blue, #2563EB); background: #EFF6FF; }
+
+/* ---------- Claude Opus 5.5 Pedagogical Micro-Interactions (v35) ---------- */
+
+/* 微交互 ①：改动点亮 + 一句话旁白 */
+.ring.cl-node-illuminated {
+  outline: 3px solid var(--blue, #2563EB) !important;
+  outline-offset: 4px;
+  box-shadow: 0 0 24px rgba(37, 99, 235, 0.32) !important;
+  transition: outline .2s ease, box-shadow .2s ease;
+}
+.cl-intent-callout {
+  position: absolute;
+  z-index: 50;
+  width: 290px;
+  max-width: calc(100vw - 32px);
+  background: var(--clarity-glass-strong);
+  -webkit-backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--clarity-shadow-lg);
+  padding: 10px 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--clarity-ink);
+  pointer-events: auto;
+  animation: clCalloutIn .2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes clCalloutIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cl-intent-callout__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.cl-intent-callout__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 12px;
+}
+.cl-intent-callout__close {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  cursor: pointer;
+  color: var(--cl-muted);
+  font-size: 14px;
+  border-radius: 4px;
+}
+.cl-intent-callout__close:hover { color: var(--ink); background: var(--clarity-hover); }
+.cl-intent-callout__row {
+  display: flex;
+  gap: 6px;
+  margin: 3px 0;
+  font-size: 12px;
+}
+.cl-intent-callout__k {
+  color: var(--cl-muted);
+  flex-shrink: 0;
+  font-weight: 550;
+}
+.cl-intent-callout__v {
+  color: var(--ink);
+  word-break: break-all;
+}
+.cl-intent-callout__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+.cl-intent-callout__btn {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 11px;
+  padding: 3px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink);
+  transition: all .12s ease;
+}
+.cl-intent-callout__btn:hover { background: var(--clarity-hover); border-color: var(--ink); }
+
+/* 微交互 ②：断线诊断卡 & 暖珊瑚色 */
+path.cl-link-broken {
+  stroke: #E06C75 !important;
+  stroke-width: 3.5px !important;
+  stroke-dasharray: 8 6 !important;
+  filter: drop-shadow(0 0 6px rgba(224, 108, 117, 0.45));
+}
+.cl-diag-trigger-btn {
+  background: #FFF1F2 !important;
+  border: 1px solid #FDA4AF !important;
+  color: #BE123C !important;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+  transition: all .12s ease;
+}
+.cl-diag-trigger-btn:hover {
+  background: #FFE4E6 !important;
+  border-color: #F43F5E !important;
+}
+.cl-diag-modal {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.38);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.cl-diag-card {
+  width: 480px;
+  max-width: 95vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--clarity-glass-strong);
+  -webkit-backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  backdrop-filter: blur(var(--cl-blur)) saturate(140%);
+  border: 1.5px solid #F87171;
+  border-radius: 14px;
+  box-shadow: var(--clarity-shadow-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--clarity-ink);
+  animation: clCalloutIn .18s ease;
+}
+.cl-diag-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #FECDD3;
+  padding-bottom: 8px;
+}
+.cl-diag-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #BE123C;
+}
+.cl-diag-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cl-diag-layer {
+  background: #FFFDF9;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 8px 12px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cl-diag-layer__title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cl-muted);
+}
+.cl-diag-layer__desc {
+  color: var(--ink);
+  line-height: 1.5;
+}
+.cl-diag-raw {
+  background: #1E293B;
+  color: #E2E8F0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  max-height: 110px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 4px 0 0;
+}
+.cl-diag-guess-box {
+  background: #F0FDF4;
+  border: 1px solid #86EFAC;
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #166534;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cl-diag-guess-option {
+  background: #fff;
+  border: 1px solid #BBF7D0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #166534;
+  text-align: left;
+  transition: all .12s ease;
+}
+.cl-diag-guess-option:hover {
+  background: #DCFCE7;
+  border-color: #22C55E;
+}
+.cl-diag-guess-feedback {
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #1E40AF;
+  line-height: 1.45;
+}
+.cl-diag-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+/* 微交互 ③：旋钮——第一次亲手改 */
+.cl-knob-group {
+  background: #F9FAFB;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cl-knob-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.cl-knob-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+.cl-knob-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--cl-muted);
+}
+.cl-knob-val {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-weight: 600;
+  color: var(--ink);
+}
+.cl-knob-slider {
+  width: 100%;
+  accent-color: var(--blue, #2563EB);
+  cursor: pointer;
+}
+.cl-knob-hint {
+  font-size: 11px;
+  color: #0369A1;
+  background: #F0F9FF;
+  border: 1px solid #BAE6FD;
+  border-radius: 6px;
+  padding: 6px 8px;
+  line-height: 1.4;
+  word-break: break-all;
+}
+.cl-knob-celebrate {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #FEF3C7;
+  border: 1px solid #F59E0B;
+  color: #B45309;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  animation: clCalloutIn .2s ease;
+}
 /* ASSISTANT_CSS_END */
 /* SOURCE_TUTORIAL_CSS_START */
 #source-coach{position:fixed;z-index:78;right:16px;bottom:80px;width:316px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 180px);overflow:hidden;display:flex;flex-direction:column;background:var(--clarity-glass-strong,#fff);backdrop-filter:var(--clarity-blur);color:var(--ink)}#source-coach[hidden]{display:none!important}#source-coach>h3{display:flex;align-items:center;gap:6px;margin:0;padding:12px;border-bottom:1px solid var(--line);font-size:14px;flex-shrink:0}#source-coach>h3>span{flex:1}#source-coach>h3>button{padding:2px 6px;min-width:28px}.dt-body{padding:12px;overflow:auto;min-height:0;font-size:13px;line-height:1.55}.dt-body[hidden]{display:none}.dt-body>h4{font-size:16px;margin:5px 0}.dt-body>p{margin:8px 0}.dt-body>.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.dt-body>.row>[data-dt-next]{margin-left:auto;background:var(--ink);color:white}.dt-body code{display:block;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--clarity-sel,#eaf1ff);padding:8px;border-radius:8px;font-size:12px}.dt-ok{color:var(--ok,#147d56)}#source-coach .tutorial-operations{list-style:none;padding:0;margin:10px 0;display:grid;gap:8px}#source-coach .tutorial-operations>li{display:flex;align-items:flex-start;gap:8px}#source-coach .tutorial-operations>li>span{flex:none;display:grid;place-items:center;background:#F7C948;border:1px solid var(--ink);border-radius:50%;width:22px;height:22px;font-size:12px}#source-coach .tutorial-operations p{margin:0;flex:1}#source-coach .is-done{color:var(--muted)}#source-coach .is-done>span{background:#eaf4ee}body.source-tutorial-running #development{width:min(940px,calc(100vw - 364px))}body.source-tutorial-running #tutorial-launcher{display:none}#source-coach.dm-collapsed .dt-body{display:none}#source-coach.dt-inline{position:static!important;width:auto!important;height:auto!important;max-width:none;max-height:none;margin-bottom:12px;box-shadow:none}#source-coach.dt-inline>h3{padding:8px}#source-coach.dt-inline .dt-body{padding:8px}#source-coach.dt-inline .dt-body>p.lab{margin:0}#source-coach.dt-inline .tutorial-operations .is-done{display:none}@media(max-width:1100px){body.source-tutorial-running .dw-grid{grid-template-columns:1fr}body.source-tutorial-running .dw-grid>aside{border-right:0;border-bottom:1px solid var(--line)}body.source-tutorial-running .dw-files{max-height:130px}}@media(max-width:759px){body.source-tutorial-running #development{width:calc(100vw - 32px)}#source-coach{bottom:68px;max-height:60vh}}
@@ -2577,7 +2890,9 @@ async function asInvoke(name,a,ctx){const {signal,step,session}=ctx;signal.throw
  const before=asBefore();if(name==='project.create'){const bid=a.boardId||session.targetBoardId||session.boardId;if(!state.boards.some(b=>b.id===bid))throw new Error('目标画板已不存在');state.activeBoard=bid;state.room=null}
  if(name==='file.pick'){act(name,a);while(!state.files.some(f=>!before.files.has(f.id)))await asDelay(400,signal);return{...asDiff(before),message:'已选择并导入文件'}}
  const result=dispatch(name,a);if(!result.ok)throw new Error(result.msg);while(DM.busy)await new Promise(r=>setTimeout(r,20));if(!/\.open$/.test(name)&&!['room.enter','team.open','reader.open'].includes(name))closePan();const diff=asDiff(before);if(diff.boardId)session.targetBoardId=diff.boardId;if(name==='link.create'&&diff.linkId){const l=state.links.find(l=>l.id===diff.linkId);l.share={summary:false,artifacts:false,documents:false,noteIds:[]};save()}
- asObserve(name,a,diff);const receipt={...Object.fromEntries(Object.entries(a).filter(([k])=>/Id$/.test(k))),...diff,message:result.msg};step.checkpoint={...(step.checkpoint||{}),receipt};asPersist();renderAll();await new Promise(requestAnimationFrame);return receipt;
+ asObserve(name,a,diff);const receipt={...Object.fromEntries(Object.entries(a).filter(([k])=>/Id$/.test(k))),...diff,message:result.msg};step.checkpoint={...(step.checkpoint||{}),receipt};asPersist();renderAll();await new Promise(requestAnimationFrame);
+ const pid=receipt.projectId||a.projectId||(diff&&diff.projectId);if(pid&&P(pid))clNotifyIntentChange({projectId:pid,title:P(pid).name,why:step.label||'按需求推进实现并落盘',verify:'在群聊或阅读框核对最新状态',fileId:receipt.fileId});
+ return receipt;
 }
 async function asStart(a,{signal,step,session}){
  const group=a.groupId&&fnd(state.groups,a.groupId,'跨项目组'),p=group?P(group.pids[0]):rp(a.projectId);asCloseAux();state.activeBoard=p.boardId;state.room=p.id;renderAll();step.checkpoint=step.checkpoint||{};const cp=step.checkpoint;
@@ -2597,7 +2912,7 @@ async function asSingle(a,{signal,step}){
  cp.oldIds=p.msgs.map(x=>x.id);cp.dispatched=true;asPersist();const status=sendProject(p,a.text,m.id,[]);if(!/^(正在|已发送)/.test(status)){cp.dispatched=false;throw new Error(status)}
  try{while(liveTurns.has(m.id)||pendingTurns.has(m.id)||runs[m.id])await asDelay(300,signal);const reply=p.msgs.filter(x=>x.from===m.id&&!cp.oldIds.includes(x.id)).at(-1);if(!reply||reply.st!=='done')throw new Error('此成员未完整完成，请查看已保留的回复');return{memberId:m.id,message:m.name+' 已完成实际回复'}}catch(e){if(signal.aborted){liveTurns.get(m.id)?.ac.abort();pendingTurns.get(m.id)?.ac.abort();halt(m.id)}throw e}
 }
-async function asExecute(s,approve=false){if(AS.ac)return;AS.current=s.id;const ac=AS.ac=guideAC=new AbortController();AS.approved=new Set();if(approve&&s.steps[s.cursor])AS.approved.add(s.steps[s.cursor].id);if(typeof renderTop==='function')renderTop();try{if(s.operator){AS.profilesLoaded=false;await asProfiles();ac.signal.throwIfAborted();await AssistantCore.operate(s,asPlanRound,asInvoke,asPersist,ac.signal,AS.approved)}else await AssistantCore.run(s,asInvoke,asPersist,ac.signal,AS.approved)}catch(e){s.status=ac.signal.aborted?'paused':'failed';let msg=e.message||String(e);if(msg.includes('capabilities'))msg='动作能力清单超出限制（后端已在更新中修复扩充）。点击下方重试/继续即可正常执行。';s.reason=msg}finally{if(AS.ac===ac){AS.ac=null;guideAC=null}asPersist();if(typeof renderTop==='function')renderTop();}}
+async function asExecute(s,approve=false){if(AS.ac)return;AS.current=s.id;const ac=AS.ac=guideAC=new AbortController();AS.approved=new Set();if(approve&&s.steps[s.cursor])AS.approved.add(s.steps[s.cursor].id);if(typeof renderTop==='function')renderTop();try{if(s.operator){AS.profilesLoaded=false;await asProfiles();ac.signal.throwIfAborted();await AssistantCore.operate(s,asPlanRound,asInvoke,asPersist,ac.signal,AS.approved)}else await AssistantCore.run(s,asInvoke,asPersist,ac.signal,AS.approved)}catch(e){s.status=ac.signal.aborted?'paused':'failed';let msg=e.message||String(e);if(msg.includes('capabilities'))msg='动作能力清单超出限制（后端已在更新中修复扩充）。点击下方重试/继续即可正常执行。';s.reason=msg;s.consecutiveErrors=(s.consecutiveErrors||0)+1;if(s.consecutiveErrors>=3){s.status='paused';s.reason='已触发熔断保护：连续 3 次尝试遇到异常，AI 已主动暂停保护现场与额度。可展开「断线诊断卡」查看原因与建议。';}const currStep=s.steps[s.cursor];const brokenLinkId=currStep?.args?.linkId||state.links.find(l=>l.dst===currStep?.args?.projectId)?.id;if(brokenLinkId)clMarkBrokenLink(brokenLinkId);}finally{if(s.status==='completed')s.consecutiveErrors=0;if(AS.ac===ac){AS.ac=null;guideAC=null}asPersist();if(typeof renderTop==='function')renderTop();}}
 async function asAsk(text){if(AS.ac)return asSteer(text);const isPractice=typeof tutorialPractice==='function'&&tutorialPractice();if(isPractice){AS.localReply='当前是本地练习板，开放式请求不会发送模型。可以从“亮点工具实操”体验本地示范，或回到普通画板让操作助手实际执行需求。';renderGuide();return}AS.localReply='';const s={id:'as'+uid(),operator:true,boardId:state.activeBoard,request:text,steps:[],cursor:0,status:'ready',createdAt:Date.now()};state.assistantSessions.push(s);if(state.assistantSessions.length>20)state.assistantSessions.shift();AS.current=s.id;AS.draft='';await asExecute(s)}
 function asProgress(s){return s.operator?(s.steps.filter(x=>x.status==='done').length+'/'+s.steps.length+' 步已执行 · '+(s.rounds||0)+'轮分析'+(s.status==='failed'?' · 中断停止':s.status==='paused'?' · 已暂停':s.phase?' · '+s.phase:'')):((s.cursor||0)+'/'+s.steps.length+' 步')}
 
@@ -2616,7 +2931,7 @@ renderGuide=function(){const el=$('#guide');if(!el.classList.contains('o'))retur
  const trendingStarters=`<div class="as-watermark">${icon('compass',12)} 数据更新至 2026年11月 · 严选实用方向</div><div class="as-starters"><button type="button" class="as-starter-chip" data-as-prompt="帮我搭建一个每日资讯聚合器：抓取热点新闻并总结关键点，由一个主创生成摘要，另一个角色审查事实与遗漏"><span class="as-chip-source">GitHub Trending · 资讯聚合</span><span class="as-chip-title">每日资讯聚合流水线</span><span class="as-chip-desc">多角色分工抓取热点并总结关键点，交叉审查事实与遗漏</span><div class="as-chip-footer"><span class="as-chip-level">入门 · 协作</span><span class="as-chip-action">填入需求</span></div></button><button type="button" class="as-starter-chip" data-as-prompt="读取画板上的参考资料，为当前项目生成一份结构化大纲和核心要点提炼"><span class="as-chip-source">知识管理 · 文档拆解</span><span class="as-chip-title">本地参考资料知识大纲</span><span class="as-chip-desc">从文档中提取事实依据与结构，自动生成结构化大纲</span><div class="as-chip-footer"><span class="as-chip-level">入门 · 分析</span><span class="as-chip-action">填入需求</span></div></button><button type="button" class="as-starter-chip" data-as-prompt="帮我创建两个项目：一个负责策划草稿，另一个负责事实与合规审查，并连线共享成果"><span class="as-chip-source">Vibe Coding · 交叉质检</span><span class="as-chip-title">策划与审查流水线</span><span class="as-chip-desc">连线共享成果与两段式质检，草稿完成后自动传递审查</span><div class="as-chip-footer"><span class="as-chip-level">进阶 · 交付</span><span class="as-chip-action">填入需求</span></div></button><button type="button" class="as-starter-chip" data-as-prompt="检查当前画板的项目与连线配置，并给出下一步自动化建议"><span class="as-chip-source">画板自省 · 架构梳理</span><span class="as-chip-title">画板状态诊断与建议</span><span class="as-chip-desc">梳理当前项目完整度，推导下一步可拓展的自动化流程</span><div class="as-chip-footer"><span class="as-chip-level">入门 · 快速上手</span><span class="as-chip-action">填入需求</span></div></button></div>`;
  const gruntStarters=`<div class="as-watermark">${icon('sparkles',12)} 办公痛点减负 · 告别机械重复</div><div class="as-starters"><button type="button" class="as-starter-chip" data-as-prompt="读取我提供的杂乱文本或表格，提取关键字段并整理成标准的结构化 Markdown 清单"><span class="as-chip-source">办公痛点 · 机械格式清洗</span><span class="as-chip-title">表格与文本格式清洗</span><span class="as-chip-desc">自动提取关键字段并对齐转换，告别手工复制搬运</span><div class="as-chip-footer"><span class="as-chip-level">入门 · 格式清洗</span><span class="as-chip-action">填入需求</span></div></button><button type="button" class="as-starter-chip" data-as-prompt="读取会议速记文字，自动整理出待办事项、责任人与跟进截止时间"><span class="as-chip-source">办公痛点 · 口述纪要整理</span><span class="as-chip-title">会议纪要与行动清单</span><span class="as-chip-desc">从大段会议口述记录中精准提炼责任人与截止时间</span><div class="as-chip-footer"><span class="as-chip-level">入门 · 待办提炼</span><span class="as-chip-action">填入需求</span></div></button><button type="button" class="as-starter-chip" data-as-prompt="对比两个版本的参考文件，清晰列出核心修改点、新增段落与潜在冲突"><span class="as-chip-source">办公痛点 · 文档多版本比对</span><span class="as-chip-title">文件多版本变动报告</span><span class="as-chip-desc">对比两版参考文件，清晰列出核心修改点与潜在冲突</span><div class="as-chip-footer"><span class="as-chip-level">进阶 · 差异比对</span><span class="as-chip-action">填入需求</span></div></button><button type="button" class="as-starter-chip" data-as-prompt="我平时工作中有一项重复耗时的流程："><span class="as-chip-source">办公痛点 · 自由定制</span><span class="as-chip-title">定制我的日常工作流</span><span class="as-chip-desc">告诉我你的繁琐痛点，为你设计工作流并建立阵地</span><div class="as-chip-footer"><span class="as-chip-level">自由定制</span><span class="as-chip-action">填入需求</span></div></button></div>`;
  const emptyHtml=`<div class="as-empty-state">${isPractice?`<div class="as-practice-banner"><div class="as-practice-badge">当前处于新手练习画板</div><p class="lab">练习板锁定了真实模型调用。如需真实创建并操作软件：</p><button type="button" class="as-btn-primary as-switch-board-btn" data-as-switch-formal">${icon('board',14)}一键新建并切换到正式画板</button></div>`:''}<div class="as-edu-tabs"><button type="button" class="as-edu-tab ${AS.eduTab==='trending'?'active':''}" data-as-tab="trending">热门方向（GitHub / Vibe）</button><button type="button" class="as-edu-tab ${AS.eduTab==='grunt'?'active':''}" data-as-tab="grunt">挖掘工作繁琐（自动化减负）</button></div>${AS.eduTab==='trending'?trendingStarters:gruntStarters}${!AS.profiles?.length?`<div class="as-api-guide"><div class="as-api-guide-head"><span>${icon('network',13)} API 模型接入指引（首推官方直连）</span><button type="button" class="as-link-btn" data-act="models.open">前往设置</button></div><div class="as-api-guide-grid"><div class="as-api-guide-item"><b>1. 官方推荐（免费/低门槛）</b><p>Google Gemini 提供免费调用额度；DeepSeek 具备极高性价比。直接申请官方 Key 填入，额度与政策以官方页面为准。</p></div><div class="as-api-guide-item" data-tier="relay"><b>2. 兼容中转站（国内直连）</b><p>支持配置银子中转站、Tideverse 等兼容中转服务。适合国内网络调试，敏感业务请使用官方直连。</p></div></div><div class="as-api-risk"><b>中转站风险与稳定性提示：</b><br>1. 服务可用率与稳定性由第三方中转方保障，可能存在波动或中断；<br>2. 请求数据与上下文经由第三方服务器，敏感数据建议直连官方；<br>3. 计费与汇率可能随时变更；<br>4. 建议单独创建中转专用 Key 并设置额度限制，切勿作为生产首选。</div></div>`:''}</div>`;
- el.innerHTML=`<header class="cl-panel-head"><span class="cl-panel-head__icon">${icon('bot',18)}</span><span class="cl-panel-head__title">AI 操作助手</span>${headBadge}<div class="cl-panel-ctrl"><button type="button" class="as-head-btn" data-as-new title="清空并开始新需求">${icon('plus',12)}新对话</button><button type="button" class="cl-ctrl cl-ctrl--min" data-cl-action="minimize" data-cl-target="guide" aria-label="折叠" title="折叠"></button><button type="button" class="cl-ctrl cl-ctrl--max" data-cl-action="maximize" data-cl-target="guide" aria-label="放大/还原" title="放大/还原"></button><button type="button" class="cl-ctrl cl-ctrl--close" data-cl-action="close" data-cl-target="guide" aria-label="关闭" title="关闭"></button></div></header><div class="cl-progress" style="display:${busy||(s&&s.steps.length)?'block':'none'}"><i style="--p:${progressPercent}%"></i></div><div id="gl" class="cl-panel-body">${renderAssistantWelcome(RelayAssistantCopy.welcome)}${AS.localReply?`<p class="ac">${esc(AS.localReply)}</p>`:''}${s?`<details class="as-request"><summary>${esc((s.followups?.at(-1)||s.request).slice(0,64))}${(s.followups?.at(-1)||s.request).length>64?'…':''}</summary><p>${esc(s.request)}</p>${(s.followups||[]).map((text,i)=>`<p><b>更新 ${i+1}：</b>${esc(text)}</p>`).join('')}</details>${statusBanner}${replyHtml}${(()=>{const items=[s.steps.filter(x=>x.result?.projectId).length?`${s.steps.filter(x=>x.result?.projectId).length}个项目`:null,s.steps.filter(x=>x.result?.fileId).length?`${s.steps.filter(x=>x.result?.fileId).length}个文件`:null,s.steps.filter(x=>x.result?.linkId).length?`${s.steps.filter(x=>x.result?.linkId).length}条连线`:null,s.steps.filter(x=>x.result?.runId).length?`${s.steps.filter(x=>x.result?.runId).length}次协作`:null].filter(Boolean);return items.length?`<div class="as-deliverables-summary">${icon('check',14)} <div><b>落盘成果：</b>${esc(items.join('、'))}</div></div>`:''})()}${roomJumpHtml?`<div class="as-room-actions"><span class="as-room-hint">${icon('sparkles',12)}进入群聊微调：</span>${roomJumpHtml}</div>`:''}${s.binding?`<small class="lab">操作模型：${esc(s.binding.model)}</small>`:''}<div class="as-status" role="status">${esc(({planning:'理解与分析',ready:'准备执行',running:'正在执行',waiting:'等待你的操作',paused:'已暂停',failed:'未完成',completed:'已完成'})[s.status]||s.status)} · ${asProgress(s)}${s.runStatus?'<br>'+esc(s.runStatus):''}</div>${s.question?`<p class="ac">${esc(s.question)}</p>`:''}${s.status==='failed'?`<div class="as-fail-card"><p><b>执行中断：</b>${esc(s.reason||'当前步骤未能完成')}</p>${isPractice?`<p class="lab">当前画板属于本地练习沙箱，锁定了真实模型调用。建议新建正式画板直接开工：</p><button type="button" class="as-btn-primary as-switch-board-btn" data-as-switch-formal">${icon('board',14)}一键新建并切换到正式画板</button>`:`<small class="lab">已完成步骤与画板成果均已安全保留。你可以点击“继续未完成步骤”重试，或在输入框补充要求引导助手调整方法。</small>`}</div>`:s.reason?`<p class="lab">${esc(s.reason)}</p>`:''}<ol class="as-steps">${s.steps.map((x,i)=>({x,i})).filter(({i})=>AS.showAll||Math.abs(i-(s.cursor||0))<=3).map(({x,i})=>`<li data-as-step="${x.id}" data-state="${x.status}"><span>${x.status==='done'?'✓':x.status==='running'?'●':x.status==='failed'?'✕':i+1}</span><div><b>${esc(x.label)}</b>${x.intent?`<div class="as-step-intent">${icon('lightbulb',11)} <span>${esc(x.intent)}</span></div>`:''}${x.error?`<small class="as-step-err">${esc(x.error)}</small>`:''}${x.result?.message?`<small>${esc(x.result.message)}</small>`:''}${x.result&&(x.result.projectId||x.result.boardId||x.result.fileId||x.result.linkId)?`<button class="as-jump" data-as-locate="${x.id}">定位结果</button>`:''}</div></li>`).join('')}</ol>${s.steps.length>6?`<button class="as-jump" data-as-all>${AS.showAll?'收起已完成步骤':'查看全部 '+s.steps.length+' 步'}</button>`:''}${s.status==='waiting'&&active?`<div class="ac as-confirm-card"><p><b>待确认动作：</b>${esc(active.label)}</p>${active.effect==='model'?'<p class="lab">将调用该角色的绑定模型开始真实执行。你可以在房间随时暂停。</p>':active.effect==='authorization'?'<p class="lab">将向现有受控站点授权申请任务接力，不改变账号密码。</p>':'<p class="lab">请选择要交给项目处理的本机文件。</p>'}<button data-as-continue>${icon('play',14)}${active.effect==='model'?'确认本步并开工':active.effect==='file-picker'?'选择本机文件':'确认交给现有授权'}</button></div>`:''}${s.status==='paused'||s.status==='failed'||s.status==='waiting'&&!active&&!s.question?`<button data-as-continue>${icon('play',14)}继续未完成步骤</button>`:''}${AS.recordOpen?`<details open class="as-record"><summary>本次执行记录 JSON</summary><pre data-as-record>${esc(JSON.stringify(s,null,2))}</pre></details>`:''}${s.status==='completed'?`<div class="row as-completion-row">${relatedProjects.length?`<button type="button" class="as-btn-primary" data-as-room="${esc(relatedProjects[0])}">${icon('chat',14)}进入群聊微调</button>`:''}<button data-as-results>${icon('fit',14)}查看画板成果</button><button data-as-export>${icon('download',14)}导出执行记录</button><button data-as-undo>${icon('undo',14)}撤销上一步编辑</button></div>`:''}`:emptyHtml}</div><div class="cl-resize" data-resize-panel="guide"></div><details class="as-model"><summary>执行设置与可用能力</summary><label>任务记录<select data-as-history ${busy?'disabled':''}>${state.assistantSessions.slice().reverse().map(x=>`<option value="${x.id}" ${s?.id===x.id?'selected':''}>${esc((x.demo?'本地示范 · ':'')+x.request.slice(0,36))}</option>`).join('')}</select></label><label>已保存的模型连接<select data-as-binding><option value="">自动选用已保存的模型</option>${AS.profiles.map(p=>`<option value="${p.id}" ${state.prefs.assistantBinding?.connectionId===p.id?'selected':''}>${esc(p.name+' · '+p.defaultModel)}</option>`).join('')}</select></label><p class="lab">成员仍使用各自绑定模型。文件选择、开工和站点授权会在对应步骤等你确认。</p><div class="row"><button data-act="models.open">连接设置</button><button data-as-catalog>查看全部可控组件</button></div></details><div class="as-compose cl-composer"><textarea id="as-input" aria-label="给AI助手的需求" placeholder="描述要完成的事，我来操作软件…">${esc(AS.draft)}</textarea><div class="row">${busy?`<button data-as-pause class="as-btn-danger">${icon('pause',14)}暂停正在执行的任务</button><button data-as-steer>更新要求</button>`:`<button data-as-send>${icon('send',14)}执行需求</button>`}<button data-as-feature>亮点工具实操</button></div></div>`;dmDecorate();if(focus){$('#as-input').focus();$('#as-input').setSelectionRange(caret,caret)}void asProfiles()};
+ el.innerHTML=`<header class="cl-panel-head"><span class="cl-panel-head__icon">${icon('bot',18)}</span><span class="cl-panel-head__title">AI 操作助手</span>${headBadge}<div class="cl-panel-ctrl"><button type="button" class="as-head-btn" data-as-new title="清空并开始新需求">${icon('plus',12)}新对话</button><button type="button" class="cl-ctrl cl-ctrl--min" data-cl-action="minimize" data-cl-target="guide" aria-label="折叠" title="折叠"></button><button type="button" class="cl-ctrl cl-ctrl--max" data-cl-action="maximize" data-cl-target="guide" aria-label="放大/还原" title="放大/还原"></button><button type="button" class="cl-ctrl cl-ctrl--close" data-cl-action="close" data-cl-target="guide" aria-label="关闭" title="关闭"></button></div></header><div class="cl-progress" style="display:${busy||(s&&s.steps.length)?'block':'none'}"><i style="--p:${progressPercent}%"></i></div><div id="gl" class="cl-panel-body">${renderAssistantWelcome(RelayAssistantCopy.welcome)}${AS.localReply?`<p class="ac">${esc(AS.localReply)}</p>`:''}${s?`<details class="as-request"><summary>${esc((s.followups?.at(-1)||s.request).slice(0,64))}${(s.followups?.at(-1)||s.request).length>64?'…':''}</summary><p>${esc(s.request)}</p>${(s.followups||[]).map((text,i)=>`<p><b>更新 ${i+1}：</b>${esc(text)}</p>`).join('')}</details>${statusBanner}${replyHtml}${(()=>{const items=[s.steps.filter(x=>x.result?.projectId).length?`${s.steps.filter(x=>x.result?.projectId).length}个项目`:null,s.steps.filter(x=>x.result?.fileId).length?`${s.steps.filter(x=>x.result?.fileId).length}个文件`:null,s.steps.filter(x=>x.result?.linkId).length?`${s.steps.filter(x=>x.result?.linkId).length}条连线`:null,s.steps.filter(x=>x.result?.runId).length?`${s.steps.filter(x=>x.result?.runId).length}次协作`:null].filter(Boolean);return items.length?`<div class="as-deliverables-summary">${icon('check',14)} <div><b>落盘成果：</b>${esc(items.join('、'))}</div></div>`:''})()}${roomJumpHtml?`<div class="as-room-actions"><span class="as-room-hint">${icon('sparkles',12)}进入群聊微调：</span>${roomJumpHtml}</div>`:''}${s.binding?`<small class="lab">操作模型：${esc(s.binding.model)}</small>`:''}<div class="as-status" role="status">${esc(({planning:'理解与分析',ready:'准备执行',running:'正在执行',waiting:'等待你的操作',paused:'已暂停',failed:'未完成',completed:'已完成'})[s.status]||s.status)} · ${asProgress(s)}${s.runStatus?'<br>'+esc(s.runStatus):''}</div>${s.question?`<p class="ac">${esc(s.question)}</p>`:''}${s.status==='failed'?`<div class="as-fail-card"><p><b>执行中断：</b>${esc(s.reason||'当前步骤未能完成')}</p><button type="button" class="cl-diag-trigger-btn" data-cl-open-diag>${icon('alert',13)} ✦ 断线诊断与排查卡</button>${isPractice?`<p class="lab">当前画板属于本地练习沙箱，锁定了真实模型调用。建议新建正式画板直接开工：</p><button type="button" class="as-btn-primary as-switch-board-btn" data-as-switch-formal">${icon('board',14)}一键新建并切换到正式画板</button>`:`<small class="lab">已完成步骤与画板成果均已安全保留。你可以点击“继续未完成步骤”重试，或在输入框补充要求引导助手调整方法。</small>`}</div>`:s.reason?`<p class="lab">${esc(s.reason)}</p>`:''}<ol class="as-steps">${s.steps.map((x,i)=>({x,i})).filter(({i})=>AS.showAll||Math.abs(i-(s.cursor||0))<=3).map(({x,i})=>`<li data-as-step="${x.id}" data-state="${x.status}"><span>${x.status==='done'?'✓':x.status==='running'?'●':x.status==='failed'?'✕':i+1}</span><div><b>${esc(x.label)}</b>${x.intent?`<div class="as-step-intent">${icon('lightbulb',11)} <span>${esc(x.intent)}</span></div>`:''}${x.error?`<small class="as-step-err">${esc(x.error)}</small>`:''}${x.result?.message?`<small>${esc(x.result.message)}</small>`:''}${x.result&&(x.result.projectId||x.result.boardId||x.result.fileId||x.result.linkId)?`<button class="as-jump" data-as-locate="${x.id}">定位结果</button>`:''}</div></li>`).join('')}</ol>${s.steps.length>6?`<button class="as-jump" data-as-all>${AS.showAll?'收起已完成步骤':'查看全部 '+s.steps.length+' 步'}</button>`:''}${s.status==='waiting'&&active?`<div class="ac as-confirm-card"><p><b>待确认动作：</b>${esc(active.label)}</p>${active.effect==='model'?'<p class="lab">将调用该角色的绑定模型开始真实执行。你可以在房间随时暂停。</p>':active.effect==='authorization'?'<p class="lab">将向现有受控站点授权申请任务接力，不改变账号密码。</p>':'<p class="lab">请选择要交给项目处理的本机文件。</p>'}<button data-as-continue>${icon('play',14)}${active.effect==='model'?'确认本步并开工':active.effect==='file-picker'?'选择本机文件':'确认交给现有授权'}</button></div>`:''}${s.status==='paused'||s.status==='failed'||s.status==='waiting'&&!active&&!s.question?`<button data-as-continue>${icon('play',14)}继续未完成步骤</button>`:''}${AS.recordOpen?`<details open class="as-record"><summary>本次执行记录 JSON</summary><pre data-as-record>${esc(JSON.stringify(s,null,2))}</pre></details>`:''}${s.status==='completed'?`<div class="row as-completion-row">${relatedProjects.length?`<button type="button" class="as-btn-primary" data-as-room="${esc(relatedProjects[0])}">${icon('chat',14)}进入群聊微调</button>`:''}<button data-as-results>${icon('fit',14)}查看画板成果</button><button data-as-export>${icon('download',14)}导出执行记录</button><button data-as-undo>${icon('undo',14)}撤销上一步编辑</button></div>`:''}`:emptyHtml}</div><div class="cl-resize" data-resize-panel="guide"></div><details class="as-model"><summary>执行设置与可用能力</summary><label>任务记录<select data-as-history ${busy?'disabled':''}>${state.assistantSessions.slice().reverse().map(x=>`<option value="${x.id}" ${s?.id===x.id?'selected':''}>${esc((x.demo?'本地示范 · ':'')+x.request.slice(0,36))}</option>`).join('')}</select></label><label>已保存的模型连接<select data-as-binding><option value="">自动选用已保存的模型</option>${AS.profiles.map(p=>`<option value="${p.id}" ${state.prefs.assistantBinding?.connectionId===p.id?'selected':''}>${esc(p.name+' · '+p.defaultModel)}</option>`).join('')}</select></label><p class="lab">成员仍使用各自绑定模型。文件选择、开工和站点授权会在对应步骤等你确认。</p><div class="row"><button data-act="models.open">连接设置</button><button data-as-catalog>查看全部可控组件</button></div></details><div class="as-compose cl-composer"><textarea id="as-input" aria-label="给AI助手的需求" placeholder="描述要完成的事，我来操作软件…">${esc(AS.draft)}</textarea><div class="row">${busy?`<button data-as-pause class="as-btn-danger">${icon('pause',14)}暂停正在执行的任务</button><button data-as-steer>更新要求</button>`:`<button data-as-send>${icon('send',14)}执行需求</button>`}<button data-as-feature>亮点工具实操</button></div></div>`;dmDecorate();if(focus){$('#as-input').focus();$('#as-input').setSelectionRange(caret,caret)}void asProfiles()};
 const asTopBase=renderTop;renderTop=function(){asTopBase();const b=$('#gb [data-a=guide]');if(b){const busy=!!AS.ac;b.innerHTML=icon('bot',16)+`<span class="memphis-label">${busy?'运行中':'助手'}</span>`;b.setAttribute('aria-label',busy?'AI 助手正在执行，点击查看进度':'AI 助手');b.title=busy?'AI 助手正在执行，点击查看进度':'AI 助手'}};
 function asLocate(r){if(!r)return;asPause();if(r.fileId)return act('reader.open',{fileId:r.fileId});if(r.runId)return openPan('collaboration',r.runId);if(r.linkId)return act('link.open',{linkId:r.linkId});if(r.projectId&&P(r.projectId)){const p=P(r.projectId);state.activeBoard=p.boardId;state.room=null;state.sel=p.id;fit([p]);renderAll();return}if(r.boardId)act('board.switch',{boardId:r.boardId})}
 function asExport(){AS.recordOpen=!AS.recordOpen;renderGuide();if(AS.recordOpen){const el=$('#gl');el.scrollTop=el.scrollHeight}}
@@ -2627,6 +2942,100 @@ document.addEventListener('change',e=>{if(e.target.hasAttribute('data-as-history
 document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.asTab){AS.eduTab=t.dataset.asTab;renderGuide();return;}if(t.hasAttribute('data-as-new')){if(AS.ac)return hint('助手正在执行中，请先暂停');AS.current=null;AS.draft='';AS.localReply='';renderGuide();const inp=$('#as-input');if(inp){inp.value='';inp.focus()}return;}if(t.hasAttribute('data-as-size')||t.closest('[data-as-size]')){const guide=$('#guide');guide.classList.toggle('as-expanded');try{localStorage.setItem('relay_guide_expanded',guide.classList.contains('as-expanded')?'1':'0')}catch{}return;}if(t.dataset.asRoom){const pid=t.dataset.asRoom;if(P(pid)){act('room.enter',{projectId:pid});if(window.innerWidth<1100)$('#guide').classList.remove('o');renderTop();}return;}if(t.hasAttribute('data-as-switch-formal')){act('board.create',{name:'正式创作空间'});const draft=AS.draft||asSession()?.request||'';AS.current=null;AS.draft=draft;AS.localReply='已为你新建并切换到全新正式画板。现在可以随时发送需求，助手将直接为你操作软件。';renderGuide();const inp=$('#as-input');if(inp){inp.value=draft;inp.focus();}return;}if(t.dataset.asPrompt){AS.draft=t.dataset.asPrompt;const inp=$('#as-input');if(inp){inp.value=AS.draft;inp.focus();inp.selectionStart=inp.value.length;inp.selectionEnd=inp.value.length;}return;}if(t.hasAttribute('data-as-send')){const text=$('#as-input').value.trim();if(text){const s=asSession();if(s?.operator&&['waiting','paused','failed'].includes(s.status))void asSteer(text);else void asAsk(text)}}else if(t.hasAttribute('data-as-steer')){const text=$('#as-input').value.trim();if(text)void asSteer(text);else hint('先写下新的要求')}else if(t.hasAttribute('data-as-pause'))asPause();else if(t.hasAttribute('data-as-continue')){const s=asSession();if(s?.operator||s?.steps.length)void asExecute(s,true);else if(s)void asAsk(s.request)}else if(t.hasAttribute('data-as-all')){AS.showAll=!AS.showAll;renderGuide()}else if(t.hasAttribute('data-as-locate'))asLocate(asSession()?.steps.find(x=>x.id===t.dataset.asLocate)?.result);else if(t.hasAttribute('data-as-return')){asCloseAux();$('#guide').classList.add('o');renderGuide()}else if(t.hasAttribute('data-as-export'))asExport();else if(t.hasAttribute('data-as-undo'))act('undo',{});else if(t.hasAttribute('data-as-results')){asCloseAux();$('#guide').classList.remove('o');act('view.fit',{})}else if(t.hasAttribute('data-as-catalog')){AS.localReply='可控组件：'+CAT.map(c=>c[1]).join('、');renderGuide()}else if(t.hasAttribute('data-as-feature')){if(typeof featureBegin==='function')featureBegin()}else if(t.dataset.close==='guide'){$('#guide').classList.remove('o');renderTop();}},true);
 
 const asRestoreBase=restore;restore=function(str){const journal=state.assistantSessions,course=state.featureTour;asRestoreBase(str);state.assistantSessions=journal;state.featureTour=course;save();renderGuide()};
+
+/* ---------- Claude Opus 5.5 Pedagogical Micro-Interactions (v35) ---------- */
+function clNotifyIntentChange({projectId,title,why,verify,fileId}){
+ const p=projectId?P(projectId):null;
+ const ring=projectId?document.querySelector(`[data-pid="${CSS.escape(projectId)}"]`):null;
+ if(ring){ring.classList.add('cl-node-illuminated');setTimeout(()=>ring.classList.remove('cl-node-illuminated'),3500)}
+ let c=$('#cl-intent-callout');if(!c){c=document.createElement('div');c.id='cl-intent-callout';c.className='cl-intent-callout';document.body.appendChild(c)}
+ c.innerHTML=`<div class="cl-intent-callout__head"><span class="cl-intent-callout__tag">${icon('sparkles',13)} 阵地改动与意图</span><button type="button" class="cl-intent-callout__close" data-cl-close-callout aria-label="关闭">×</button></div><div class="cl-intent-callout__row"><span class="cl-intent-callout__k">改了哪里：</span><span class="cl-intent-callout__v"><b>${esc(p?.name||title||'当前画板工作区')}</b></span></div><div class="cl-intent-callout__row"><span class="cl-intent-callout__k">为什么改：</span><span class="cl-intent-callout__v">${esc(why||'推进功能与流程落地')}</span></div><div class="cl-intent-callout__row"><span class="cl-intent-callout__k">怎么验证：</span><span class="cl-intent-callout__v">${esc(verify||'在群聊或阅读框核对最新状态')}</span></div><div class="cl-intent-callout__actions">${fileId?`<button type="button" class="cl-intent-callout__btn" data-act="reader.open" data-args='${esc(JSON.stringify({fileId}))}'>${icon('file',12)} 查看源码 / 文件</button>`:'<span></span>'}<button type="button" class="cl-intent-callout__btn" data-cl-close-callout>知道了</button></div>`;
+ c.style.position='fixed';
+ if(ring){const r=ring.getBoundingClientRect();c.style.left=Math.min(window.innerWidth-320,Math.max(16,r.right+14))+'px';c.style.top=Math.max(76,Math.min(window.innerHeight-200,r.top))+'px';}
+ else{c.style.left=Math.max(20,Math.round(window.innerWidth*0.35))+'px';c.style.top='80px';}
+ clearTimeout(c._tm);c._tm=setTimeout(()=>c?.remove(),7000);
+}
+
+function clMarkBrokenLink(linkId){
+ const path=document.querySelector(`#wires path[data-link="${CSS.escape(linkId)}"]`);
+ if(path)path.classList.add('cl-link-broken');
+}
+
+function clShowDiagnosticModal(s){
+ $('#cl-diag-modal')?.remove();
+ const rawErr=s?.reason||'步骤执行未能成功返回预期结果';
+ let humanReason='上游步骤与下游期望的数据格式未能对齐，或执行中间状态断开。';
+ if(rawErr.includes('capabilities'))humanReason='动作能力清单超出限制，后端已扩充兼容至 500 项；点击下方一键修复或继续即可恢复正常执行。';
+ else if(rawErr.includes('401')||rawErr.includes('密钥')||rawErr.includes('token'))humanReason='模型连接凭据认证未通过，请在连接设置中核对 API Key 是否正确有效。';
+ else if(rawErr.includes('timeout')||rawErr.includes('超时'))humanReason='外部模型服务响应超过时限，你的代码和画板数据均安全保留，未造成意外扣费。';
+ else if(rawErr.includes('熔断'))humanReason='已触发熔断保护：连续 3 次尝试遇到异常，AI 已主动交还方向盘，避免后台无限循环。';
+ const currStep=s?.steps?.[s.cursor];
+ const pid=currStep?.args?.projectId||(state.sel&&P(state.sel)?state.sel:null);
+ const p=pid&&P(pid);
+ const posText=p?`画板阵地「${p.name}」`:'当前画板工作区';
+ const modalHtml=`<div class="cl-diag-modal" id="cl-diag-modal"><div class="cl-diag-card"><div class="cl-diag-head"><span class="cl-diag-title">${icon('alert',16)} 断线诊断与排查卡</span><button type="button" class="cl-intent-callout__close" data-cl-close-diag aria-label="关闭">×</button></div><div class="cl-diag-layers"><div class="cl-diag-layer"><span class="cl-diag-layer__title">1. 人话说明（发生了什么）</span><div class="cl-diag-layer__desc">${esc(humanReason)}</div></div><div class="cl-diag-layer"><span class="cl-diag-layer__title">2. 画板位置</span><div class="cl-diag-layer__desc">定位点：<b>${esc(posText)}</b> ${currStep?`（第 ${(s?.cursor||0)+1} 步 · ${esc(currStep.label||currStep.name)}）`:''}</div></div><div class="cl-diag-layer"><span class="cl-diag-layer__title">3. 真实报错原文（一字不改保留，供自主排查）</span><pre class="cl-diag-raw">${esc(rawErr)}</pre></div></div><div class="cl-diag-guess-box" id="cl-diag-guess-box"><b>${icon('lightbulb',13)} 我想猜猜看（引导式排查 · 零挫败答题）：</b><div class="cl-diag-guess-option" data-cl-guess="format">A. 数据格式缺少了下游需要的字段或参数</div><div class="cl-diag-guess-option" data-cl-guess="network">B. 外部网络波动或第三方接口响应超时</div><div class="cl-diag-guess-option" data-cl-guess="env">C. 本地环境缺少对应依赖包或权限设置</div></div><div class="cl-diag-actions"><button type="button" class="as-btn-primary" data-cl-fix-guide>${icon('play',12)} 一键引导助手修复</button><button type="button" class="cl-intent-callout__btn" data-cl-close-diag>关闭诊断</button></div></div></div>`;
+ document.body.insertAdjacentHTML('beforeend',modalHtml);
+}
+
+function clRenderKnobs(p){
+ p.knobs=p.knobs||{maxItems:20,refreshInterval:5};
+ const isFirst=!localStorage.getItem('relay_knob_celebrated');
+ return `<div class="cl-knob-group"><div class="cl-knob-head"><span>${icon('sliders',13)} 亲手掌控 · 代码与系统参数</span>${isFirst?`<span class="cl-knob-celebrate">可直接拖动体验</span>`:''}</div><div class="cl-knob-row"><div class="cl-knob-label"><span>每页条数 (MAX_ITEMS)</span><span class="cl-knob-val" id="cl-val-items">${p.knobs.maxItems||20}</span></div><input type="range" class="cl-knob-slider" data-cl-knob="maxItems" data-pid="${esc(p.id)}" min="5" max="50" step="5" value="${p.knobs.maxItems||20}"></div><div class="cl-knob-row"><div class="cl-knob-label"><span>刷新间隔 (REFRESH_SEC)</span><span class="cl-knob-val" id="cl-val-sec">${p.knobs.refreshInterval||5}s</span></div><input type="range" class="cl-knob-slider" data-cl-knob="refreshInterval" data-pid="${esc(p.id)}" min="1" max="30" step="1" value="${p.knobs.refreshInterval||5}"></div><div class="cl-knob-hint" id="cl-knob-hint">✦ 真实源码已映射：<code>const MAX_ITEMS = ${p.knobs.maxItems||20}; const REFRESH_SEC = ${p.knobs.refreshInterval||5};</code></div></div>`;
+}
+
+const asPanBase=renderPan;
+renderPan=function(){
+ asPanBase();
+ if(panK==='proj'){
+  const p=P(panId);
+  if(p&&!$('#pan .cl-knob-group')){
+   const target=$('#pan [data-pf="summary"]')||$('#pan input[data-pf="name"]');
+   if(target)target.insertAdjacentHTML('afterend',clRenderKnobs(p));
+   else $('#pan').insertAdjacentHTML('beforeend',clRenderKnobs(p));
+  }
+ }
+};
+
+document.addEventListener('input',e=>{
+ if(e.target.dataset.clKnob){
+  const k=e.target.dataset.clKnob,pid=e.target.dataset.pid,p=P(pid);
+  if(p){
+   p.knobs=p.knobs||{};
+   p.knobs[k]=Number(e.target.value);
+   if(k==='maxItems'){
+    const valEl=$('#cl-val-items');if(valEl)valEl.textContent=p.knobs[k];
+   }else if(k==='refreshInterval'){
+    const valEl=$('#cl-val-sec');if(valEl)valEl.textContent=p.knobs[k]+'s';
+   }
+   const hintEl=$('#cl-knob-hint');
+   if(hintEl)hintEl.innerHTML=`✦ 真实源码已实时映射：<code>const MAX_ITEMS = ${p.knobs.maxItems||20}; const REFRESH_SEC = ${p.knobs.refreshInterval||5};</code>`;
+   if(!localStorage.getItem('relay_knob_celebrated')){
+    localStorage.setItem('relay_knob_celebrated','1');
+    hint('✦ 恭喜！你刚刚亲手修改了真实代码中的常量参数。');
+   }
+   save();
+  }
+ }
+});
+
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button, [data-cl-guess]');
+ if(!t)return;
+ if(t.hasAttribute('data-cl-close-callout')){$('#cl-intent-callout')?.remove();return;}
+ if(t.hasAttribute('data-cl-open-diag')){clShowDiagnosticModal(asSession());return;}
+ if(t.hasAttribute('data-cl-close-diag')){$('#cl-diag-modal')?.remove();return;}
+ if(t.dataset.clGuess){
+  const guessType=t.dataset.clGuess,guessBox=$('#cl-diag-guess-box');
+  if(guessBox)guessBox.innerHTML=`<b>${icon('check',13)} 排查思维已建立！</b><div class="cl-diag-guess-feedback">很棒的排查思路！在 Vibe Coding 协作中，${guessType==='format'?'接口格式不一致是最常见的摩擦点。':guessType==='network'?'网络与第三方服务的可用率是典型外部变量。':'环境配置也是关键因素。'}<br>已将排查方向沉淀为引导策略，点击下方「一键引导助手修复」即可让 AI 针对性处理。</div>`;
+  return;
+ }
+ if(t.hasAttribute('data-cl-fix-guide')){
+  $('#cl-diag-modal')?.remove();
+  const s=asSession();
+  if(s){s.consecutiveErrors=0;void asSteer('根据诊断卡分析：请修复异常步骤，保持画板已有成果，尝试备选参数或方案继续完成目标。');}
+  return;
+ }
+},true);
 /* ASSISTANT_END */
 
 /* AUTH_UI_START */

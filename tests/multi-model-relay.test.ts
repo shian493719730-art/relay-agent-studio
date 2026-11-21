@@ -53,10 +53,15 @@ test('smart role-based multi-model allocation distributes diverse models across 
 
 test('visual distinction between close (cross ×) and minimize (fold chevron ⌄)', () => {
   const css = fs.readFileSync(path.resolve('src/prototype/glass-clarity.css'), 'utf8');
+  const directJs = fs.readFileSync(path.resolve('src/prototype/direct-control.js'), 'utf8');
 
   // Minimize must be a downward chevron / fold indicator, NOT a simple minus dash line
   assert.match(css, /\.cl-ctrl--min::before[\s\S]*?rotate\(45deg\)/, 'cl-ctrl--min must use a fold chevron (rotate 45deg border)');
   assert.match(css, /\.cl-ctrl--min:hover[\s\S]*?rgba\(0,\s*144,\s*255/, 'cl-ctrl--min hover must use subtle cool blue');
+
+  // Window fold control in direct-control must use SVG fold chevron, not text minus character
+  assert.doesNotMatch(directJs, /data-dm-window-fold="[^"]*">−<\/button>/, 'Must not use text minus character − for fold');
+  assert.match(directJs, /dm-window-fold[\s\S]*?<svg[\s\S]*?M3 6l5 5 5-5/, 'Window fold control must use SVG downward fold chevron');
 
   // Close must be a cross × and hover with soft warning red
   assert.match(css, /\.cl-ctrl--close::before[\s\S]*?rotate\(45deg\)/, 'cl-ctrl--close must cross lines');

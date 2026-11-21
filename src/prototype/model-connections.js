@@ -21,10 +21,66 @@ const mcScopeFiles=p=>p?.scopeKind==='group'?[]:state.files;
 const mcMember=()=>{const p=mcProject(MC.pid);return p&&[p.coordinator,...p.members].find(m=>m.id===MC.mid);};
 function mcChooseTarget(m){const vendor=MC.data.vendors.find(v=>v.brand===m?.agent)?.id;const candidates=MC.data.profiles.filter(c=>c.vendor===vendor&&c.configured&&c.defaultModel).slice().reverse();const c=MC.data.profiles.find(c=>c.id===m?.connectionId)||candidates.find(c=>c.status==='connected')||candidates[0]||MC.data.profiles.find(c=>c.id==='official-'+(vendor||'openai'));MC.connectionId=c?.id||'';MC.model=m?.connectionId?(m.model||c?.defaultModel||''):(c?.defaultModel||'');}
 async function mcApi(action,data={},signal){const r=await fetch('/api/studio/models',{method:'POST',headers:{'Content-Type':'application/json'},signal,body:JSON.stringify({action,...data})});const d=await r.json();if(!r.ok)throw new Error(d.error||'操作未完成');return d;}
+async function mcEnsureData(){if(MC.data?.profiles?.length)return MC.data;try{MC.data=await mcApi('list');return MC.data;}catch(e){return MC.data;}}
+void mcEnsureData();
+
+function mcGetActiveConnection(){if(!MC.data?.profiles?.length)return null;const relay=MC.data.profiles.find(c=>c.configured&&c.kind==='relay'&&((c.models||[]).length>1||c.defaultModel));if(relay)return relay;return MC.data.profiles.find(c=>c.configured)||null;}
+
+function mcPickModelForRole(conn,roleName,memberIndex=0){
+ const models=conn?.models||[];const lower=(roleName||'').toLowerCase();
+ const findModel=prefs=>{for(const p of prefs){const match=models.find(m=>m.toLowerCase()===p.toLowerCase()||m.toLowerCase().includes(p.toLowerCase()));if(match)return match;}return null;};
+ if(/统筹|架构|规划|协调|总监|组长|主管|主导|调度|lead|coordinator|architect/i.test(lower)){
+  return findModel(['claude-opus-5-5','claude-3-7-sonnet-20250219','claude-3-5-sonnet-20241022','claude-opus-4-5','gpt-5.4','gpt-5.5','claude-sonnet-4-5'])||conn?.defaultModel||models[0]||'claude-opus-5-5';
+ }
+ if(/分析|研判|调研|逻辑|审查|数据|研究|算法|职位|analyst|audit|research|logic/i.test(lower)){
+  return findModel(['deepseek-v4.1-flash','claude-3-5-sonnet-20241022','claude-3-7-sonnet-20250219','gpt-5.4','gemini-2.5-pro','kimi-k3'])||conn?.defaultModel||models[1]||'deepseek-v4.1-flash';
+ }
+ if(/定制|写作|文案|创意|润色|简历|生成|设计|前端|writer|custom|creator|design/i.test(lower)){
+  return findModel(['claude-3-5-sonnet-20241022','claude-3-7-sonnet-20250219','claude-fable-5-1','gemini-2.5-pro','gpt-5.4','claude-opus-5-5'])||conn?.defaultModel||models[2]||'claude-3-5-sonnet-20241022';
+ }
+ if(/进度|跟踪|执行|质检|质控|采集|助手|测试|验收|qa|tracker|test|assistant/i.test(lower)){
+  return findModel(['gemini-2.5-flash','claude-3-5-haiku-20241022','gemini-2.5-pro','deepseek-v4.1-flash','gemini-3-flash','gpt-5.4'])||conn?.defaultModel||models[3]||'gemini-2.5-flash';
+ }
+ const defaultDist=[['claude-opus-5-5','claude-3-5-sonnet-20241022','gpt-5.4'],['deepseek-v4.1-flash','claude-3-5-sonnet-20241022'],['claude-3-5-sonnet-20241022','gemini-2.5-pro'],['gemini-2.5-flash','claude-3-5-haiku-20241022']];
+ const prefs=defaultDist[memberIndex%defaultDist.length]||[];
+ return findModel(prefs)||conn?.defaultModel||models[memberIndex%(models.length||1)]||'claude-3-5-sonnet-20241022';
+}
+
+function mcAutoAssignTeamModels(p,notify=false,forceReassign=false){
+ if(!p)return false;const conn=mcGetActiveConnection();if(!conn)return false;const participants=[p.coordinator,...p.members];let changed=false;
+ participants.forEach((m,idx)=>{
+  if(forceReassign||!m.connectionId||!m.model){
+   m.connectionId=conn.id;m.connectionRevision=conn.revision;m.model=mcPickModelForRole(conn,m.name,idx);
+   const v=MC.data?.vendors?.find(v=>v.id===conn.vendor);if(v)m.agent=v.brand;changed=true;
+  }
+ });
+ if(changed){save();if(notify)hint(`⚡ 已按「${conn.name}」自动为 ${participants.length} 位成员配置多模型协作`);}
+ return changed;
+}
+
+function mcAutoAssignMember(m,memberIndex=0){
+ if(!m||(m.connectionId&&m.model))return false;const conn=mcGetActiveConnection();if(!conn)return false;
+ m.connectionId=conn.id;m.connectionRevision=conn.revision;m.model=mcPickModelForRole(conn,m.name,memberIndex);
+ const v=MC.data?.vendors?.find(v=>v.id===conn.vendor);if(v)m.agent=v.brand;save();return true;
+}
+
 function modelWorkspaceLabel(projects,practice=false){if(practice)return'教程练习板 · 仅本地演练';const members=projects.flatMap(p=>[p.coordinator,...p.members]),bound=members.filter(m=>m.connectionId&&m.model).length;return members.length&&bound===members.length?'多模型协作 · 发送才开始 API':`${bound}/${members.length} 位已绑定 · 团队按各自模型执行`;}
 const mcTop=renderTop;renderTop=function(){mcTop();if(!$('#gb').querySelector('[data-mc-open]'))$('#gb').insertAdjacentHTML('afterbegin',`<button data-mc-open aria-label="模型连接">${icon('network',16)}<span>连接</span></button>`);$('#tag').textContent=modelWorkspaceLabel(onB(state.projects));};
-const mcPan=renderPan;renderPan=function(){mcPan();if(panK==='proj')$('#pan').insertAdjacentHTML('beforeend',`<div class="row"><button data-mc-handoff="${panId}">${icon('network',14)}模型连接与成员接手</button></div>`)};
-const mcRoom=renderRoom;renderRoom=function(){mcRoom();const p=P(state.room);if(!p)return;$('#room .rh').insertAdjacentHTML('beforeend',`<button data-mc-handoff="${p.id}">${icon('network',14)}模型 / 接手</button>`);const m=target&&[p.coordinator,...p.members].find(x=>x.id===target),bound=[p.coordinator,...p.members].filter(x=>x.connectionId);if(bound.length){const text=$('#cmp .row:last-child>.lab');if(text)text.textContent=m?.connectionId?`发给 ${m.name} · ${m.model} · 点击发送调用 API`:m?'此成员尚未绑定模型':`已连接 ${bound.length} 位；请选成员，全部发送需每位都已连接`;}}
+const mcPan=renderPan;renderPan=function(){mcPan();if(panK==='proj'){const conn=mcGetActiveConnection();$('#pan').insertAdjacentHTML('beforeend',`<div class="row"><button data-mc-handoff="${panId}">${icon('network',14)}模型连接与成员接手</button>${conn?`<button data-mc-reassign="${panId}">${icon('sparkles',12)}按「${conn.name}」智能配置全员模型</button>`:''}</div>`)}};
+const mcRoom=renderRoom;renderRoom=function(){
+ mcRoom();const p=P(state.room);if(!p)return;
+ void mcEnsureData().then(()=>{if(state.room===p.id&&mcAutoAssignTeamModels(p,false)){renderMsgs();renderBoard();}});
+ const conn=mcGetActiveConnection();if(conn)mcAutoAssignTeamModels(p,false);
+ const rh=$('#room .rh');
+ if(rh&&!rh.querySelector('[data-mc-handoff]'))rh.insertAdjacentHTML('beforeend',`<button data-mc-handoff="${p.id}">${icon('network',14)}模型 / 接手</button>`);
+ if(rh&&conn&&!rh.querySelector('[data-mc-reassign]'))rh.insertAdjacentHTML('beforeend',`<button data-mc-reassign="${p.id}" class="mc-reassign-btn" title="按「${conn.name}」重新智能分配全员专属模型分工（如 Claude Opus、DeepSeek、Gemini 等）">${icon('sparkles',13)}智能重配多模型</button>`);
+ const m=target&&[p.coordinator,...p.members].find(x=>x.id===target),bound=[p.coordinator,...p.members].filter(x=>x.connectionId);
+ const text=$('#cmp .row:last-child>.lab');
+ if(text){
+  if(m){text.textContent=m.connectionId?`发给 ${m.name} · ${m.model}${conn?` (${conn.name})`:''} · 点击发送调用 API`:'此成员尚未绑定模型';}
+  else{text.textContent=bound.length===[p.coordinator,...p.members].length&&conn?`多模型团队就绪 · 统筹与 ${p.members.length} 位成员已分配专属模型 (${conn.name})`:bound.length?`已连接 ${bound.length} 位；请选成员，全部发送需每位都已连接`:'点击发送开始按各自模型协作';}
+ }
+};
 function executionStamp(m){if(m.executionSource==='document')return `<div class="lab" style="font-size:10px">本机正文读取 · ${m.st==='done'?'已完成':m.st==='stop'?'已暂停':m.st==='error'?'未完成':'正在读取'}</div>`;return m.from!=='me'&&['api','canvas'].includes(m.executionSource)?`<div class="lab" style="font-size:10px">${esc(m.connectionName||'API')} · ${esc(m.model||'')}${m.phase?' · '+esc(m.phase):''} · ${m.st==='done'?'真实回复':m.st==='stop'?'已停止':m.st==='error'?'未完成':'正在生成'}</div>`:'';}
 CAT.find(c=>c[0]==='chat.send')[1]='向项目发消息（已连接成员会调用 API）';
 CAT.push(['models.open','设置官方 API 或自己的中转站',''],['models.handoff','为成员准备模型接手（预览，不生成）','projectId,memberId?'],['models.stop','停止成员真实 API 请求','projectId,memberId']);
@@ -78,14 +134,24 @@ async function mcRun(preview,p,m,text,atts=[],fromComposer=false,existingAC){
  }catch(e){message.st=ac.signal.aborted?'stop':'error';m.st=ac.signal.aborted?'stop':'error';if(ac.signal.aborted&&!message.text)message.text='（已停止，尚未收到模型输出）';if(!ac.signal.aborted)message.text+=(message.text?'\n\n':'')+'本次未完成：'+e.message;}
  finally{liveTurns.delete(m.id);update();renderBoard();if(modelConnect.open&&MC.mid===m.id){MC.preview=null;MC.applied=false;MC.status=message.st==='done'?'这次真实回复已保存到项目会话。':'已保留收到的输出；没有切换到其他线路重试。';mcPaint();}}
 }
-const mcDemoSend=sendProject;sendProject=function(p,text,toId,atts){const members=toId?[mem(p,toId)]:[p.coordinator,...p.members];if(!members.some(m=>m.connectionId))return mcDemoSend(p,text,toId,atts);if(members.some(m=>!m.connectionId))return'仍有成员未连接 API，请先 @ 已连接的成员，或逐个设置连接';if(!text.trim())return'先补充文字请求，成员会根据所选文件正文处理';if(members.some(m=>liveTurns.has(m.id)||pendingTurns.has(m.id)||runs[m.id]||(typeof canvasMemberBusy==='function'&&canvasMemberBusy(p.id,m.id))))return'有成员正在工作，请等待或停止';
+const mcDemoSend=sendProject;sendProject=function(p,text,toId,atts){
+ const members=toId?[mem(p,toId)]:[p.coordinator,...p.members];
+ if(members.some(m=>!m.connectionId||!m.model)){
+  if(toId)mcAutoAssignMember(members[0]);
+  else mcAutoAssignTeamModels(p,false);
+ }
+ if(!members.some(m=>m.connectionId))return mcDemoSend(p,text,toId,atts);
+ if(members.some(m=>!m.connectionId))return'仍有成员未连接 API，请先 @ 已连接的成员，或逐个设置连接';if(!text.trim())return'先补充文字请求，成员会根据所选文件正文处理';if(members.some(m=>liveTurns.has(m.id)||pendingTurns.has(m.id)||runs[m.id]||(typeof canvasMemberBusy==='function'&&canvasMemberBusy(p.id,m.id))))return'有成员正在工作，请等待或停止';
  const controllers=members.map(()=>new AbortController());members.forEach((m,i)=>{pendingTurns.set(m.id,{ac:controllers[i],pid:p.id});m.st='queue';});save();
  void(async()=>{try{const prepared=await Promise.all(members.map((m,i)=>mcApi('prepare',{context:{...ModelContextCore.snapshot(p,m,state.files,m.connectionId,m.model,text,mcSharedReceipts(p.id)),target:{connectionId:m.connectionId,model:m.model,connectionRevision:m.connectionRevision}}},controllers[i].signal)));members.forEach(m=>pendingTurns.delete(m.id));await Promise.all(members.map((m,i)=>mcRun(prepared[i],p,m,text,atts,true,controllers[i])));}catch(e){hint(e.name==='AbortError'?'已停止，未继续发送请求':e.message);}finally{members.forEach((m,i)=>{if(pendingTurns.get(m.id)?.ac===controllers[i]){pendingTurns.delete(m.id);m.st='stop';}});save();renderMsgs();renderBoard();}})();return'正在发给已连接成员 · 使用各自线路，不自动替换模型';};
 modelConnect.addEventListener('cancel',e=>{e.preventDefault();mcClose();});
 modelConnect.addEventListener('input',e=>{const id=e.target.id;if(id==='mc-request'){MC.request=e.target.value;mcInvalidate();}if(id==='mc-target-model'){MC.model=e.target.value;mcInvalidate();}});
 modelConnect.addEventListener('change',e=>{const id=e.target.id;if(id==='mc-vendor'){const c=MC.data.profiles.find(x=>x.id==='official-'+e.target.value);mcSetDraft(c);mcPaint();}else if(id==='mc-member'){[MC.pid,MC.mid]=e.target.value.split('|');const m=mcMember();mcChooseTarget(m);mcInvalidate();mcPaint();}else if(id==='mc-target'){MC.connectionId=e.target.value;MC.model=MC.data.profiles.find(c=>c.id===MC.connectionId)?.defaultModel||'';mcInvalidate();mcPaint();}});
 modelConnect.addEventListener('submit',async e=>{e.preventDefault();mcCapture();try{const d=MC.draft,payload={...d};delete payload.configured;delete payload.keySource;delete payload.models;delete payload.status;if(!payload.apiKey)delete payload.apiKey;const saved=await mcApi('save',{connection:payload});MC.data=await mcApi('list');mcSetDraft(MC.data.profiles.find(c=>c.id===saved.id));MC.status='连接已保存到本机，尚未发送生成请求。';MC.state='ok';mcPaint();}catch(err){mcNotice(err.message,'error');}});
-document.addEventListener('click',async e=>{const open=e.target.closest('[data-mc-open]'),handoff=e.target.closest('[data-mc-handoff]');if(open){mcOpen();return;}if(handoff){mcOpen('handoff',handoff.dataset.mcHandoff);return;}const b=e.target.closest('#model-connect button');if(!b)return;
+document.addEventListener('click',async e=>{
+ const reassign=e.target.closest('[data-mc-reassign]');
+ if(reassign){const p=P(reassign.dataset.mcReassign);if(p){mcAutoAssignTeamModels(p,true,true);renderAll();}return;}
+ const open=e.target.closest('[data-mc-open]'),handoff=e.target.closest('[data-mc-handoff]');if(open){mcOpen();return;}if(handoff){mcOpen('handoff',handoff.dataset.mcHandoff);return;}const b=e.target.closest('#model-connect button');if(!b)return;
  try{if(b.dataset.mcTab){mcCapture();MC.tab=b.dataset.mcTab;MC.status='';MC.state='';mcPaint();return;}if(b.dataset.mcProfile){mcSetDraft(MC.data.profiles.find(c=>c.id===b.dataset.mcProfile));MC.tab='connections';mcPaint();return;}if(b.dataset.mcKind){mcSetDraft(b.dataset.mcKind==='official'?MC.data.profiles[0]:null);mcPaint();return;}if(b.dataset.mcModel){$('#mc-default-model').value=b.dataset.mcModel;MC.draft.defaultModel=b.dataset.mcModel;return;}
  switch(b.dataset.mc){case'close':mcClose();break;case'new':mcSetDraft(null);MC.tab='connections';mcPaint();break;case'stop-check':MC.checkAC?.abort();break;case'check':{mcCapture();const c=MC.data.profiles.find(c=>c.id===MC.draft.id);if(!c)throw new Error('请先保存连接');if(MC.draft.apiKey||MC.draft.baseUrl!==c.baseUrl||MC.draft.protocol!==c.protocol||MC.draft.routeScope!==c.routeScope)throw new Error('连接有修改，请先保存后检测');if(MC.checkAC)return;const ac=MC.checkAC=new AbortController(),epoch=MC.epoch;MC.status='正在检测模型目录…';MC.state='busy';mcPaint();try{const d=await mcApi('check',{id:c.id},ac.signal);if(epoch!==MC.epoch)return;MC.data=await mcApi('list');mcSetDraft(d);MC.status=d.status==='connected'?`目录可用，找到 ${d.models.length} 个模型。尚未执行推理。`:d.error;MC.state=d.status==='connected'?'ok':'error';}catch(err){MC.status=ac.signal.aborted?'已停止目录检测。':err.message;MC.state='error';}finally{if(MC.checkAC===ac)MC.checkAC=null;if(epoch===MC.epoch)mcPaint();}break;}
  case'prepare':{const m=mcMember();if(liveTurns.has(m.id)||pendingTurns.has(m.id)||runs[m.id]||(typeof canvasMemberBusy==='function'&&canvasMemberBusy(MC.pid,m.id)))throw new Error('先停止此成员再准备接手');MC.prepareAC?.abort();const readAC=MC.prepareAC=new AbortController();mcNotice('正在本机读取文件正文，可关闭以暂停…','busy');const scopeProject=mcProject(MC.pid);if(scopeProject?.scopeKind!=='group')await dfEnsureProjectFiles(scopeProject,readAC.signal);const context=mcContext(),stamp=mcStamp(),epoch=MC.epoch;mcNotice('正在准备可读上下文，不调用模型…','busy');const preview=await mcApi('prepare',{context},readAC.signal);if(epoch!==MC.epoch||stamp!==mcStamp())throw new Error('内容已改变，请重新预览');MC.preview=preview;MC.stamp=stamp;MC.applied=false;MC.status=preview.note;MC.state='ok';mcPaint();break;}

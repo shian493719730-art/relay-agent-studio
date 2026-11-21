@@ -160,24 +160,25 @@
   flex: none;
 }
 
-/* 控制按钮：CSS 线性图标，不依赖系统字符 */
+/* 控制按钮：高辨识度视觉区分，严禁混淆缩小号与叉号 */
 .cl-ctrl {
   position: relative;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--clarity-ink);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--clarity-ink, #2B2A33);
   font-size: 0;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background .12s ease;
+  transition: all .14s cubic-bezier(0.2, 0, 0, 1);
+  margin-left: 2px;
 }
-.cl-ctrl:hover { background: var(--clarity-hover); }
+.cl-ctrl:hover { background: var(--clarity-hover, rgba(0, 0, 0, 0.06)); }
 .cl-ctrl:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
 .cl-ctrl::before,
 .cl-ctrl::after {
@@ -187,41 +188,110 @@
   top: 50%;
   box-sizing: border-box;
 }
+
+/* 缩小/折叠按钮：向下折叠收拢 chevron ⌄（绝非减号横线），悬停呈现柔和蓝 */
 .cl-ctrl--min::before {
-  width: 12px;
-  height: 1.5px;
-  background: currentColor;
-  transform: translate(-50%, -50%);
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 7px;
+  height: 7px;
+  border-right: 1.8px solid currentColor;
+  border-bottom: 1.8px solid currentColor;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border-radius: 1px;
 }
+.cl-ctrl--min:hover {
+  background: rgba(0, 144, 255, 0.12) !important;
+  color: #0077e6 !important;
+}
+
+/* 放大/还原按钮：窗口矩形，悬停呈现清新绿 */
 .cl-ctrl--max::before {
-  width: 10px;
-  height: 10px;
-  border: 1.5px solid currentColor;
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border: 1.6px solid currentColor;
   border-radius: 2px;
   transform: translate(-50%, -50%);
 }
 :is([data-size="expanded"], .as-expanded) .cl-ctrl--max::before {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   transform: translate(-30%, -70%);
 }
 :is([data-size="expanded"], .as-expanded) .cl-ctrl--max::after {
-  width: 8px;
-  height: 8px;
-  border: 1.5px solid currentColor;
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border: 1.6px solid currentColor;
   border-radius: 2px;
   background: var(--clarity-glass-strong);
   transform: translate(-70%, -30%);
 }
+.cl-ctrl--max:hover {
+  background: rgba(18, 165, 148, 0.12) !important;
+  color: #0d8274 !important;
+}
+
+/* 关闭按钮：清晰叉号 ×，圆润端点，悬停呈现醒目柔和警示红 */
 .cl-ctrl--close::before,
 .cl-ctrl--close::after {
-  width: 13px;
-  height: 1.5px;
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11px;
+  height: 1.8px;
   background: currentColor;
+  border-radius: 1px;
 }
 .cl-ctrl--close::before { transform: translate(-50%, -50%) rotate(45deg); }
 .cl-ctrl--close::after { transform: translate(-50%, -50%) rotate(-45deg); }
-.cl-ctrl--close:hover { background: color-mix(in srgb, var(--ink) 12%, transparent); }
+.cl-ctrl--close:hover {
+  background: rgba(229, 72, 77, 0.14) !important;
+  color: #e5484d !important;
+}
+
+/* 按钮 .x 全局悬停柔和红 */
+button.x:hover {
+  background: rgba(229, 72, 77, 0.12) !important;
+  color: #e5484d !important;
+}
+
+/* 对话框与面板通用拖拽手柄 */
+.cl-draggable-handle,
+.cl-panel-head,
+.mc-head,
+#pan > h3,
+.cl-diag-head {
+  cursor: grab !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+.cl-draggable-handle:active,
+.cl-panel-head:active,
+.mc-head:active,
+#pan > h3:active,
+.cl-diag-head:active,
+.is-dragging,
+.is-dragging .cl-panel-head,
+.is-dragging .mc-head,
+.is-dragging #pan > h3 {
+  cursor: grabbing !important;
+}
+body.dragging-panel {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  cursor: grabbing !important;
+}
 
 /* ---------- 静态状态标签与进度线 ---------- */
 .cl-tag {

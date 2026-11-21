@@ -40,7 +40,11 @@ function cpSnapshot(pid,text,group,manualLinkId){
  for(let changed=true;changed;){changed=false;for(const l of links)if(l.state!=='disconnected'&&executionIds.has(l.src)&&!executionIds.has(l.dst)){executionIds.add(l.dst);changed=true}}
  const ids=new Set(executionIds);if(manualSource)ids.add(manualSource);
  ps=ps.filter(p=>ids.has(p.id));if(executionIds.size>8)throw new Error('本轮最多接续8个项目，请分组运行。');
- const participants=ps.filter(p=>executionIds.has(p.id));participants.forEach(cpEnsureTeam);
+ const participants=ps.filter(p=>executionIds.has(p.id));participants.forEach(p=>{cpEnsureTeam(p);if(typeof mcAutoAssignTeamModels==='function')mcAutoAssignTeamModels(p,false);});
+ if(group&&(!group.coordinator.connectionId||!group.coordinator.model)){
+  const conn=typeof mcGetActiveConnection==='function'?mcGetActiveConnection():null;
+  if(conn){group.coordinator.connectionId=conn.id;group.coordinator.connectionRevision=conn.revision;group.coordinator.model=typeof mcPickModelForRole==='function'?mcPickModelForRole(conn,group.coordinator.name||'跨项目统筹',0):conn.defaultModel;save();}
+ }
  const missing=participants.flatMap(p=>[p.coordinator,...p.members].filter(m=>!m.connectionId||!m.model).map(m=>p.name+' / '+m.name));
  if(group&&(!group.coordinator.connectionId||!group.coordinator.model))missing.unshift('跨项目统筹 / '+group.coordinator.name);
  if(missing.length)throw new Error('请先在“模型 / 接手”绑定：'+missing.slice(0,6).join('、')+(missing.length>6?'等 '+missing.length+' 位':''));
@@ -68,7 +72,34 @@ function cpPaintRoom(){const p=P(state.room);if(!p||cpPractice())return;const r=
 async function cpPoll(){if(CP.polling)return;CP.polling=true;try{const board=state.activeBoard,runs=await cpApi('list',{boardId:board});for(const r of runs)cpApply(r);const others=[...CP.runs.values()].filter(r=>r.boardId!==board&&r.status==='running');for(const r of await Promise.all(others.map(r=>cpApi('get',{id:r.id}))))cpApply(r);CP.error='';CP.loadedBoard=board}catch(e){CP.error=e.message}finally{CP.polling=false}}
 const cpRoom=renderRoom;renderRoom=function(){cpRoom();cpPaintRoom()};
 const cpTop=renderTop;renderTop=function(){cpTop();if(CP.loadedBoard!==state.activeBoard)void cpPoll()};
-const cpSend=sendProject;sendProject=function(p,text,toId,atts){if(cpPractice())return cpSend(p,text,toId,atts);if(toId){if(canvasMemberBusy(p.id,toId))return'此成员正在协作，可先暂停或停止';const m=mem(p,toId);if(!m.connectionId)return'此成员尚未绑定模型，请在“模型 / 接手”中选择连接和确切型号';return cpSend(p,text,toId,atts)}if(!text.trim()&&!(atts||[]).length)return'先写下任务或附加文件';const participants=[p.coordinator,...p.members];const missing=participants.filter(m=>!m.connectionId||!m.model).map(m=>m.name);if(missing.length)return'无法启动协作：请先在“模型 / 接手”为 '+missing.slice(0,3).join('、')+' 绑定模型';if(!text.trim())text='请读取附加文件正文，按项目职责分工处理并汇总，引用文件中的实际内容与来源。';void cpStart(p.id,text,atts);return'正在准备按成员绑定模型协作';};
+const cpSend=sendProject;sendProject=function(p,text,toId,atts){
+ if(cpPractice())return cpSend(p,text,toId,atts);
+ if(toId){
+  if(canvasMemberBusy(p.id,toId))return'此成员正在协作，可先暂停或停止';
+  const m=mem(p,toId);
+  if(!m.connectionId||!m.model){
+   if(typeof mcAutoAssignMember==='function'&&mcAutoAssignMember(m)){
+    // auto-bound
+   }else{
+    return'此成员尚未绑定模型，请在“模型 / 接手”中选择连接和确切型号';
+   }
+  }
+  return cpSend(p,text,toId,atts);
+ }
+ if(!text.trim()&&!(atts||[]).length)return'先写下任务或附加文件';
+ const participants=[p.coordinator,...p.members];
+ const missing=participants.filter(m=>!m.connectionId||!m.model).map(m=>m.name);
+ if(missing.length){
+  if(typeof mcAutoAssignTeamModels==='function'&&mcAutoAssignTeamModels(p,true)){
+   // auto-bound
+  }else{
+   return'无法启动协作：请先在“模型 / 接手”为 '+missing.slice(0,3).join('、')+' 绑定模型';
+  }
+ }
+ if(!text.trim())text='请读取附加文件正文，按项目职责分工处理并汇总，引用文件中的实际内容与来源。';
+ void cpStart(p.id,text,atts);
+ return'正在准备按成员绑定模型协作';
+};
 sendGroup=function(g,text){if(cpPractice())return'练习板请按教程操作';if(!text.trim())return'先写下跨项目目标';void cpStart(null,text,[],g);return'正在准备跨项目真实分工与汇总';};
 const cpStopAll=ACT['run.stopAll'];ACT['run.stopAll']=a=>{const pid=rp(a.projectId).id;CP.preparing.get(pid)?.ac.abort();const r=cpCurrent(pid);if(r&&cpLive(r))void cpControl(r,'stop');return cpStopAll(a)};
 const cpStop=ACT['run.stop'];ACT['run.stop']=a=>{const p=rp(a.projectId),r=cpCurrent(p.id);if(r&&cpLive(r)){void cpControl(r,'pause',{projectId:p.id,memberId:a.memberId});return'正在停止此成员，暂停项目后续阶段并保留输出'}return cpStop(a)};

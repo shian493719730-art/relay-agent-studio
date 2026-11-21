@@ -213,4 +213,99 @@ document.addEventListener('keydown', e => {
 }, true);
 
 document.addEventListener('click', e => { if (e.target.closest('[data-legal-notice]')) window.open('/license', '_blank', 'noopener'); });
+
+// ---------- 全局对话框与面板平滑拖拽 ----------
+let clActiveDrag = null;
+
+function clInitDraggable(element, handleSelector) {
+  if (!element || element.dataset.clDraggableAttached) return;
+  element.dataset.clDraggableAttached = 'true';
+
+  element.addEventListener('pointerdown', e => {
+    const handle = handleSelector ? (element.querySelector(handleSelector) || element) : element;
+    if (!handle || !handle.contains(e.target)) return;
+    if (e.target.closest('button, input, textarea, select, a, [data-cl-action], .cl-ctrl, .x, [role="button"], summary')) {
+      return;
+    }
+    if (e.button !== 0) return;
+
+    const rect = element.getBoundingClientRect();
+    element.style.right = 'auto';
+    element.style.bottom = 'auto';
+    element.style.left = `${rect.left}px`;
+    element.style.top = `${rect.top}px`;
+    element.style.margin = '0';
+    if (element.tagName === 'DIALOG') {
+      element.style.position = 'fixed';
+    }
+
+    clActiveDrag = {
+      element,
+      handle,
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      initialLeft: rect.left,
+      initialTop: rect.top,
+      width: rect.width,
+      height: rect.height
+    };
+
+    element.classList.add('is-dragging');
+    document.body.classList.add('dragging-panel');
+    try { handle.setPointerCapture(e.pointerId); } catch (_) {}
+    e.preventDefault();
+  });
+}
+
+document.addEventListener('pointermove', e => {
+  if (!clActiveDrag) return;
+  const { element, startX, startY, initialLeft, initialTop, width, height } = clActiveDrag;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+
+  let newLeft = initialLeft + dx;
+  let newTop = initialTop + dy;
+
+  const minLeft = 10;
+  const maxLeft = Math.max(10, window.innerWidth - Math.min(width, 160));
+  const minTop = 10;
+  const maxTop = Math.max(10, window.innerHeight - 45);
+
+  newLeft = Math.min(Math.max(minLeft, newLeft), maxLeft);
+  newTop = Math.min(Math.max(minTop, newTop), maxTop);
+
+  element.style.left = `${newLeft}px`;
+  element.style.top = `${newTop}px`;
+});
+
+const clEndDrag = e => {
+  if (!clActiveDrag) return;
+  const { element, handle, pointerId } = clActiveDrag;
+  element.classList.remove('is-dragging');
+  document.body.classList.remove('dragging-panel');
+  try { handle.releasePointerCapture(pointerId); } catch (_) {}
+  clActiveDrag = null;
+};
+
+document.addEventListener('pointerup', clEndDrag);
+document.addEventListener('pointercancel', clEndDrag);
+
+function clRefreshDraggables() {
+  const pan = document.getElementById('pan');
+  if (pan) clInitDraggable(pan, '.cl-panel-head, h3');
+  const guide = document.getElementById('guide');
+  if (guide) clInitDraggable(guide, '.cl-panel-head, h3');
+  const mc = document.getElementById('model-connect');
+  if (mc) clInitDraggable(mc, '.mc-head');
+  const diag = document.getElementById('cl-diagnostic-modal');
+  if (diag) clInitDraggable(diag, '.cl-diag-head, header');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', clRefreshDraggables);
+} else {
+  clRefreshDraggables();
+}
+setInterval(clRefreshDraggables, 1000);
 /* GLASS_CLARITY_END */

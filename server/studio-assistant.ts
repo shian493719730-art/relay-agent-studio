@@ -10,9 +10,9 @@ const text=z.string(),id=text.max(180);
 export const assistantRequest=guideRequest.extend({
  binding:z.object({connectionId:text.min(1).max(90),model:text.min(1).max(180)}).optional(),
  context:guideRequest.shape.context.extend({
-  execution:z.array(z.object({id,name:text.max(100),status:text.max(30),summary:text.max(1500),resultJson:text.max(30000).optional()})).max(120).default([]),
+  execution:z.array(z.object({id,name:text.max(100),status:text.max(30),summary:text.max(1500),resultJson:text.max(30000).optional()})).max(500).default([]),
   followups:z.array(text.max(10000)).max(20).default([]),
-  nextStep:z.number().int().min(1).max(121).default(1),
+  nextStep:z.number().int().min(1).max(501).default(1),
   observation:z.object({page:text.max(80),tool:text.max(40),panel:text.max(100).nullable(),lastError:text.max(3000).optional(),runs:z.array(z.object({id,boardId:id,status:text.max(30),projectIds:z.array(id).max(20)})).max(80)}).optional(),
   links:z.array(z.object({id,src:id,dst:id,name:text.max(240).optional(),state:text.max(30),trigger:text.max(40).optional(),share:z.object({summary:z.boolean(),artifacts:z.boolean(),documents:z.boolean(),noteIds:z.array(id).max(500)}).optional()})).max(1000).default([]),
   projects:z.array(z.object({id,boardId:id,name:text.max(240),goal:text.max(10000).default(''),coordinatorId:id,members:z.array(z.object({id,name:text.max(240),agent:text.max(50),role:text.max(2000).default(''),connectionId:text.max(90).nullish(),model:text.max(180).optional()})).max(100),x:z.number(),y:z.number()})).max(500),
@@ -46,7 +46,7 @@ export function defaultAssistantBinding(){
  const p=ps.sort((a,b)=>rank(b)-rank(a))[0];if(!p)throw new Error('请先在“连接”里配置一个可用模型');return{connectionId:p.id,model:p.defaultModel!};
 }
 export async function planAssistant(input:unknown,signal?:AbortSignal,generate?:ClaudeJson){
- const checked=assistantRequest.safeParse(input);if(!checked.success)throw new Error('助手上下文字段不完整：'+checked.error.issues.slice(0,5).map(i=>i.path.join('.')).join('、'));const data=checked.data;
+ const checked=assistantRequest.safeParse(input);if(!checked.success)throw new Error('助手上下文参数校验未通过：'+checked.error.issues.slice(0,5).map(i=>`${i.path.join('.')||'root'}(${i.message})`).join('、'));const data=checked.data;
  if(/sk-(?:ant-|proj-|[A-Za-z0-9]{20})/.test(data.message))throw new Error('请通过专用连接表单设置密钥，不要把密钥发给助手');
  const capabilities=data.capabilities.filter(c=>permitted.test(c.name)||c.name==='chat.send');
  const names=new Set(capabilities.map(c=>c.name));

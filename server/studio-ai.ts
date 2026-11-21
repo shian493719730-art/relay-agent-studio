@@ -18,7 +18,7 @@ export const guideRequest=z.object({
   groups:z.array(z.object({id,pids:z.array(id).max(500)})).max(500).default([]),
   library:z.array(z.object({id:z.string().max(600),title:name,kind:z.string().max(60).optional()})).max(60).default([]),
  }),
- capabilities:z.array(z.object({name:z.string().regex(/^[a-zA-Z][a-zA-Z0-9_.-]{0,70}$/),description:z.string().max(500),params:z.string().max(2000)})).min(1).max(120),
+ capabilities:z.array(z.object({name:z.string().regex(/^[a-zA-Z][a-zA-Z0-9_.-]{0,70}$/),description:z.string().max(500).default(''),params:z.string().max(2000).default('')})).min(1).max(500),
 });
 type JsonSchema=Record<string,unknown>;
 export type ClaudeJson= (system:string,user:unknown,schema:JsonSchema,signal?:AbortSignal)=>Promise<unknown>;

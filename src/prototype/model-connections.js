@@ -21,7 +21,22 @@ const mcScopeFiles=p=>p?.scopeKind==='group'?[]:state.files;
 const mcMember=()=>{const p=mcProject(MC.pid);return p&&[p.coordinator,...p.members].find(m=>m.id===MC.mid);};
 function mcChooseTarget(m){const vendor=MC.data.vendors.find(v=>v.brand===m?.agent)?.id;const candidates=MC.data.profiles.filter(c=>c.vendor===vendor&&c.configured&&c.defaultModel).slice().reverse();const c=MC.data.profiles.find(c=>c.id===m?.connectionId)||candidates.find(c=>c.status==='connected')||candidates[0]||MC.data.profiles.find(c=>c.id==='official-'+(vendor||'openai'));MC.connectionId=c?.id||'';MC.model=m?.connectionId?(m.model||c?.defaultModel||''):(c?.defaultModel||'');}
 async function mcApi(action,data={},signal){const r=await fetch('/api/studio/models',{method:'POST',headers:{'Content-Type':'application/json'},signal,body:JSON.stringify({action,...data})});const d=await r.json();if(!r.ok)throw new Error(d.error||'操作未完成');return d;}
-async function mcEnsureData(){if(MC.data?.profiles?.length)return MC.data;try{MC.data=await mcApi('list');return MC.data;}catch(e){return MC.data;}}
+async function mcEnsureData(){
+ if(MC.data?.profiles?.length)return MC.data;
+ try{
+  MC.data=await mcApi('list');
+  if(typeof state!=='undefined'&&state.projects){
+   let any=false;
+   state.projects.forEach(p=>{if(mcAutoAssignTeamModels(p,false))any=true;});
+   if(any){
+    if(typeof renderBoard==='function')renderBoard();
+    if(state.room&&typeof renderRoom==='function')renderRoom();
+    if(typeof panK!=='undefined'&&panK&&typeof renderPan==='function')renderPan();
+   }
+  }
+  return MC.data;
+ }catch(e){return MC.data;}
+}
 void mcEnsureData();
 
 function mcGetActiveConnection(){if(!MC.data?.profiles?.length)return null;const relay=MC.data.profiles.find(c=>c.configured&&c.kind==='relay'&&((c.models||[]).length>1||c.defaultModel));if(relay)return relay;return MC.data.profiles.find(c=>c.configured)||null;}

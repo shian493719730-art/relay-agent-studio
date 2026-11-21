@@ -145,3 +145,18 @@ test('legacy persisted workflows retain their original explicitly recorded targe
  const restored=new CanvasRuns(path.join(h.root,'runs'),h.connections,async step=>{calls.push({...step.agent});return'LEGACY_RESULT';});await restored.resume(r.id);await restored.settled(r.id);
  assert.equal(restored.get(r.id).status,'completed');assert.equal(calls.length,2);assert.ok(calls.every(c=>c.model==='legacy-frozen-model'));assert.equal(restored.get(r.id).version,1);
 });
+
+test('resilient JSON extraction handles conversational prelude, code blocks, or unstructured prose in plan phase',async t=>{
+ const h=await harness(t,async(step,packet)=>{
+  if(packet.includes('仅输出JSON对象：{"assignments"')){
+   return '我理解了项目框架。根据当前目标，我制定了如下分工：\n\n```json\n{"assignments":[{"memberId":"A-one","task":"职位与要求深度调研"},{"memberId":"A-two","task":"简历定制与优化"}],"acceptance":"完成分工并产出成果"}\n```\n祝协作顺利！';
+  }
+  return undefined;
+ });
+ const r=h.service.start(input({projects:[project('A')],links:[]}));
+ await h.service.settled(r.id);
+ assert.equal(r.status,'completed');
+ const p=r.projects[0];
+ assert.equal(p.plan?.assignments.length,2);
+ assert.equal(p.plan?.assignments[0].task,'职位与要求深度调研');
+});
